@@ -1,0 +1,24 @@
+<!-- avaliar.component.html -->
+<div class="avaliar-container">
+    <h2>Avaliação de Atendimento</h2>
+  
+    <div>
+      <label for="nomeOperador">Nome do Operador:</label>
+      <input type="text" id="nomeOperador" [(ngModel)]="nomeOperador" placeholder="Digite o nome do operador" />
+    </div>
+  
+    <div>
+      <label for="duracaoAtendimento">Duração do Atendimento (em minutos):</label>
+      <input type="number" id="duracaoAtendimento" [(ngModel)]="duracaoAtendimento" placeholder="Duração do atendimento" />
+    </div>
+  
+    <div>
+      <label for="nota">Avalie o Atendimento:</label>
+      <div *ngFor="let n of notas">
+        <button (click)="nota = n">{{n}}</button>
+      </div>
+    </div>
+  
+    <button (click)="avaliarAtendimento()">Salvar Avaliação</button>
+  </div>
+  

@@ -1,0 +1,137 @@
+<section class="area">
+    <div class="">
+      <div class=" h-100 w-100 z-index-2">
+         <!-- Botão desativado que pode ser utilizado para exibir um título fixo -->
+        <!-- <button class="btn btn-secondary btn-lg btn-block" >GRUPO AVELAR - CUIDANDO DE SUA FAMÍLIA</button>-->
+        
+        
+        
+          <!-- Exibição principal de SENHA e GUICHÊ -->
+        <div class="row mb-2 mt-5">
+          <div class="col-lg-10  mb-4 ">
+            <table class="table table-hover table-striped">
+              <thead>
+                <th></th>
+              </thead>
+              <tbody>
+                <tr>
+                  <!--<td><h3>SENHA </h3><h1 class="display-1 " style="color: blue;"><b><strong>{{pnome}} /  {{psenha}}</strong></b></h1></td>-->
+                  
+                    <!-- Exibe a senha atual em destaque -->
+                  <td>
+                    <h3>SENHA </h3>
+                    <h1 class="display-1 " style="color: blue;"><b><strong>{{psenha}}</strong></b></h1></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+      
+          <div class="col-lg-2  mb-4 ">
+            <table class="table table-hover table-striped">
+              <thead>
+                <th></th>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <!-- Exibe o guichê correspondente à senha atual -->
+                    <h3>GUICHÊ</h3>
+                    <h1 class="display-1"style="color: blue;"><b><strong>{{pguiche}}</strong></b></h1></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <br>
+        
+
+         <!-- Título e lista de senhas chamadas -->
+        <div class="header mt-5">
+          <h4 class="title"><b>SENHAS CHAMADAS</b></h4>
+          <!-- Subtítulo desativado que pode ser utilizado para fornecer informações adicionais -->
+          <!--<p class="category"><small>abaixo, segue as últimas senhas chamadas pelo sistema</small></p>-->
+          <hr>
+          <div class="row">
+      
+             <!-- Renderiza a posição das senhas chamadas -->
+            <div *ngFor="let senhas of senhasChamadas; last as i; index as x">
+              <a class="" *ngIf="(i) == true">
+                <td>{{ pegavalor(x) }}</td>
+              </a>
+            </div>
+      
+            
+            <!-- Bloco de exibição de cada senha chamada -->
+            <!-- Exibe a senha mais recente chamada -->
+            <div class="col-md-3">
+              <div class="table table-hover table-striped">
+                <div class="header text-center" *ngFor="let senha of senhasChamadas; index as x">
+                  <a class="" *ngIf="(x) === (ni-0)">
+                    <!-- Nome do cliente associado à senha -->
+                    <h5 class="nomecliente"> {{senha.cliente}}</h5>
+                     <!-- Senha exibida em destaque -->
+                    <h4 class="card-title" style="color: blue;"><b>SENHA: {{ senha.senha }}</b></h4>
+                    <!-- Guichê da senha exibido em destaque -->
+                    <h3 class="card-text"style="color: blue;"><small>MESA: {{senha.guiche}} </small></h3>
+                  </a>
+                </div>
+                <br/>
+              </div>
+            </div>
+      
+            
+            <!-- Exibe a segunda senha mais recente chamada -->
+            <div class="col-md-3">
+              <div class="table table-hover table-striped">
+                <div class="header text-center"*ngFor="let senha of senhasChamadas; index as x">
+                  <a class="" *ngIf="(x) === (ni - 1)" >
+                    <h5 class="nomecliente">{{senha.cliente}}</h5>
+                    <h4 class="card-title"style="color: blue;" ><b>SENHA: {{ senha.senha }}</b></h4>
+                    <h3 class="card-text"style="color: blue;"><small>MESA: {{ senha.guiche }}</small></h3>
+                  </a>
+                </div>
+                <br/>
+              </div>
+            </div>
+      
+            
+            <!-- Exibe a terceira senha mais recente chamada -->
+            <div class="col-md-3">
+              <div class="table table-hover table-striped">
+                <div class="header text-center" *ngFor="let senha of senhasChamadas; index as x" >
+                  <a class="" *ngIf="(x) === (ni - 2)">
+                    <h5 class="nomecliente"> {{senha.cliente}}</h5>
+                    <h4 class="card-title" style="color: blue;" ><b>SENHA: {{ senha.senha }}</b></h4>
+                    <h3 class="card-text" style="color: blue;"><small>MESA: {{ senha.guiche }}</small></h3>
+                  </a>
+                </div>
+                <br/>
+              </div>
+            </div>
+      
+            
+            
+             <!-- Exibe a quarta senha mais recente chamada -->
+            <div class="col-md-3">
+              <div class="table table-hover table-striped">
+                <div class="header text-center" *ngFor="let senha of senhasChamadas; index as x" >
+                  <a class=""  *ngIf="(x) === (ni - 3)" >
+                    <h5 class="nomecliente"> {{senha.cliente}}</h5>
+                    <h4 class="card-title" style="color: blue;"><b>SENHA: {{ senha.senha }}</b></h4>
+                    <h3 class="card-text" style="color: blue;"><small>MESA: {{ senha.guiche }}</small></h3>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        
+         <!-- Exibe o logotipo centralizado -->
+        <div class="d-flex justify-content-center mb-2">
+          <img style="width:10%;" src="./assets/img/logoazul.png"/></div> 
+  
+      </div>
+    </div>  
+  </section>
+   
