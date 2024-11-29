@@ -59,7 +59,7 @@ export class OperadorComponent implements OnInit {
     this.formbuilder()
     
     // Obtém as senhas geradas do serviço AdminService
-    this.adminService.getSenhasGeradas().subscribe(d => {
+    /*this.adminService.getSenhasGeradas().subscribe(d => {
       console.log(d.length);
       this.senha = d;
      
@@ -67,7 +67,7 @@ export class OperadorComponent implements OnInit {
       this.senhaVerificar = this.senha.filter(s => s.operador === this.operador);
         
      
-    });
+    });*/
    
     
      // Obtém senhas convencionais e organiza em preferencial e normal
@@ -274,15 +274,28 @@ export class OperadorComponent implements OnInit {
   }
 
   
-  // Finaliza atendimento
-  finalizar(){
-    let time = Date.now().toString();
-    this.senhaFinalizar.finalatendimento = time;
-    this.senhaFinalizar.status = '3';
-    this.adminService.deleteSenhaChamada(this.senhaFinalizar);
-    this.modalRef?.hide();
+  // Atualização no método finalizar para passar dados para avaliação
+finalizar() {
+  const time = Date.now().toString();
+  this.senhaFinalizar.finalatendimento = time;
+  this.senhaFinalizar.status = '3';  // Status "finalizado"
+  
+  // Calculando a duração do atendimento
+  const duracao = this.calcularDuracao(this.senhaFinalizar);
+  
+  // Aqui você pode enviar para a página de avaliação, passando operador, duração e senha
+  this.router.navigate(['/avaliar'], {
+    queryParams: {
+      operador: this.operador,
+      duracao: duracao,
+      senha: this.senhaFinalizar.senha
+    }
+  });
 
-  }
+  // Atualiza o status da senha no banco
+  this.adminService.deleteSenhaChamada(this.senhaFinalizar);
+  this.modalRef?.hide();
+}
 
   
   // Finaliza atendimento convencional
@@ -307,28 +320,63 @@ export class OperadorComponent implements OnInit {
 avaliar() {
   this.router.navigate(['/avaliar']); 
 }
- // Método para mostrar senhas não atendidas
+  // Método para mostrar senhas não atendidas da coleção 'senhagerada'
   mostrarSenhasNaoAtendidas() {
-    // Filtra as senhas que não foram atendidas (status diferente de 'atendido')
-    this.senha = this.senha.filter(s => s.status !== 'atendido');
-    this.mostrarSenhas = true; // Exibe a lista de senhas não atendidas
+
+
+    this.adminService.getSenhasGeradas(false).subscribe(senhas => {
+      this.senha = senhas;
+      console.log(senhas)
+    }, error => {
+      console.error("Erro ao buscar senhas:", error);
+    });
+
+
+    /*
+    this.adminService.getSenhasGeradas().subscribe(senhas => {
+        // Filtra as senhas com 'atendida' igual a 'false' (não atendidas)
+        this.senha = senhas.filter(s => !s.atendida); 
+        this.mostrarSenhas = true; // Exibe a lista de senhas não atendidas
+        console.log(senhas)
+    });*/
   }
 
-  // Método para marcar a senha como atendida e realizar a ação
-  atenderSenha(senha: DadosSenha) {
-    senha.status = 'atendido'; // Marca a senha como atendida
+ // Método para marcar a senha como atendida e realizar a ação
+atenderSenha(senha: DadosSenha) {
+  senha.status = 'atendido'; // Marca a senha como atendida
 
-    // Atualiza o status da senha no Firestore
-    this.adminService.atualizarStatusSenha(senha).then(() => {
+  // Atualiza o status da senha no Firestore utilizando o AdminService
+  this.adminService.updateSenha(senha.senhaid, { status: senha.status })
+    .then(() => {
       alert(`Senha ${senha.senha} atendida com sucesso!`);
-      
+
       // Atualiza a lista de senhas para refletir a alteração
       this.mostrarSenhas = false;
-      this.senha = this.senha.filter(s => s.senha !== senha.senha);
-    }).catch(error => {
+      this.senha = this.senha.filter(s => s.senhaid !== senha.senhaid);
+
+      // Registra como finalizada no Firestore (opcional)
+      senha.finalatendimento = Date.now().toString();
+      this.adminService.salvaSenhafinalizada(senha);
+    })
+    .catch(error => {
       console.error("Erro ao atualizar o status da senha", error);
     });
+}
+// Método para calcular a duração do atendimento
+calcularDuracao(senha: DadosSenha): string {
+  const horaChamada = parseInt(senha.horachamada, 10);  // Hora de chamada
+  const horaFinalizacao = parseInt(senha.finalatendimento, 10);  // Hora de finalização
+  
+  if (!horaChamada || !horaFinalizacao) {
+    return '0 minutos';
   }
+
+  const duracaoMs = horaFinalizacao - horaChamada; // Diferença em milissegundos
+  const duracaoMinutos = Math.floor(duracaoMs / 60000); // Converte para minutos
+
+  return `${duracaoMinutos} minutos`;
+}
+
 
 
 }

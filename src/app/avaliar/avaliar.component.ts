@@ -2,13 +2,14 @@ import { Component } from '@angular/core';
 import { Database, getDatabase, ref, set } from '@angular/fire/database';
 import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms'; // Importando o FormsModule
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-avaliar',
   standalone: true,  // Definindo o componente como standalone
   templateUrl: './avaliar.component.html',
   styleUrls: ['./avaliar.component.scss'],
-  imports: [FormsModule] // Importando o FormsModule diretamente no componente
+  imports: [FormsModule, CommonModule] // Importando o FormsModule diretamente no componente
 })
 export class AvaliarComponent {
   nomeOperador: string = '';
