@@ -1,24 +1,59 @@
-<!-- avaliar.component.html -->
-<div class="avaliar-container">
-    <h2>Avaliação de Atendimento</h2>
-  
-    <div>
+<div class="container mt-5">
+  <h2 class="text-center">Avaliar Atendimento</h2>
+
+  <form (ngSubmit)="avaliarAtendimento()" #avaliarForm="ngForm">
+    <!-- Nome do Operador -->
+    <div class="form-group mb-3">
       <label for="nomeOperador">Nome do Operador:</label>
-      <input type="text" id="nomeOperador" [(ngModel)]="nomeOperador" placeholder="Digite o nome do operador" />
+      <input
+        type="text"
+        id="nomeOperador"
+        class="form-control"
+        [(ngModel)]="nomeOperador"
+        name="nomeOperador"
+        placeholder="Nome do operador"
+        readonly
+      />
     </div>
-  
-    <div>
-      <label for="duracaoAtendimento">Duração do Atendimento (em minutos):</label>
-      <input type="number" id="duracaoAtendimento" [(ngModel)]="duracaoAtendimento" placeholder="Duração do atendimento" />
+
+    <!-- Duração do Atendimento -->
+    <div class="form-group mb-3">
+      <label for="duracaoAtendimento">Duração do Atendimento:</label>
+      <input
+        type="text"
+        id="duracaoAtendimento"
+        class="form-control"
+        [(ngModel)]="duracaoAtendimento"
+        name="duracaoAtendimento"
+        placeholder="Duração do atendimento"
+        readonly
+      />
     </div>
-  
-    <div>
-      <label for="nota">Avalie o Atendimento:</label>
-      <div *ngFor="let n of notas">
-        <button (click)="nota = n">{{n}}</button>
+
+    <!-- Nota -->
+    <div class="form-group mb-3">
+      <label>Nota:</label>
+      <div class="btn-group" role="group" aria-label="Notas">
+        <button
+          type="button"
+          *ngFor="let n of notas"
+          class="btn btn-outline-primary"
+          [class.active]="n === nota"
+          (click)="nota = n"
+        >
+          {{ n }}
+        </button>
       </div>
     </div>
-  
-    <button (click)="avaliarAtendimento()">Salvar Avaliação</button>
-  </div>
-  
+
+    <!-- Botões de ação -->
+    <div class="text-center">
+      <button type="submit" class="btn btn-success" [disabled]="nota === null">
+        Enviar Avaliação
+      </button>
+      <button type="button" class="btn btn-secondary ms-3" (click)="resetForm()">
+        Resetar
+      </button>
+    </div>
+  </form>
+</div>

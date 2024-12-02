@@ -252,9 +252,15 @@ async salvaSenhafinalizada(data:DadosSenha){
 // Agora recebe um parâmetro opcional 'atendida' para filtrar as senhas atendidas ou não atendidas.
 // Função para buscar senhas de acordo com o parâmetro atendida
 getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
-  const db = getDatabase();  // Obtenha a instância do banco de dados
-  const auth = getAuth();  // Obtenha a instância de autenticação, caso seja necessário
-  const senhasRef = ref(db, '/avelar/senhagerada/29');  // Caminho da coleção 'senhagerada'
+  const db = getDatabase(); // Obtenha a instância do banco de dados
+  const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
+
+  // Calcula dinamicamente o dia do mês atual
+  const hoje = new Date();
+  const diaAtual = hoje.getDate(); // Exemplo: 1, 2, ..., 31
+
+  // Caminho dinâmico da coleção 'senhagerada'
+  const senhasRef = ref(db, `/avelar/senhagerada/${diaAtual}`);
 
   return new Observable(observer => {
     // Escuta os dados da coleção no Firebase em tempo real
@@ -264,8 +270,8 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
       if (senhas) {
         // Converte o objeto de senhas em um array
         const listaSenhas: DadosSenha[] = Object.values(senhas).map((senha: any) => {
-          // Adiciona lógica para ajustar a propriedade 'atendida'
-          senha.atendida = (senha.horachamada !== '');  // Se 'horachamada' não estiver vazia, então a senha foi atendida
+          // Define o status de 'atendida' com base na propriedade 'horachamada'
+          senha.atendida = (senha.horachamada !== ''); // Atendida se 'horachamada' não estiver vazia
           return senha;
         });
 
@@ -275,10 +281,10 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
         observer.next(senhasFiltradas); // Emite as senhas filtradas
       } else {
         console.log("Nenhuma senha encontrada.");
-        observer.next([]);  // Caso não encontre senhas, emite um array vazio
+        observer.next([]); // Caso não encontre senhas, emite um array vazio
       }
     }, (error) => {
-      observer.error(error);  // Em caso de erro, emite um erro
+      observer.error(error); // Em caso de erro, emite um erro
     });
   });
 }
