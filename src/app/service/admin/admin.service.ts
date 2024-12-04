@@ -59,7 +59,7 @@ export class AdminService {
       status: '0',
       horachamada: '',
       finalatendimento: '',
-      nota: 0,
+      //nota: 0,
       cliente: senha.cliente,
       senha: senha.senha,
       atendida: false, //ainda nao atendida
@@ -210,7 +210,7 @@ async salvaContador(normal:number, preferencial:number){
     status: '1',
     horachamada: data.horachamada,
     finalatendimento: '',
-    nota: 0,
+    //nota: 0,
     senha: data.senha
   }).then(async d => {
      //console.log(d);

@@ -302,6 +302,7 @@ export class OperadorComponent implements OnInit {
     
     const avaliacao = {
       nomeOperador: this.operador,
+      guiche: this.guiche,
       duracaoAtendimento: duracaoAtendimento,
       nota: null, // A nota pode ser adicionada mais tarde ou preenchida com valor padrão
     };
@@ -314,6 +315,7 @@ export class OperadorComponent implements OnInit {
       await this.router.navigate(['/avaliar'], {
         queryParams: {
           operador: this.operador,
+          guiche: this.guiche,
           duracao: duracaoAtendimento,
           senha: this.senhaFinalizar.senha
         }

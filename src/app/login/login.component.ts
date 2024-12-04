@@ -14,8 +14,14 @@ export class LoginComponent {
   constructor(private authService:AuthService){
 
   }
- dados(dados: NgForm){
-  console.log(dados.form.value);
-  this.authService.login(dados.form.value.email, dados.form.value.password)
- }
+ dados(dados: NgForm) {
+    const { email, password, destination } = dados.form.value;
+
+    if (email && password && destination) {
+      console.log(`Login solicitado: email=${email}, destino=${destination}`);
+      this.authService.login(email, password, destination);
+    } else {
+      alert('Por favor, preencha todos os campos!');
+    }
+  }
 }

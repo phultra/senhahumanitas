@@ -23,6 +23,7 @@ export class PainelComponent implements OnInit{
   ppreferencial: boolean = false;
   private synth = window.speechSynthesis;
   audio = new Audio();
+  proximasSenhas: DadosSenha[] = [];  // Array para armazenar as próximas 3 senhas
    
   //private currentIndex: number = 0; // Índice da senha atual
   

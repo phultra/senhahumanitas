@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router'; // Para acessar queryParams
+import { ActivatedRoute, Router } from '@angular/router'; // Para acessar queryParams
 import { Database, getDatabase, ref, set } from '@angular/fire/database';
 import { inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -18,10 +18,13 @@ export class AvaliarComponent implements OnInit {
   nota: number | null = null;
   notas: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
   senha: string = '';
+  guiche: string = '';
 
   private db: Database = inject(Database);
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, 
+    private router: Router,
+  ) {}
 
   ngOnInit(): void {
     // Captura os parâmetros enviados pela rota
@@ -29,6 +32,7 @@ export class AvaliarComponent implements OnInit {
       this.nomeOperador = params['operador'] || '';
       this.duracaoAtendimento = params['duracao'] || '0 minutos';
       this.senha = params['senha'] || '';
+      this.guiche = params['guiche'] || ''
     });
   }
 
@@ -38,15 +42,17 @@ export class AvaliarComponent implements OnInit {
         nomeOperador: this.nomeOperador,
         duracaoAtendimento: this.duracaoAtendimento,
         nota: this.nota,
-        senha: this.senha
+        senha: this.senha,
+        guiche: this.guiche
       };
 
-      const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
+      const avaliacaoRef = ref(getDatabase(), `avaliacoes/${this.guiche}/senha_${this.senha}`);
 
       set(avaliacaoRef, avaliacao)
         .then(() => {
           alert('Avaliação salva com sucesso!');
           this.resetForm();
+          this.router.navigate(['/operador'])
         })
         .catch(error => {
           console.error('Erro ao salvar avaliação: ', error);
