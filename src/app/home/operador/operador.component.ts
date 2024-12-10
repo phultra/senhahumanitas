@@ -390,9 +390,9 @@ calcularDuracao(senha: DadosSenha): string {
   }
 
   const duracaoMs = horaFinalizacao - horaChamada; // Diferença em milissegundos
-  const duracaoMinutos = Math.floor(duracaoMs / 60000); // Converte para minutos
+  const duracaoMinutos = Math.floor(duracaoMs); // Converte para minutos
 
-  return `${duracaoMinutos} minutos`;
+  return `${duracaoMinutos} milisegundos`;
 }
 
 

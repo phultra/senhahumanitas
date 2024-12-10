@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../service/admin/admin.service';
 import { DadosSenha } from '../../interface/dadossenha';
 import { CommonModule } from '@angular/common';
+import { BehaviorSubject } from 'rxjs';
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -9,7 +10,7 @@ function delay(ms: number) {
 @Component({
   selector: 'app-painel',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,],
   templateUrl: './painel.component.html',
   styleUrl: './painel.component.scss'
 })
@@ -23,14 +24,15 @@ export class PainelComponent implements OnInit{
   ppreferencial: boolean = false;
   private synth = window.speechSynthesis;
   audio = new Audio();
-  proximasSenhas: DadosSenha[] = [];  // Array para armazenar as próximas 3 senhas
+  
    
   //private currentIndex: number = 0; // Índice da senha atual
   
   
   private queue: (() => Promise<void>)[] = [];
   private isSpeaking = false;
-
+  private senhasChamadasSubject = new BehaviorSubject<DadosSenha[]>([]);
+  senhasChamadas$ = this.senhasChamadasSubject.asObservable(); // Exponha como Observable para o HTML
   ni: number = 0;
 
   constructor(
@@ -84,11 +86,30 @@ export class PainelComponent implements OnInit{
     this.pegavalor(this.senhasChamadas.length);
     this.audio.src = "../assets/audio/SOM.wav";
     this.audio.load();
+  
   }
+
+ // Função para adicionar e substituir senhas chamadas
+ atualizarSenhasChamadas(senha: DadosSenha) {
+  const senhas = this.senhasChamadasSubject.value; // Obtém o valor atual
+  
+  // Remove a senha mais antiga se já houver 3
+  if (senhas.length >= 4) {
+    senhas.shift();
+  }
+
+  // Adiciona a nova senha
+  senhas.push(senha);
+
+  // Atualiza o Subject com o novo valor
+  this.senhasChamadasSubject.next(senhas);
+}
+
 
   // Define o valor do índice de senhas chamadas.
   pegavalor(valor: number) {
     this.ni = valor;
+    
   }
 
 
@@ -106,6 +127,8 @@ async  playAudio(senha:DadosSenha) {
       this.psenha = senha.senha;
       this.pguiche = senha.guiche;
       this.pnome = senha.cliente;
+      
+      this.atualizarSenhasChamadas(senha);
       
       // Converte a senha em fala e toca o áudio associado.
       await this.falarSenha(senha).then(d =>{

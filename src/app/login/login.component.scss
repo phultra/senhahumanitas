@@ -1,0 +1,76 @@
+// Variáveis para cores principais
+$primary-color: #0264d6;
+$secondary-color: #1c2b5a;
+$background-color: #f4f4f4;
+$text-color: #333;
+
+// Estilo geral da página de login
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: linear-gradient(135deg, $primary-color, $secondary-color);
+
+  form {
+    background-color: $background-color;
+    padding: 2rem 3rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: $text-color;
+      font-weight: bold;
+      font-size: 1rem;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid lighten($text-color, 30%);
+      border-radius: 5px;
+      font-size: 1rem;
+      color: $text-color;
+      background: #fff;
+      transition: border-color 0.3s;
+
+      &:focus {
+        outline: none;
+        border-color: $primary-color;
+      }
+    }
+
+    button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      background-color: $primary-color;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: darken($primary-color, 10%);
+      }
+    }
+  }
+}
+
+// Estilo para dispositivos pequenos
+@media (max-width: 576px) {
+  .login-container {
+    padding: 1rem;
+
+    form {
+      padding: 1.5rem 2rem;
+    }
+  }
+}

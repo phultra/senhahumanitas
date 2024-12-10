@@ -436,13 +436,13 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
 
 
   //Remove uma senha das coleções senhagerada e senhapainel no Firestore e salva a senha finalizada na coleção senhafinalizada.
-  deleteSenhaChamada(senhafinalizada: DadosSenha){
+/*  deleteSenhaChamada(senhafinalizada: DadosSenha){
     this.salvaSenhafinalizada(senhafinalizada);
     const senhaDoc = doc(this.firestore, `senhagerada/${senhafinalizada.senhaid}`);
     const senhaDoc2 = doc(this.firestore, `senhapainel/${senhafinalizada.horachamada}`);
     deleteDoc(senhaDoc);
     return deleteDoc(senhaDoc2);
-  }
+  }*/
 
   
   //Remove uma senha chamada no Realtime Database na referência avelar/senhachamada/{id}.

@@ -37,13 +37,10 @@ export class AvaliarComponent implements OnInit {
   }
 
   avaliarAtendimento(): void {
-    if (this.nomeOperador && this.duracaoAtendimento && this.nota !== null) {
-      const avaliacao = {
-        nomeOperador: this.nomeOperador,
-        duracaoAtendimento: this.duracaoAtendimento,
+    if ( this.nota !== null) {
+      const avaliacao = {  
         nota: this.nota,
-        senha: this.senha,
-        guiche: this.guiche
+        
       };
 
       const avaliacaoRef = ref(getDatabase(), `avaliacoes/${this.guiche}/senha_${this.senha}`);
