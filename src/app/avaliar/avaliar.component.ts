@@ -1,40 +1,55 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router'; // Para acessar queryParams
 import { Database, getDatabase, ref, set } from '@angular/fire/database';
 import { inject } from '@angular/core';
-import { FormsModule } from '@angular/forms'; // Importando o FormsModule
+import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-avaliar',
-  standalone: true,  // Definindo o componente como standalone
+  standalone: true,
   templateUrl: './avaliar.component.html',
   styleUrls: ['./avaliar.component.scss'],
-  imports: [FormsModule] // Importando o FormsModule diretamente no componente
+  imports: [FormsModule, CommonModule]
 })
-export class AvaliarComponent {
+export class AvaliarComponent implements OnInit {
   nomeOperador: string = '';
-  duracaoAtendimento: number | null = null;
+  duracaoAtendimento: string = '';
   nota: number | null = null;
-  notas: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]; // Botões de 0 a 10
-  
-  private db: Database = inject(Database); // Injetando o serviço de banco de dados
+  notas: number[] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  senha: string = '';
+  guiche: string = '';
 
-  // Método para salvar a avaliação
+  private db: Database = inject(Database);
+
+  constructor(private route: ActivatedRoute, 
+    private router: Router,
+  ) {}
+
+  ngOnInit(): void {
+    // Captura os parâmetros enviados pela rota
+    this.route.queryParams.subscribe(params => {
+      this.nomeOperador = params['operador'] || '';
+      this.duracaoAtendimento = params['duracao'] || '0 minutos';
+      this.senha = params['senha'] || '';
+      this.guiche = params['guiche'] || ''
+    });
+  }
+
   avaliarAtendimento(): void {
-    if (this.nomeOperador && this.duracaoAtendimento && this.nota !== null) {
-      const avaliacao = {
-        nomeOperador: this.nomeOperador,
-        duracaoAtendimento: this.duracaoAtendimento,
-        nota: this.nota
+    if ( this.nota !== null) {
+      const avaliacao = {  
+        nota: this.nota,
+        
       };
 
-      // Definindo o caminho onde os dados serão salvos
-      const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + new Date().toISOString());
+      const avaliacaoRef = ref(getDatabase(), `avaliacoes/${this.guiche}/senha_${this.senha}`);
 
-      // Adicionando a avaliação no Firebase
       set(avaliacaoRef, avaliacao)
         .then(() => {
           alert('Avaliação salva com sucesso!');
-          this.resetForm(); // Reseta o formulário após salvar
+          this.resetForm();
+          this.router.navigate(['/operador'])
         })
         .catch(error => {
           console.error('Erro ao salvar avaliação: ', error);
@@ -45,10 +60,7 @@ export class AvaliarComponent {
     }
   }
 
-  // Método para resetar o formulário
   resetForm(): void {
-    this.nomeOperador = '';
-    this.duracaoAtendimento = null;
     this.nota = null;
   }
 }

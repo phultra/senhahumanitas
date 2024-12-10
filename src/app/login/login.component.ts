@@ -8,14 +8,20 @@ import { AuthService } from '../service/auth/auth.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.scss'
+  styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
-  constructor(private authService:AuthService){
+  constructor(private authService: AuthService) {}
 
+  // Lida com o envio do formulário de login
+  dados(dados: NgForm) {
+    const { email, password } = dados.form.value;
+
+    if (email && password) {
+      console.log(`Login solicitado: email=${email}`);
+      this.authService.login(email, password); // Chama o login sem o destino, que será gerenciado no AuthService
+    } else {
+      alert('Por favor, preencha todos os campos!');
+    }
   }
- dados(dados: NgForm){
-  console.log(dados.form.value);
-  this.authService.login(dados.form.value.email, dados.form.value.password)
- }
 }

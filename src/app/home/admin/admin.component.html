@@ -1,66 +1,65 @@
-
 <section >
-    <div class="main">
-      <div class="container">  
-        <div class="row">
-           <div class="">
+  <div class="main">
+    <div class="container">  
+      <div class="row">
+         <div class="">
 
-         
-            <div class="mt-4">
-                 <h3 style="color: aliceblue;">Cadastrar dados da empresa</h3>       
-            </div>
-   
-            <div class="col-md-12">
-              
-                <form [formGroup]="formulario" (ngSubmit)="cadastrar()">
+       
+          <div class="mt-4">
+               <h3 style="color: aliceblue;">Cadastrar dados da empresa</h3>       
+          </div>
+ 
+          <div class="col-md-12">
+            
+              <form [formGroup]="formulario" (ngSubmit)="cadastrar()">
 
-                    <!-- Campos normais do formulário -->
-                    <div>
-                      <label for="nome">Nome:</label>
-                      <input id="nome" formControlName="nome">
-                    </div>
-                    
-                    <div>
-                      <label for="corretor">Corretor:</label>
-                      <input id="corretor" formControlName="corretor">
-                    </div>
+                  <!-- Campos normais do formulário -->
+                  <div>
+                    <label for="nome">Nome:</label>
+                    <input id="nome" formControlName="nome">
+                  </div>
                   
-                    <!-- Botão para adicionar setores -->
-                    <div>
-                      <button type="button" (click)="adicionarSetor()">Adicionar Setor</button>
-                    </div>
-                  
-                    <!-- Campos dinâmicos para setores -->
-                    <div formArrayName="setores">
-                      <div *ngFor="let setor of setores.controls; let i = index" [formGroupName]="i">
-                        <label for="setor-{{i}}">Setor {{ i + 1 }}:</label>
-                        <input id="setor-{{i}}" formControlName="nomeSetor">
-                        <button type="button" (click)="removerSetor(i)">Remover</button>
-                          
-                          <div class="m-4">
-                            <!-- Botão para adicionar setores -->
-                            <div>
-                                <button type="button" (click)="adicionarSetor()">Adicionar Guiche</button>
-                            </div>
-                                <div *ngFor="let guiche of guiches.controls; let i = index" [formGroupName]="i">
-                                    <label for="setor-{{i}}">Setor {{ i + 1 }}:</label>
-                                    <input id="setor-{{i}}" formControlName="nomeGuiche">
-                                    <button type="button" (click)="removerGuiche(i)">Remover</button>
-                                </div>
-                           </div>
-                        </div>
-                    </div>
-                  
-                    <!-- Botão de submissão -->
-                    <div>
-                      <button type="submit">Cadastrar</button>
-                    </div>
-                  </form>
-                  
-            </div>
-        </div> 
+                  <div>
+                    <label for="corretor">Corretor:</label>
+                    <input id="corretor" formControlName="corretor">
+                  </div>
+                
+                  <!-- Botão para adicionar setores -->
+                  <div>
+                    <button type="button" (click)="adicionarSetor()">Adicionar Setor</button>
+                  </div>
+                
+                  <!-- Campos dinâmicos para setores -->
+                  <div formArrayName="setores">
+                    <div *ngFor="let setor of setores.controls; let i = index" [formGroupName]="i">
+                      <label for="setor-{{i}}">Setor {{ i + 1 }}:</label>
+                      <input id="setor-{{i}}" formControlName="nomeSetor">
+                      <button type="button" (click)="removerSetor(i)">Remover</button>
+                        
+                        <div class="m-4">
+                          <!-- Botão para adicionar setores -->
+                          <div>
+                              <button type="button" (click)="adicionarSetor()">Adicionar Guiche</button>
+                          </div>
+                              <div *ngFor="let guiche of guiches.controls; let i = index" [formGroupName]="i">
+                                  <label for="setor-{{i}}">Setor {{ i + 1 }}:</label>
+                                  <input id="setor-{{i}}" formControlName="nomeGuiche">
+                                  <button type="button" (click)="removerGuiche(i)">Remover</button>
+                              </div>
+                         </div>
+                      </div>
+                  </div>
+                
+                  <!-- Botão de submissão -->
+                  <div>
+                    <button type="submit">Cadastrar</button>
+                  </div>
+                </form>
+                
+          </div>
+      </div> 
 
-        </div>
       </div>
     </div>
- </section>
+  </div>
+</section>

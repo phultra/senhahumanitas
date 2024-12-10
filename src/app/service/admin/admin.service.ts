@@ -3,10 +3,11 @@ import { Injectable, inject } from '@angular/core';
 import { Firestore,  collection,  collectionData,  deleteDoc,  doc, setDoc, updateDoc } from '@angular/fire/firestore';
 import { DadosSenha } from '../../interface/dadossenha';
 import { Observable } from 'rxjs';
-import { Database, get, onValue, ref, remove, set, update } from '@angular/fire/database';
+import { Database, get, getDatabase, onValue, ref, remove, set, update } from '@angular/fire/database';
 import { DadosContador } from '../../interface/dadoscontador';
 import { HttpClient } from '@angular/common/http';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, query, where } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 
 @Injectable({
   providedIn: 'root'
@@ -58,9 +59,10 @@ export class AdminService {
       status: '0',
       horachamada: '',
       finalatendimento: '',
-      nota: 0,
+      //nota: 0,
       cliente: senha.cliente,
-      senha: senha.senha
+      senha: senha.senha,
+      atendida: false, //ainda nao atendida
     }).then(async d => {
        //console.log(d);
        console.log('Senha salva com SUCESSO'+ d);
@@ -72,6 +74,7 @@ export class AdminService {
   }
 
 
+  
   // Salva uma senha finalizada no Realtime Database sob o caminho 'avelar/senhafinalizada'
   async salvaSenhaFinalizadaConvencional(senha: DadosSenha){
    
@@ -207,7 +210,7 @@ async salvaContador(normal:number, preferencial:number){
     status: '1',
     horachamada: data.horachamada,
     finalatendimento: '',
-    nota: 0,
+    //nota: 0,
     senha: data.senha
   }).then(async d => {
      //console.log(d);
@@ -245,11 +248,59 @@ async salvaSenhafinalizada(data:DadosSenha){
   }
 
 
-  // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
-  getSenhasGeradas(): Observable<DadosSenha[]> {
-    const senhasCollection = collection(this.firestore, 'senhagerada'); // Referência para a coleção 'senhagerada'
-    return collectionData(senhasCollection, { idField: 'id' }) as Observable<DadosSenha[]>; // Retorna os dados da coleção com o campo 'id' mapeado
-  }
+ // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
+// Agora recebe um parâmetro opcional 'atendida' para filtrar as senhas atendidas ou não atendidas.
+// Função para buscar senhas de acordo com o parâmetro atendida
+getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
+  const db = getDatabase(); // Obtenha a instância do banco de dados
+  const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
+
+  // Calcula dinamicamente o dia do mês atual
+  const hoje = new Date();
+  const diaAtual = hoje.getDate(); // Exemplo: 1, 2, ..., 31
+
+  // Caminho dinâmico da coleção 'senhagerada'
+  const senhasRef = ref(db, `/avelar/senhagerada/${diaAtual}`);
+
+  return new Observable(observer => {
+    // Escuta os dados da coleção no Firebase em tempo real
+    onValue(senhasRef, (snapshot) => {
+      const senhas = snapshot.val();
+
+      if (senhas) {
+        // Converte o objeto de senhas em um array
+        const listaSenhas: DadosSenha[] = Object.values(senhas).map((senha: any) => {
+          // Define o status de 'atendida' com base na propriedade 'horachamada'
+          senha.atendida = (senha.horachamada !== ''); // Atendida se 'horachamada' não estiver vazia
+          return senha;
+        });
+
+        // Filtra as senhas com base no parâmetro 'atendida'
+        const senhasFiltradas = listaSenhas.filter(senha => senha.atendida === atendida);
+
+        observer.next(senhasFiltradas); // Emite as senhas filtradas
+      } else {
+        console.log("Nenhuma senha encontrada.");
+        observer.next([]); // Caso não encontre senhas, emite um array vazio
+      }
+    }, (error) => {
+      observer.error(error); // Em caso de erro, emite um erro
+    });
+  });
+}
+
+
+
+ /* const senhasCollection = collection(this.firestore, 'senhagerada'); // Referência para a coleção 'senhagerada'
+  
+  // Se o parâmetro 'atendida' for fornecido, filtramos a coleção com base nesse valor.
+  const queryRef = atendida !== undefined 
+    ? query(senhasCollection, where('atendida', '==', false)) 
+    : senhasCollection;
+
+  return collectionData(queryRef, { idField: 'id' }) as Observable<DadosSenha[]>; // Retorna os dados da coleção com o campo 'id' mapeado
+*/
+
 
 
 
@@ -385,13 +436,13 @@ async salvaSenhafinalizada(data:DadosSenha){
 
 
   //Remove uma senha das coleções senhagerada e senhapainel no Firestore e salva a senha finalizada na coleção senhafinalizada.
-  deleteSenhaChamada(senhafinalizada: DadosSenha){
+/*  deleteSenhaChamada(senhafinalizada: DadosSenha){
     this.salvaSenhafinalizada(senhafinalizada);
     const senhaDoc = doc(this.firestore, `senhagerada/${senhafinalizada.senhaid}`);
     const senhaDoc2 = doc(this.firestore, `senhapainel/${senhafinalizada.horachamada}`);
     deleteDoc(senhaDoc);
     return deleteDoc(senhaDoc2);
-  }
+  }*/
 
   
   //Remove uma senha chamada no Realtime Database na referência avelar/senhachamada/{id}.
@@ -425,6 +476,45 @@ async salvaSenhafinalizada(data:DadosSenha){
     const senhaDocRef = doc(this.firestore, 'senhagerada', senha.senhaid); // Referência para o documento da senha
     await updateDoc(senhaDocRef, { status: senha.status }); // Atualiza o campo de status
   }
+
+// Método para atualizar a senha para chamada
+async atualizarSenhaParaChamada(senha: DadosSenha) {
+  senha.atendida = true;  // Marca como atendida
+  senha.status = '1';     // Status de chamada
+
+  const senhaRef = doc(this.firestore, 'senhagerada', senha.senhaid);
+  
+  // Atualiza o campo atendida para 'true' na coleção 'senhagerada'
+  await updateDoc(senhaRef, { atendida: true });
+
+  // Agora mova para outra coleção, como 'senhaschamadas' ou outra coleção apropriada
+  const novaColecaoRef = doc(this.firestore, 'senhaschamadas', senha.senhaid);
+  await setDoc(novaColecaoRef, { ...senha });
+  
+  // Remova da coleção 'senhagerada'
+  await deleteDoc(senhaRef);
+
+  console.log('Senha atualizada e movida para chamada com sucesso!');
+}
+// Método para finalizar a senha
+async finalizarSenha(senha: DadosSenha) {
+  senha.atendida = true;  // Marca como atendida
+  senha.status = '3';     // Status de finalizada
+
+  const senhaRef = doc(this.firestore, 'senhaschamadas', senha.senhaid);
+
+  // Atualiza o campo atendida para 'true' e finaliza a senha
+  await updateDoc(senhaRef, { atendida: true, finalatendimento: Date.now().toString() });
+
+  // Agora mova para outra coleção de finalizadas, por exemplo
+  const novaColecaoRef = doc(this.firestore, 'senhasfinalizadas', senha.senhaid);
+  await setDoc(novaColecaoRef, { ...senha });
+
+  // Remova da coleção 'senhaschamadas'
+  await deleteDoc(senhaRef);
+
+  console.log('Senha finalizada e movida para a coleção finalizadas com sucesso!');
+}
 
 }
   

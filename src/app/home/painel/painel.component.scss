@@ -1,29 +1,47 @@
-section.main{
-background: #0264d6; /* Old browsers */
-background: -moz-radial-gradient(center, ellipse cover,  #0264d6 1%, #1c2b5a 100%); /* FF3.6+ */
-background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(1%,#0264d6), color-stop(100%,#1c2b5a)); /* Chrome,Safari4+ */
-background: -webkit-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* Chrome10+,Safari5.1+ */
-background: -o-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* Opera 12+ */
-background: -ms-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* IE10+ */
-background: radial-gradient(ellipse at center,  #0264d6 1%,#1c2b5a 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0264d6', endColorstr='#1c2b5a',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-height:calc(100vh);
-width:100%;
-}
-
-.area{
+section.main {
+    background: #0264d6;
+    background: -moz-radial-gradient(center, ellipse cover, #0264d6 1%, #1c2b5a 100%);
+    background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(1%,#0264d6), color-stop(100%,#1c2b5a));
+    background: -webkit-radial-gradient(center, ellipse cover, #0264d6 1%,#1c2b5a 100%);
+    background: -o-radial-gradient(center, ellipse cover, #0264d6 1%,#1c2b5a 100%);
+    background: -ms-radial-gradient(center, ellipse cover, #0264d6 1%,#1c2b5a 100%);
+    background: radial-gradient(ellipse at center, #0264d6 1%,#1c2b5a 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#0264d6', endColorstr='#1c2b5a', GradientType=1);
+    height: calc(100vh);
+    width: 100%;
+  }
+  
+  .area {
     width: 90%;
     margin-left: 5%;
-
+  }
   
-}
-.card-title {
+  .row {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .card-title {
     font-size: 3.5ch;
-}
-.card-text {
+  }
+  
+  .card-text {
     font-size: 2.5ch;
-}
-.nomecliente{
+  }
+  
+  .nomecliente {
     font-size: 2.5ch;
+  }
+  
+  .separator {
+    border-left: 2px solid #0264d6;
+    height: 104%;
+    margin: 0 15px;
+  }
 
-}
+  .logo-position {
+    position: absolute;
+    bottom: 10px; /* Distância da parte inferior da tela */
+    left: 50%;
+    transform: translateX(-50%);
+  }

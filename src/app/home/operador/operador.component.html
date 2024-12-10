@@ -26,20 +26,34 @@ type="ball-scale-multiple"
     <div class=" col-md-6 mt-5 ">
       <button class="btn  botao" (click)="chamarsenhapreferencial()">SENHA PREFERENCIAL</button>
     </div>
-    <!-- Botão para escolher uma senha para atender -->
-<button (click)="mostrarSenhasNaoAtendidas()">Escolha uma senha para atender</button>
-
-<!-- Exibe as senhas não atendidas quando a variável está ativada -->
-<div *ngIf="mostrarSenhas">
-  <h3>Senhas Não Atendidas</h3>
+    <div class="col-md-6 mt-5">
+      <button class="btn botao" (click)="mostrarSenhasNaoAtendidas()">Seleciona uma senha</button>
+    </div>
+    
+   <!-- Lista de Senhas Preferenciais -->
+<div class="mt-3">
+  <h5>Senhas Preferenciais:</h5>
   <ul>
-    <li *ngFor="let senha of senha">
-      {{ senha.senha }} 
-      <button (click)="atenderSenha(senha)">Atender</button>
+    <li *ngFor="let senha of senhasPreferenciais">
+      <button class="btn btn-primary m-1" (click)="chamarsenhapreferencial(senha)">
+        Senha: {{ senha.senha }}
+      </button>
     </li>
   </ul>
 </div>
-  </div>
+
+<!-- Lista de Senhas Não Preferenciais -->
+<div class="mt-3">
+  <h5>Senhas Não Preferenciais:</h5>
+  <ul>
+    <li *ngFor="let senha of senhasNaoPreferenciais">
+      <button class="btn btn-secondary m-1" (click)="chamarSenhaNormalConvencional(senha)">
+        Senha: {{ senha.senha }}
+      </button>
+    </li>
+  </ul>
+</div>
+</div>
 
    <!-- Linha separadora -->
   <hr class="my-4 mb-4">
@@ -71,7 +85,7 @@ type="ball-scale-multiple"
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirSenhaConvencional(senhaOperadorPainel)">REPETIR SENHA</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" type="button" class="btn btn-warning btn-lg btn-block"  (click)="openModal(template,senhaOperadorPainel)" >FINALIZAR</button></td>
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="avaliar()">avaliar</button></td>
+            
           </tr>
        </tbody>
       </table>

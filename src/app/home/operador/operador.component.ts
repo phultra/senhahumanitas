@@ -6,6 +6,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BsModalRef, BsModalService, } from 'ngx-bootstrap/modal'
 import { Router } from '@angular/router';
+import { getDatabase, ref, set } from 'firebase/database';
 // Importar o Modal do Bootstrap
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -35,7 +36,8 @@ export class OperadorComponent implements OnInit {
   mostrarSenhas: boolean = false; // Controla a exibição das senhas não atendidas
   
   // Array para armazenar as senhas geradas
-   
+  senhasPreferenciais: DadosSenha[] = [];
+  senhasNaoPreferenciais: DadosSenha[] = [];
   
   //VARIÁVEL QUE CRIA FORMULARIO
 
@@ -59,7 +61,7 @@ export class OperadorComponent implements OnInit {
     this.formbuilder()
     
     // Obtém as senhas geradas do serviço AdminService
-    this.adminService.getSenhasGeradas().subscribe(d => {
+    /*this.adminService.getSenhasGeradas().subscribe(d => {
       console.log(d.length);
       this.senha = d;
      
@@ -67,7 +69,7 @@ export class OperadorComponent implements OnInit {
       this.senhaVerificar = this.senha.filter(s => s.operador === this.operador);
         
      
-    });
+    });*/
    
     
      // Obtém senhas convencionais e organiza em preferencial e normal
@@ -182,41 +184,54 @@ export class OperadorComponent implements OnInit {
   }
   
   // Chama uma senha normal convencional
-  async chamarSenhaNormalConvencional() {
+  async chamarSenhaNormalConvencional(senhaSelecionada?: DadosSenha) {
     this.spinner.show();
     let time = Date.now().toString();
-    console.log(this.senhaNormalNova[0]);
-    this.senhaNormalNova[0].operador = this.operador;
-    this.senhaNormalNova[0].guiche = this.guiche;
-    this.senhaNormalNova[0].status ='1';
-    this.senhaNormalNova[0].horachamada = time;
-    this.senhaOperadorPainel = this.senhaNormalNova[0];
-    console.log(this.senhaOperadorPainel);
-   await this.adminService.salvaSenhaConvencionalChamadaRealTime(this.senhaNormalNova[0]).then( async d => {
-      console.log(d);
-     await this.adminService.updateSenhaRealtimeConvencional(this.senhaNormalNova[0].senhaid, this.senhaNormalNova[0]).then(d =>{
-        this.spinner.hide();
-      })
-    })
+  
+    // Usar a senha passada ou a primeira da lista (funcionalidade original)
+    const senha = senhaSelecionada || this.senhaNormalNova[0];
+  
+    senha.operador = this.operador;
+    senha.guiche = this.guiche;
+    senha.status = '1';
+    senha.horachamada = time;
+    this.senhaOperadorPainel = senha;
+  
+    try {
+      await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
+      await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
+      console.log("Senha chamada:", senha);
+    } catch (error) {
+      console.error("Erro ao chamar senha normal:", error);
+    } finally {
+      this.spinner.hide();
+    }
   }
  
   // Chama uma senha preferencial convencional
-  async chamarsenhapreferencial() {
+  async chamarsenhapreferencial(senhaSelecionada?: DadosSenha) {
     this.spinner.show();
     let time = Date.now().toString();
-    console.log(this.senhaPreferencial[0]);
-    this.senhaPreferencial[0].operador = this.operador;
-    this.senhaPreferencial[0].guiche = this.guiche;
-    this.senhaPreferencial[0].status ='1';
-    this.senhaPreferencial[0].horachamada = time;
-    this.senhaOperadorPainel = this.senhaPreferencial[0];
-    await this.adminService.salvaSenhaConvencionalChamadaRealTime(this.senhaPreferencial[0]).then(async d => {
-      console.log(d);
-     await this.adminService.updateSenhaRealtimeConvencional(this.senhaPreferencial[0].senhaid, this.senhaPreferencial[0]).then(d =>{
-        this.spinner.hide();
-      })
-    })
-  } 
+  
+    // Usar a senha passada ou a primeira da lista (funcionalidade original)
+    const senha = senhaSelecionada || this.senhaPreferencial[0];
+  
+    senha.operador = this.operador;
+    senha.guiche = this.guiche;
+    senha.status = '1';
+    senha.horachamada = time;
+    this.senhaOperadorPainel = senha;
+  
+    try {
+      await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
+      await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
+      console.log("Senha chamada:", senha);
+    } catch (error) {
+      console.error("Erro ao chamar senha preferencial:", error);
+    } finally {
+      this.spinner.hide();
+    }
+  }
 
   // Registra operador no sistema
   cadastrar(){
@@ -274,26 +289,45 @@ export class OperadorComponent implements OnInit {
   }
 
   
-  // Finaliza atendimento
-  finalizar(){
-    let time = Date.now().toString();
-    this.senhaFinalizar.finalatendimento = time;
-    this.senhaFinalizar.status = '3';
-    this.adminService.deleteSenhaChamada(this.senhaFinalizar);
-    this.modalRef?.hide();
-
-  }
+  
 
   
-  // Finaliza atendimento convencional
-  finalizarConvencional(){
+  async finalizarConvencional() {
     let time = Date.now().toString();
     this.senhaFinalizar.finalatendimento = time;
     this.senhaFinalizar.status = '3';
-    this.senhaOperadorPainel = new DadosSenha;
-    this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar);
-    this.modalRef?.hide();
-
+  
+    // Primeiro, salve a avaliação no banco de dados (Firebase)
+    const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
+    
+    const avaliacao = {
+      nomeOperador: this.operador,
+      guiche: this.guiche,
+      duracaoAtendimento: duracaoAtendimento,
+      nota: null, // A nota pode ser adicionada mais tarde ou preenchida com valor padrão
+    };
+    const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
+    
+    try {
+      
+  
+      // Navegar para a página de avaliação
+      await this.router.navigate(['/avaliar'], {
+        queryParams: {
+          operador: this.operador,
+          guiche: this.guiche,
+          duracao: duracaoAtendimento,
+          senha: this.senhaFinalizar.senha
+        }
+      });
+  
+      // Atualiza o status da senha e finaliza o atendimento convencional após a navegação
+      await this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar);
+      this.modalRef?.hide(); // Fecha o modal após a navegação
+  
+    } catch (error) {
+      console.error('Erro ao salvar avaliação: ', error);
+    }
   }
 
   // Encerrar (Função ainda não implementada)
@@ -307,28 +341,60 @@ export class OperadorComponent implements OnInit {
 avaliar() {
   this.router.navigate(['/avaliar']); 
 }
- // Método para mostrar senhas não atendidas
-  mostrarSenhasNaoAtendidas() {
-    // Filtra as senhas que não foram atendidas (status diferente de 'atendido')
-    this.senha = this.senha.filter(s => s.status !== 'atendido');
-    this.mostrarSenhas = true; // Exibe a lista de senhas não atendidas
-  }
+mostrarSenhasNaoAtendidas() {
+  this.adminService.getSenhasGeradas(false).subscribe(senhas => {
+    // Elimina duplicatas caso existam no banco de dados ou no retorno
+    const senhasUnicas = Array.from(new Set(senhas.map(s => s.senha)))
+      .map(senhaUnica => senhas.find(s => s.senha === senhaUnica)!);
 
-  // Método para marcar a senha como atendida e realizar a ação
-  atenderSenha(senha: DadosSenha) {
-    senha.status = 'atendido'; // Marca a senha como atendida
+    // Atribui a lista de senhas filtradas
+    this.senha = senhasUnicas; // Para manter compatibilidade com o estado anterior
+    this.senhasPreferenciais = senhasUnicas.filter(s => s.preferencial);
+    this.senhasNaoPreferenciais = senhasUnicas.filter(s => !s.preferencial);
 
-    // Atualiza o status da senha no Firestore
-    this.adminService.atualizarStatusSenha(senha).then(() => {
+    console.log("Senhas Preferenciais:", this.senhasPreferenciais);
+    console.log("Senhas Não Preferenciais:", this.senhasNaoPreferenciais);
+  }, error => {
+    console.error("Erro ao buscar senhas:", error);
+  });
+}
+
+ // Método para marcar a senha como atendida e realizar a ação
+atenderSenha(senha: DadosSenha) {
+  senha.status = 'atendido'; // Marca a senha como atendida
+
+  // Atualiza o status da senha no Firestore utilizando o AdminService
+  this.adminService.updateSenha(senha.senhaid, { status: senha.status })
+    .then(() => {
       alert(`Senha ${senha.senha} atendida com sucesso!`);
-      
+
       // Atualiza a lista de senhas para refletir a alteração
       this.mostrarSenhas = false;
-      this.senha = this.senha.filter(s => s.senha !== senha.senha);
-    }).catch(error => {
+      this.senha = this.senha.filter(s => s.senhaid !== senha.senhaid);
+
+      // Registra como finalizada no Firestore (opcional)
+      senha.finalatendimento = Date.now().toString();
+      this.adminService.salvaSenhafinalizada(senha);
+    })
+    .catch(error => {
       console.error("Erro ao atualizar o status da senha", error);
     });
+}
+// Método para calcular a duração do atendimento
+calcularDuracao(senha: DadosSenha): string {
+  const horaChamada = parseInt(senha.horachamada, 10);  // Hora de chamada
+  const horaFinalizacao = parseInt(senha.finalatendimento, 10);  // Hora de finalização
+  
+  if (!horaChamada || !horaFinalizacao) {
+    return '0 minutos';
   }
+
+  const duracaoMs = horaFinalizacao - horaChamada; // Diferença em milissegundos
+  const duracaoMinutos = Math.floor(duracaoMs); // Converte para minutos
+
+  return `${duracaoMinutos} milisegundos`;
+}
+
 
 
 }
