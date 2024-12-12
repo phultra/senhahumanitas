@@ -76,24 +76,31 @@ export class AdminService {
 
   
   // Salva uma senha finalizada no Realtime Database sob o caminho 'avelar/senhafinalizada'
-  async salvaSenhaFinalizadaConvencional(senha: DadosSenha){
-   
-    let time = Date.now().toString();
-    const millisec = Number(Date.now());
-    const dat = new Date(millisec);
-    let dia = dat.getDate();
-     senha.finalatendimento = time;
-    const itemsRef = ref(this.database, `avelar/senhafinalizada/${dia}/${senha.finalatendimento}` );
-   // const newItemRef = push(itemsRef);
-    await set(itemsRef, senha).then( d => {
-      //console.log(d);
-      console.log('Senha salva com SUCESSO'+ d);
-   })
-    .catch(e =>{
-      console.log(e);
-   
-   })
-  }
+  async salvaSenhaFinalizadaConvencional(senha: DadosSenha, nota: number, duracaoAtendimento: string) {
+  const time = Date.now().toString(); // Hora da finalização
+  senha.finalatendimento = time; // Atualiza o tempo de finalização
+
+  // Adiciona os dados da avaliação à senha
+  const updatedSenha = {
+    ...senha, // Mantém todos os dados existentes da senha
+    nota: nota, // Adiciona a nota
+    duracaoAtendimento: duracaoAtendimento, // Adiciona a duração do atendimento
+    status: 'finalizada', // Status de finalização
+  };
+
+  // Referência onde a senha finalizada está salva no Firebase
+  const dia = new Date().getDate(); // Obtém o dia atual
+  const itemsRef = ref(this.database, `avelar/senhafinalizada/${dia}/${senha.finalatendimento}`);
+
+  // Atualiza os dados da senha no Firebase
+  await set(itemsRef, updatedSenha)
+    .then(() => {
+      console.log('Senha atualizada com sucesso');
+    })
+    .catch(e => {
+      console.error('Erro ao atualizar a senha:', e);
+    });
+}
 
 
   // Salva uma senha no Realtime Database sob o caminho 'avelar/senhacontador'
@@ -179,7 +186,7 @@ export class AdminService {
 
 
   // Salva os contadores de senhas (normal e preferencial) no Firestore
-async salvaContador(normal:number, preferencial:number){
+/*async salvaContador(normal:number, preferencial:number){
   let salvaSenhaChamada = doc(this.firestore,'senhacontador'+'/'+ '0000000000000');
   await setDoc(salvaSenhaChamada, {
     senhanormal: normal,
@@ -193,7 +200,7 @@ async salvaContador(normal:number, preferencial:number){
      console.log(e);
   
   })
-}
+}*/
   
 
 // Atualiza os contadores de senhas (normal e preferencial) no Firestore
@@ -242,10 +249,10 @@ async salvaSenhafinalizada(data:DadosSenha){
    
   
   //Retorna um Observable que emite os dados da coleção senhacontador do Firestore.
-  getContador(): Observable<DadosContador[]> {
+  /*getContador(): Observable<DadosContador[]> {
     const senhasCollection = collection(this.firestore, 'senhacontador');
     return collectionData<DadosContador>(senhasCollection, { idField: 'id' }) as Observable<DadosContador[]>;
-  }
+  }*/
 
 
  // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
@@ -305,10 +312,10 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
 
 
   //Retorna um Observable que emite os dados da coleção senhapainel do Firestore.
-  getSenhaPainel(): Observable<DadosSenha[]> {
+  /*getSenhaPainel(): Observable<DadosSenha[]> {
     const senhasCollection = collection(this.firestore, 'senhapainel');
     return collectionData<DadosSenha>(senhasCollection, { idField: 'id' }) as Observable<DadosSenha[]>;
-  }
+  }*/
 
 
   //Retorna um Observable com os dados da referência avelar/senhachamada no Realtime Database.
@@ -436,13 +443,13 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
 
 
   //Remove uma senha das coleções senhagerada e senhapainel no Firestore e salva a senha finalizada na coleção senhafinalizada.
-/*  deleteSenhaChamada(senhafinalizada: DadosSenha){
+ deleteSenhaChamada(senhafinalizada: DadosSenha){
     this.salvaSenhafinalizada(senhafinalizada);
     const senhaDoc = doc(this.firestore, `senhagerada/${senhafinalizada.senhaid}`);
     const senhaDoc2 = doc(this.firestore, `senhapainel/${senhafinalizada.horachamada}`);
     deleteDoc(senhaDoc);
     return deleteDoc(senhaDoc2);
-  }*/
+  }
 
   
   //Remove uma senha chamada no Realtime Database na referência avelar/senhachamada/{id}.
@@ -456,29 +463,30 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
 
  
   //Remove uma senha das referências avelar/senhagerada e avelar/senhachamada no Realtime Database, e a salva como finalizada em avelar/senhafinalizada.
-  async finalizarSenhaChamadaConvencional(senhaFinalizada: DadosSenha){
+  async finalizarSenhaChamadaConvencional(senhaFinalizada: DadosSenha, nota: number, duracaoAtendimento: string) {
     const dat = new Date();
     let dia = dat.getDate();
     console.log(dia);
-    this.salvaSenhaFinalizadaConvencional(senhaFinalizada);
+    
+    // Agora passamos nota e duração para salvar junto com a senha
+    await this.salvaSenhaFinalizadaConvencional(senhaFinalizada, nota, duracaoAtendimento);
+  
     // Cria uma referência ao database para a operação de update em ambos os caminhos
     const updates: { [key: string]: any } = {};
     updates[`avelar/senhagerada/${dia}/${senhaFinalizada.senhaid}`] = null; // Remove a senha da árvore 'senhagerada'
     updates[`avelar/senhachamada/${senhaFinalizada.horachamada}`] = null; // Remove a senha da árvore 'senhachamada'
-
+  
     // Executa a operação de update que removerá as duas entradas
     await update(ref(this.database), updates);
-
   }
-
     // Método para atualizar o status de uma senha
-  async atualizarStatusSenha(senha: DadosSenha) {
+  /*async atualizarStatusSenha(senha: DadosSenha) {
     const senhaDocRef = doc(this.firestore, 'senhagerada', senha.senhaid); // Referência para o documento da senha
     await updateDoc(senhaDocRef, { status: senha.status }); // Atualiza o campo de status
-  }
+  }*/
 
 // Método para atualizar a senha para chamada
-async atualizarSenhaParaChamada(senha: DadosSenha) {
+/*async atualizarSenhaParaChamada(senha: DadosSenha) {
   senha.atendida = true;  // Marca como atendida
   senha.status = '1';     // Status de chamada
 
@@ -495,9 +503,9 @@ async atualizarSenhaParaChamada(senha: DadosSenha) {
   await deleteDoc(senhaRef);
 
   console.log('Senha atualizada e movida para chamada com sucesso!');
-}
+}*/
 // Método para finalizar a senha
-async finalizarSenha(senha: DadosSenha) {
+/*async finalizarSenha(senha: DadosSenha) {
   senha.atendida = true;  // Marca como atendida
   senha.status = '3';     // Status de finalizada
 
@@ -516,5 +524,5 @@ async finalizarSenha(senha: DadosSenha) {
   console.log('Senha finalizada e movida para a coleção finalizadas com sucesso!');
 }
 
-}
+*/}
   

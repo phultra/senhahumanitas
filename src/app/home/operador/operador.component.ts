@@ -296,21 +296,20 @@ export class OperadorComponent implements OnInit {
     let time = Date.now().toString();
     this.senhaFinalizar.finalatendimento = time;
     this.senhaFinalizar.status = '3';
-  
+    
     // Primeiro, salve a avaliação no banco de dados (Firebase)
     const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
-    
+  
     const avaliacao = {
       nomeOperador: this.operador,
       guiche: this.guiche,
       duracaoAtendimento: duracaoAtendimento,
-      nota: null, // A nota pode ser adicionada mais tarde ou preenchida com valor padrão
+      nota: null, // A nota pode ser preenchida mais tarde ou com valor padrão
     };
-    const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
-    
-    try {
-      
   
+    const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
+  
+    try {
       // Navegar para a página de avaliação
       await this.router.navigate(['/avaliar'], {
         queryParams: {
@@ -321,8 +320,10 @@ export class OperadorComponent implements OnInit {
         }
       });
   
-      // Atualiza o status da senha e finaliza o atendimento convencional após a navegação
-      await this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar);
+      // Agora chamamos a função `finalizarSenhaChamadaConvencional` passando os parâmetros necessários
+      const nota = 0; // Nota pode ser inicializada com valor 0 ou qualquer valor padrão
+      await this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar, nota, duracaoAtendimento);
+      
       this.modalRef?.hide(); // Fecha o modal após a navegação
   
     } catch (error) {

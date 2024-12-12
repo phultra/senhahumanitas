@@ -8,6 +8,8 @@ export class DadosSenha {
     status: string='';
     horachamada:string='';
     finalatendimento!: string;
+    
+    
     //nota:number=0;
     cliente:string='';
     senha: string ='';
