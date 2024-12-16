@@ -76,30 +76,53 @@ export class AdminService {
 
   
   // Salva uma senha finalizada no Realtime Database sob o caminho 'avelar/senhafinalizada'
-  async salvaSenhaFinalizadaConvencional(senha: DadosSenha, nota: number, duracaoAtendimento: string) {
+ // Função otimizada para salvar a senha finalizada
+ async salvaSenhaFinalizadaConvencional(
+  senha: DadosSenha,
+  duracaoAtendimento?: string,
+  nota?: number
+): Promise<void> {
   const time = Date.now().toString(); // Hora da finalização
   senha.finalatendimento = time; // Atualiza o tempo de finalização
 
-  // Adiciona os dados da avaliação à senha
+  // Prepara os dados atualizados da senha
   const updatedSenha = {
     ...senha, // Mantém todos os dados existentes da senha
-    nota: nota, // Adiciona a nota
-    duracaoAtendimento: duracaoAtendimento, // Adiciona a duração do atendimento
-    status: 'finalizada', // Status de finalização
+    status: 'finalizada', // Atualiza o status para "finalizada"
+    ...(duracaoAtendimento ? { duracaoAtendimento } : {}), // Atualiza ou insere a duração do atendimento
+    ...(nota !== undefined ? { nota } : {}), // Atualiza ou insere a nota
   };
 
-  // Referência onde a senha finalizada está salva no Firebase
+  // Obtém o dia atual
   const dia = new Date().getDate(); // Obtém o dia atual
+
+  // Cria uma referência para salvar os dados no Firebase
   const itemsRef = ref(this.database, `avelar/senhafinalizada/${dia}/${senha.finalatendimento}`);
 
-  // Atualiza os dados da senha no Firebase
-  await set(itemsRef, updatedSenha)
-    .then(() => {
-      console.log('Senha atualizada com sucesso');
-    })
-    .catch(e => {
-      console.error('Erro ao atualizar a senha:', e);
-    });
+  try {
+    // Salva os dados da senha no Firebase
+    await set(itemsRef, updatedSenha);
+    console.log('Senha finalizada salva com sucesso no Realtime Database');
+  } catch (error) {
+    console.error('Erro ao salvar a senha finalizada no Realtime Database:', error);
+  }
+}
+
+// Função para recuperar a senha finalizada, caso necessário
+async recuperaSenhaFinalizada(dia: number, finalAtendimento: string): Promise<any> {
+  const senhaRef = ref(this.database, `avelar/senhafinalizada/${dia}/${finalAtendimento}`);
+  try {
+    const snapshot = await get(senhaRef);
+    if (snapshot.exists()) {
+      return snapshot.val(); // Retorna os dados da senha finalizada
+    } else {
+      console.log('Nenhum dado encontrado para a senha finalizada.');
+      return null;
+    }
+  } catch (error) {
+    console.error('Erro ao recuperar os dados da senha finalizada:', error);
+    return null;
+  }
 }
 
 
@@ -469,7 +492,7 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
     console.log(dia);
     
     // Agora passamos nota e duração para salvar junto com a senha
-    await this.salvaSenhaFinalizadaConvencional(senhaFinalizada, nota, duracaoAtendimento);
+    await this.salvaSenhaFinalizadaConvencional(senhaFinalizada, duracaoAtendimento);
   
     // Cria uma referência ao database para a operação de update em ambos os caminhos
     const updates: { [key: string]: any } = {};

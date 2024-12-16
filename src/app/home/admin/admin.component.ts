@@ -1,107 +1,121 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { get, ref } from 'firebase/database';
+import { Database } from '@angular/fire/database';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-admin',
-  standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
   templateUrl: './admin.component.html',
-  styleUrl: './admin.component.scss'
+  styleUrls: ['./admin.component.scss'],
+  standalone: true,
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class AdminComponent implements OnInit {
   
-  //VARIÁVEL QUE CRIA FORMULARIO
   formulario!: FormGroup;
-  quantSetores: Array<any> =[];
-  
-
+  relatorio: string = '';
   constructor(
     private formBuilder: FormBuilder,
-  ){
+    private db: Database,
+    private router: Router
+  ) {}
 
-  }
-
-   // Método de inicialização do componente
   ngOnInit() {
     this.form();
   }
 
-
-   // Getter para acessar o FormArray 'setores' dentro do formulário
   get setores(): FormArray {
     return this.formulario.get('setores') as FormArray;
   }
 
-  // Getter para acessar o FormArray 'guiches' dentro do formulário
   get guiches(): FormArray {
     return this.formulario.get('guiches') as FormArray;
   }
 
-
-  // Função para criar um novo grupo de campos para 'setor', com validação obrigatória
   novoSetor(): FormGroup {
     return this.formBuilder.group({
       nomeSetor: ['', Validators.required]
     });
   }
-  
-  // Função para criar um novo grupo de campos para 'guiche', com validação obrigatória
+
   novoGuiche(): FormGroup {
     return this.formBuilder.group({
       nomeGuiche: ['', Validators.required]
     });
   }
 
-   // Função para adicionar um novo setor ao FormArray 'setores'
   adicionarSetor() {
     this.setores.push(this.novoSetor());
   }
-  // Função para adicionar um novo guichê ao FormArray 'guiches'
+
   adicionarGuiche() {
     this.guiches.push(this.novoGuiche());
   }
 
-   // Função para remover um setor do FormArray 'setores' baseado no índice
   removerSetor(index: number) {
     this.setores.removeAt(index);
   }
-   // Função para remover um guichê do FormArray 'guiches' baseado no índice
+
   removerGuiche(index: number) {
     this.guiches.removeAt(index);
   }
 
- 
-    // Função para realizar o cadastro com os dados do formulário
   cadastrar() {
-    // Lógica de cadastro
     console.log(this.formulario.value);
   }
 
-  // Função chamada quando o valor do select muda
-  onSelectChange(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement;
-    const selectedValue = selectElement.value;
-    console.log('Valor selecionado:', selectedValue);
-    // Aqui você pode usar o valor selecionado conforme necessário
-    if (selectedValue === '02') {
-      this.quantSetores = [1,2];
+  form() {
+    this.formulario = this.formBuilder.group({
+      nome: ['', [Validators.required, Validators.minLength(6)]],
+      corretor: ['', [Validators.required, Validators.minLength(8)]],
+      setores: this.formBuilder.array([]),
+      guiches: this.formBuilder.array([]),
+    });
+  }
 
+  // Função para exibir o relatório
+  async exibirRelatorio() {
+    try {
+      const dia = new Date().getDate(); // Obtém o dia atual
+      const senhaRef = ref(this.db, `avelar/senhafinalizada/${dia}`);
+      const snapshot = await get(senhaRef);
+  
+      if (snapshot.exists()) {
+        const dados = snapshot.val();
+        console.log('Relatório de Senhas Finalizadas:', dados);
+  
+        // Formatar os dados para exibição como texto
+        this.relatorio = this.formatarDados(dados);
+      } else {
+        console.log('Nenhum dado encontrado.');
+        this.relatorio = 'Nenhum dado encontrado.';
+      }
+    } catch (error) {
+      console.error('Erro ao recuperar os dados do relatório:', error);
+      this.relatorio = 'Erro ao recuperar os dados do relatório.';
     }
   }
-
-
   
-  // Função para inicializar o formulário com os campos e validações
-  form(){
-      
-    this.formulario = this.formBuilder.group({
-     
-      nome: ['',[Validators.required, Validators.minLength(6)]],
-      corretor:['',[Validators.required, Validators.minLength(8)]],
-      setores: this.formBuilder.array([]),  // Inicializa o FormArray vazio
-      guiches: this.formBuilder.array([])  // Inicializa o FormArray vazio
-      
-    })      
+  // Função para formatar os dados em texto simples
+  formatarDados(dados: any): string {
+    let texto = '';
+  
+    for (const chave in dados) {
+      if (dados.hasOwnProperty(chave)) {
+        const valor = dados[chave];
+  
+        // Se o valor for um objeto (e não for um valor simples como string, número, etc.)
+        if (typeof valor === 'object' && valor !== null) {
+          texto += `${chave}:\n${this.formatarDados(valor)}`; // Chama recursivamente para formatar o objeto
+        } else if (valor !== '' && valor !== false && valor !== null) {
+          texto += `${chave}: ${valor}\n`; // Formata como texto
+        }
+      }
+    }
+  
+    return texto || 'Nenhum dado disponível.';
   }
+
 }

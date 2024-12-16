@@ -42,40 +42,54 @@ export class AvaliarComponent implements OnInit {
     });
   }
 
-  // Função para salvar a avaliação e atualizar a senha no Firebase
   async avaliarAtendimento(): Promise<void> {
-    if (this.nota !== null) {
-      // Primeiro, pega os dados existentes para garantir que os outros dados não sejam sobrescritos
-      const senhaRef = ref(this.db, `avelar/senhafinalizada/${this.dia}/${this.finalAtendimento}`);
-      const snapshot = await get(senhaRef);  // Obter os dados atuais
-
-      if (snapshot.exists()) {
-        const dadosExistentes = snapshot.val();  // Armazenar os dados existentes
-
-        // Agora criamos um novo objeto com os dados existentes + os novos dados
-        const dadosAtualizados = {
-          ...dadosExistentes,  // Dados que já existem no nó
-          nota: this.nota,     // Atualiza ou insere a nota
-          duracaoAtendimento: this.duracaoAtendimento // Atualiza ou insere a duração do atendimento
-        };
-
-        // Agora, usamos o método `set()` para atualizar os dados no caminho correto
-        await set(senhaRef, dadosAtualizados);
-
+    if (this.nota !== null && this.duracaoAtendimento) {
+      try {
+        const dia = this.dia; // Data do atendimento
+        const finalAtendimento = Date.now().toString(); // Atribui o valor de time a finalAtendimento
+  
+        // Caminho no Realtime Database para o objeto de finalAtendimento
+        const senhaRef = ref(this.db, `avelar/senhafinalizada/${dia}/${finalAtendimento}`);
+  
+        // Verifica se o nó já existe
+        const snapshot = await get(senhaRef);
+  
+        if (!snapshot.exists()) {
+          // Se não existir, cria o nó com os dados de nota e duracaoAtendimento
+          await set(senhaRef, {
+            nota: this.nota,
+            duracaoAtendimento: this.duracaoAtendimento,
+            finalatendimento: finalAtendimento, // Garante que o ID de finalAtendimento também seja armazenado
+          });
+          console.log('Novo nó criado com os dados de avaliação.');
+        } else {
+          // Se já existir, atualiza os campos de nota e duracaoAtendimento
+          await update(senhaRef, {
+            nota: this.nota,
+            duracaoAtendimento: this.duracaoAtendimento,
+          });
+          console.log('Dados atualizados com sucesso no nó existente.');
+        }
+  
         alert('Avaliação salva com sucesso!');
-        this.resetForm();
-        this.router.navigate(['/operador']);  // Redireciona para a tela do operador
-      } else {
-        console.error('Dados não encontrados');
-        alert('Erro ao acessar os dados existentes');
+        this.resetForm(); // Limpa o formulário
+        this.router.navigate(['/operador']); // Redireciona para a tela do operador
+      } catch (error) {
+        console.error('Erro ao salvar avaliação:', error);
+        alert('Ocorreu um erro ao salvar a avaliação.');
       }
     } else {
       alert('Por favor, preencha todos os campos!');
     }
   }
+  
 
+  
   resetForm(): void {
     this.nota = null;  // Reseta a nota
-    this.duracaoAtendimento = '';  // Reseta a duração do atendimento
+    
   }
+  
+
+ 
 }
