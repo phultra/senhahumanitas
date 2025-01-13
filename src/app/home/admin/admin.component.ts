@@ -1,21 +1,45 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { get, ref } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+
+interface RelatorioItem {
+  operador: string;
+  guiche: string;
+  senha: string;
+  duracaoAtendimento: number;
+  nota: number;
+}
 
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrls: ['./admin.component.scss'],
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, CommonModule,FormsModule]
 })
 export class AdminComponent implements OnInit {
   
   formulario!: FormGroup;
   relatorio: string = '';
+  
+  
+   // Filtros
+   filtroOperador: string = '';
+   filtroGuiche: string = '';
+   filtroSenha: string = '';
+   filtroNota: string = '';
+ 
+   // Armazenar listas de valores únicos para cada coluna
+   operadores: string[] = [];
+   guichesList: string[] = [];
+   senhasList: string[] = [];
+   notasList: number[] = [];
+  
+  
+  
   constructor(
     private formBuilder: FormBuilder,
     private db: Database,
@@ -81,41 +105,88 @@ export class AdminComponent implements OnInit {
       const dia = new Date().getDate(); // Obtém o dia atual
       const senhaRef = ref(this.db, `avelar/senhafinalizada/${dia}`);
       const snapshot = await get(senhaRef);
-  
+
       if (snapshot.exists()) {
         const dados = snapshot.val();
         console.log('Relatório de Senhas Finalizadas:', dados);
-  
-        // Formatar os dados para exibição como texto
-        this.relatorio = this.formatarDados(dados);
+
+        // Preencher os filtros com os valores únicos
+        const dadosArray = Object.values(dados) as RelatorioItem[];
+        this.operadores = [...new Set(dadosArray.map((item) => item.operador))];
+        this.guichesList = [...new Set(dadosArray.map((item) => item.guiche))];
+        this.senhasList = [...new Set(dadosArray.map((item) => item.senha))];
+        this.notasList = [...new Set(dadosArray.map((item) => Number(item.nota)))];
+
+        // Gerar a tabela com a filtragem
+        this.relatorio = this.formatarRelatorioEmTabela(dadosArray);
       } else {
         console.log('Nenhum dado encontrado.');
-        this.relatorio = 'Nenhum dado encontrado.';
+        this.relatorio = '<p>Nenhum dado encontrado.</p>';
       }
     } catch (error) {
       console.error('Erro ao recuperar os dados do relatório:', error);
-      this.relatorio = 'Erro ao recuperar os dados do relatório.';
+      this.relatorio = '<p>Erro ao recuperar os dados do relatório.</p>';
     }
-  }
-  
-  // Função para formatar os dados em texto simples
-  formatarDados(dados: any): string {
-    let texto = '';
-  
-    for (const chave in dados) {
-      if (dados.hasOwnProperty(chave)) {
-        const valor = dados[chave];
-  
-        // Se o valor for um objeto (e não for um valor simples como string, número, etc.)
-        if (typeof valor === 'object' && valor !== null) {
-          texto += `${chave}:\n${this.formatarDados(valor)}`; // Chama recursivamente para formatar o objeto
-        } else if (valor !== '' && valor !== false && valor !== null) {
-          texto += `${chave}: ${valor}\n`; // Formata como texto
-        }
-      }
-    }
-  
-    return texto || 'Nenhum dado disponível.';
   }
 
+  // Função para formatar os dados em uma tabela HTML com filtro de seleção
+  formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
+    let tabelaHTML = `<table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Operador</th>
+                            <th>Guiche</th>
+                            <th>Senha</th>
+                            <th>Duração Atendimento (ms)</th>
+                            <th>Nota</th>
+                          </tr>
+                        </thead>
+                        <tbody>`;
+
+    // Itera sobre os dados e cria as linhas da tabela
+    for (let i = 0; i < dados.length; i++) {
+      const valor = dados[i];
+
+      // Filtra as linhas conforme os valores selecionados
+      if (
+        (this.filtroOperador ? valor.operador === this.filtroOperador : true) &&
+        (this.filtroGuiche ? valor.guiche === this.filtroGuiche : true) &&
+        (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
+        (this.filtroNota ? valor.nota === Number(this.filtroNota) : true)
+      ) {
+        tabelaHTML += `<tr>
+                        <td>${i + 1}</td>
+                        <td>${valor.operador || 'Não informado'}</td>
+                        <td>${valor.guiche || 'Não informado'}</td>
+                        <td>${valor.senha || 'Não informado'}</td>
+                        <td>${valor.duracaoAtendimento || 'Não informado'}</td>
+                        <td>${valor.nota || 'Não informado'}</td>
+                      </tr>`;
+      }
+    }
+
+    tabelaHTML += `</tbody></table>`;
+
+    return tabelaHTML;
+  }
+
+  // Função chamada ao selecionar um filtro
+  filtrarRelatorio() {
+    this.exibirRelatorio(); // Recarrega o relatório com o filtro aplicado
+  }
+
+  // Função para remover o filtro
+  removerFiltro(filtro: string) {
+    if (filtro === 'operador') {
+      this.filtroOperador = '';
+    } else if (filtro === 'guiche') {
+      this.filtroGuiche = '';
+    } else if (filtro === 'senha') {
+      this.filtroSenha = '';
+    } else if (filtro === 'nota') {
+      this.filtroNota = '';
+    }
+    this.exibirRelatorio(); // Atualiza o relatório com o filtro removido
+  }
 }

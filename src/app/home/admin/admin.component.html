@@ -45,17 +45,55 @@
               </div>
             </form>
           </div>
-
-          <div class="mt-4 text-center">
-            <button class="btn btn-info" (click)="exibirRelatorio()">Exibir Relatório</button>
+          
+             <!-- Relatório com filtros -->
+             <div class="form-group">
+              <button type="button" class="btn btn-primary" (click)="exibirRelatorio()">Exibir Relatório</button>
+            </div>
+  
+            <!-- Filtros -->
+            <div class="filters">
+              <div class="filter">
+                <label>Operador:</label>
+                <select [(ngModel)]="filtroOperador" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todos</option>
+                  <option *ngFor="let operador of operadores" [value]="operador">{{ operador }}</option>
+                </select>
+                <button *ngIf="filtroOperador" (click)="removerFiltro('operador')">Remover</button>
+              </div>
+              <div class="filter">
+                <label>Guiche:</label>
+                <select [(ngModel)]="filtroGuiche" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todos</option>
+                  <option *ngFor="let guiche of guichesList" [value]="guiche">{{ guiche }}</option>
+                </select>
+                <button *ngIf="filtroGuiche" (click)="removerFiltro('guiche')">Remover</button>
+              </div>
+              <div class="filter">
+                <label>Senha:</label>
+                <select [(ngModel)]="filtroSenha" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todos</option>
+                  <option *ngFor="let senha of senhasList" [value]="senha">{{ senha }}</option>
+                </select>
+                <button *ngIf="filtroSenha" (click)="removerFiltro('senha')">Remover</button>
+              </div>
+              <div class="filter">
+                <label>Nota:</label>
+                <select [(ngModel)]="filtroNota" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todos</option>
+                  <option *ngFor="let nota of notasList" [value]="nota">{{ nota }}</option>
+                </select>
+                <button *ngIf="filtroNota" (click)="removerFiltro('nota')">Remover</button>
+              </div>
+            </div>
+  
+            <!-- Relatório -->
+            <div class="relatorio">
+              <div class="relatorio" [innerHTML]="relatorio"></div>
+            </div>
           </div>
-       <!-- Exibição do relatório na página -->
-       <div class="mt-4 text-center">
-        <pre *ngIf="relatorio">{{ relatorio }}</pre> <!-- Exibe os dados do relatório -->
+        </div>
       </div>
     </div>
-  </div>
-</div>
-</div>
-</section>
+  </section>
 

@@ -84,7 +84,10 @@ type="ball-scale-multiple"
             <!-- Botões de ações para a senha -->
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirSenhaConvencional(senhaOperadorPainel)">REPETIR SENHA</button></td>
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" type="button" class="btn btn-warning btn-lg btn-block"  (click)="openModal(template,senhaOperadorPainel)" >FINALIZAR</button></td>
+            <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary" (click)="finalizarConvencional()">Finalizar Atendimento</button></td>
+            
+
+
             
           </tr>
        </tbody>
@@ -160,21 +163,22 @@ type="ball-scale-multiple"
   
 
 
- <!-- Modal para encerrar atendimento -->
- <ng-template #template>>
-         <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">ENCERRAR ATENDIMENTO</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" (click)="modalRef?.hide()"></button>
-          </div>
-          <div class="modal-body">
-            <!-- Conteúdo do modal -->
-            <p>Deseja mesmo encerrar o atendimento?.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary m-2" data-bs-dismiss="modal"(click)="modalRef?.hide()">CANCELAR</button>
-            <button type="button" class="btn btn-danger m-2" (click)="finalizarConvencional()"  >FINALIZAR</button>
-          </div>
-        </div>
+<!-- Modal para avaliação -->
+<ng-template #modalTemplate let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Selecione um número de 0 a 9 para avaliar</h5>
+    <button type="button" class="close" (click)="modal.hide()">
+      <span>&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <div *ngFor="let nota of notasDisponiveis">
+      <button (click)="selecionarNota(nota)" class="btn btn-primary">{{nota}}</button>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.hide()">Cancelar</button>
+    <button type="button" class="btn btn-primary" (click)="finalizarComNota()">Finalizar</button>
+  </div>
 </ng-template>
 

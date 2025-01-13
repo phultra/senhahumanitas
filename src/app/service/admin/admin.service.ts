@@ -486,21 +486,31 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
 
  
   //Remove uma senha das referências avelar/senhagerada e avelar/senhachamada no Realtime Database, e a salva como finalizada em avelar/senhafinalizada.
-  async finalizarSenhaChamadaConvencional(senhaFinalizada: DadosSenha, nota: number, duracaoAtendimento: string) {
+  async finalizarSenhaChamadaConvencional(
+    senhaFinalizada: DadosSenha,
+    nota: number,
+    duracaoAtendimento: string
+  ) {
     const dat = new Date();
     let dia = dat.getDate();
-    console.log(dia);
-    
-    // Agora passamos nota e duração para salvar junto com a senha
+  
+    // Conversão de string para number
+    senhaFinalizada.nota = nota;
+    senhaFinalizada.duracaoAtendimento = parseFloat(duracaoAtendimento); // Conversão
+  
+    // Salva no banco de dados
     await this.salvaSenhaFinalizadaConvencional(senhaFinalizada, duracaoAtendimento);
   
-    // Cria uma referência ao database para a operação de update em ambos os caminhos
     const updates: { [key: string]: any } = {};
-    updates[`avelar/senhagerada/${dia}/${senhaFinalizada.senhaid}`] = null; // Remove a senha da árvore 'senhagerada'
-    updates[`avelar/senhachamada/${senhaFinalizada.horachamada}`] = null; // Remove a senha da árvore 'senhachamada'
+    updates[`avelar/senhagerada/${dia}/${senhaFinalizada.senhaid}`] = null;
+    updates[`avelar/senhachamada/${senhaFinalizada.horachamada}`] = null;
   
-    // Executa a operação de update que removerá as duas entradas
+    // Salva senha finalizada
+    //updates[`avelar/senhafinalizada/${dia}/${senhaFinalizada.senhaid}`] = senhaFinalizada;
+  
     await update(ref(this.database), updates);
+  
+    console.log('Senha finalizada com nota e duração.');
   }
     // Método para atualizar o status de uma senha
   /*async atualizarStatusSenha(senha: DadosSenha) {
