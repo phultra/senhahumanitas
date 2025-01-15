@@ -291,11 +291,11 @@ export class OperadorComponent implements OnInit {
   }
 
   
-  // Abre um modal para finalizar atendimento
+  // Abre um modal para avaliar e finalizar atendimento
   openModal(template:TemplateRef<any>, senha:DadosSenha){
     this.modalRef = this.modalService.show(template);
     this.senhaFinalizar = senha;
-    this.notasDisponiveis = Array.from({ length: 10 }, (_, i) => i); // Gera os números de 0 a 9
+    this.notasDisponiveis = Array.from({ length: 10 }, (_, i) => i); 
   }
 
   
@@ -309,7 +309,7 @@ export class OperadorComponent implements OnInit {
     
      // Abre o modal para que o operador insira a nota
   this.modalRef = this.modalService.show(this.modalTemplate);
-  this.senhaFinalizar = this.senhaFinalizar; // Passa a senha para o modal
+  //this.senhaFinalizar = this.senhaFinalizar; // Passa a senha para o modal
     
     const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
   
@@ -395,24 +395,33 @@ atenderSenha(senha: DadosSenha) {
     });
 }
 // Método para calcular a duração do atendimento em milissegundos
-calcularDuracao(senha: DadosSenha): string {
-  const horaChamada = new Date(senha.horachamada);  // Hora de chamada como Data
-  const horaFinalizacao = new Date(senha.finalatendimento);  // Hora de finalização como Data
-  
-  // Verificar se as datas são válidas
-  if (isNaN(horaChamada.getTime()) || isNaN(horaFinalizacao.getTime())) {
-    console.error('Erro: uma das datas não é válida');
-    return 'corrigir';
+calcularDuracao(senha: DadosSenha): number {
+  // Verifica se os campos estão definidos e não são nulos
+  if (!senha.horachamada || !senha.finalatendimento) {
+    console.error('Erro: os campos horachamada ou finalatendimento estão ausentes.');
+    return -1; // Retorna -1 para indicar erro
   }
 
-  const duracaoMs = horaFinalizacao.getTime() - horaChamada.getTime();  // Diferença em milissegundos
+  // Converte os valores para números
+  const horaChamada = parseInt(senha.horachamada, 10);
+  const horaFinalizacao = parseInt(senha.finalatendimento, 10);
 
-  // Console log para visualizar o cálculo
-  console.log(`Hora chamada: ${horaChamada}`);
-  console.log(`Hora finalização: ${horaFinalizacao}`);
-  console.log(`Duração (ms): ${duracaoMs}`);
+  // Verifica se a conversão resultou em números válidos
+  if (isNaN(horaChamada) || isNaN(horaFinalizacao)) {
+    console.error('Erro: uma das datas não é válida.');
+    return -1; // Retorna -1 para indicar erro
+  }
 
-  return `${duracaoMs} milissegundos`;  // Retorna a diferença em milissegundos
+  // Calcula a diferença em milissegundos
+  const duracaoMs = horaFinalizacao - horaChamada;
+
+  // Verifica se a duração é válida (não negativa)
+  if (duracaoMs < 0) {
+    console.error('Erro: a hora de finalização é anterior à hora de chamada.');
+    return -1; // Retorna -1 para indicar erro
+  }
+
+  return duracaoMs;
 }
 
 selecionarNota(nota: number) {
@@ -422,6 +431,11 @@ selecionarNota(nota: number) {
 
  // Método para finalizar a senha com nota
  async finalizarComNota() {
+  console.log('Senha Finalizar:', this.senhaFinalizar);
+console.log('Nota Selecionada:', this.notaSelecionada);
+console.log('Operador:', this.operador);
+console.log('Guichê:', this.guiche);
+console.log('Senha Operador Painel:', this.senhaOperadorPainel);
   if (this.notaSelecionada === null) {
     alert('Por favor, selecione uma nota!');
     return;
@@ -457,6 +471,7 @@ selecionarNota(nota: number) {
   if (!this.senhaFinalizar.setor) {
     this.senhaFinalizar.setor = this.senhaOperadorPainel?.setor || 'Não informado';
   }
+  
 
  // Calcula a duração do atendimento
  const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
@@ -465,7 +480,7 @@ selecionarNota(nota: number) {
     await this.adminService.finalizarSenhaChamadaConvencional(
       this.senhaFinalizar,
       this.notaSelecionada,
-      duracaoAtendimento
+      duracaoAtendimento.toString()
     );
 
     alert('Atendimento finalizado com sucesso!');

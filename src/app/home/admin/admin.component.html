@@ -86,10 +86,35 @@
                 <button *ngIf="filtroNota" (click)="removerFiltro('nota')">Remover</button>
               </div>
             </div>
+            <div class="filter">
+              <label>Dia:</label>
+              <select [(ngModel)]="filtroDia" (ngModelChange)="filtrarRelatorio()">
+                <option value="">Todos</option>
+                <option *ngFor="let dia of diasList" [value]="dia">{{ dia }}</option>
+              </select>
+              <button *ngIf="filtroDia" (click)="removerFiltro('dia')">Remover</button>
+            </div>
+            <div>
+              <label for="mes">Mês:</label>
+              <select [(ngModel)]="filtroMes" (change)="filtrarRelatorio()">
+                <option value="">Selecione</option>
+                <option *ngFor="let mes of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="mes">{{ mes }}</option>
+              </select>
+            </div>
+            
+            <div>
+              <label for="semana">Semana:</label>
+              <select [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
+                <option value="">Selecione</option>
+                <option *ngFor="let semana of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]" [value]="semana">{{ semana }}</option>
+              </select>
+            </div>
   
             <!-- Relatório -->
             <div class="relatorio">
               <div class="relatorio" [innerHTML]="relatorio"></div>
+              <!--<button (click)="baixarPdf()" class="btn btn-success mt-3">Baixar Tabela em PDF</button>-->
+
             </div>
           </div>
         </div>

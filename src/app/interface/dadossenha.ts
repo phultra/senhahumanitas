@@ -14,5 +14,5 @@ export class DadosSenha {
     cliente:string='';
     senha: string ='';
     atendida: boolean = false
-  duracaoAtendimento: number = 0;
+    duracaoAtendimento: number = 0;
 }
