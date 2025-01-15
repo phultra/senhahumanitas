@@ -7,9 +7,12 @@ export class DadosSenha {
     controle: boolean= false;
     status: string='';
     horachamada:string='';
-    finalatendimento!: string;
-    //nota:number=0;
+    finalatendimento: string= '';
+    
+    
+    nota:number = 0;
     cliente:string='';
     senha: string ='';
     atendida: boolean = false
+    duracaoAtendimento: number = 0;
 }

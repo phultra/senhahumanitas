@@ -1,8 +1,8 @@
-import { Component, OnInit, TemplateRef } from '@angular/core';
+import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { AdminService } from '../../service/admin/admin.service';
 import { DadosSenha } from '../../interface/dadossenha';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BsModalRef, BsModalService, } from 'ngx-bootstrap/modal'
 import { Router } from '@angular/router';
@@ -15,7 +15,7 @@ function delay(ms: number) {
 @Component({
   selector: 'app-operador',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule,],
+  imports: [CommonModule, ReactiveFormsModule, NgxSpinnerModule, FormsModule,],
   templateUrl: './operador.component.html',
   styleUrl: './operador.component.scss',
   providers:[BsModalRef, BsModalService]
@@ -35,6 +35,13 @@ export class OperadorComponent implements OnInit {
   telalogin:boolean = true;
   mostrarSenhas: boolean = false; // Controla a exibição das senhas não atendidas
   
+  
+  // Nova propriedade para controle de avaliação
+  exibirSelecaoNota: boolean = false;
+  notasDisponiveis: number[] = Array.from({ length: 11 }, (_, i) => i); // 0 a 10
+  notaSelecionada: number | null = null;
+ 
+ 
   // Array para armazenar as senhas geradas
   senhasPreferenciais: DadosSenha[] = [];
   senhasNaoPreferenciais: DadosSenha[] = [];
@@ -47,7 +54,7 @@ export class OperadorComponent implements OnInit {
    senhaVerificar: DadosSenha[] =[];
 
    modalRef?: BsModalRef;
-
+   @ViewChild('modalTemplate') modalTemplate!: TemplateRef<any>;
   constructor(
     private adminService: AdminService,
     private formBuilder: FormBuilder,
@@ -181,6 +188,8 @@ export class OperadorComponent implements OnInit {
     await this.adminService.updateSenha(senha.senhaid, senha).then( d=> {
        this.spinner.hide();
     })
+     // Registra o momento da chamada da senha
+  this.senhaOperadorPainel = senha;  // Armazena a senha chamada
   }
   
   // Chama uma senha normal convencional
@@ -282,10 +291,11 @@ export class OperadorComponent implements OnInit {
   }
 
   
-  // Abre um modal para finalizar atendimento
+  // Abre um modal para avaliar e finalizar atendimento
   openModal(template:TemplateRef<any>, senha:DadosSenha){
     this.modalRef = this.modalService.show(template);
     this.senhaFinalizar = senha;
+    this.notasDisponiveis = Array.from({ length: 10 }, (_, i) => i); 
   }
 
   
@@ -296,21 +306,23 @@ export class OperadorComponent implements OnInit {
     let time = Date.now().toString();
     this.senhaFinalizar.finalatendimento = time;
     this.senhaFinalizar.status = '3';
-  
-    // Primeiro, salve a avaliação no banco de dados (Firebase)
-    const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
     
-    const avaliacao = {
+     // Abre o modal para que o operador insira a nota
+  this.modalRef = this.modalService.show(this.modalTemplate);
+  //this.senhaFinalizar = this.senhaFinalizar; // Passa a senha para o modal
+    
+    const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
+  
+   /* const avaliacao = {
       nomeOperador: this.operador,
       guiche: this.guiche,
       duracaoAtendimento: duracaoAtendimento,
-      nota: null, // A nota pode ser adicionada mais tarde ou preenchida com valor padrão
-    };
-    const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
-    
-    try {
-      
+      nota: null, // A nota pode ser preenchida mais tarde ou com valor padrão
+    };*/
   
+    //const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
+  
+    /*try {
       // Navegar para a página de avaliação
       await this.router.navigate(['/avaliar'], {
         queryParams: {
@@ -321,14 +333,16 @@ export class OperadorComponent implements OnInit {
         }
       });
   
-      // Atualiza o status da senha e finaliza o atendimento convencional após a navegação
-      await this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar);
+      // Agora chamamos a função `finalizarSenhaChamadaConvencional` passando os parâmetros necessários
+      const nota = 0; // Nota pode ser inicializada com valor 0 ou qualquer valor padrão
+      await this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar, nota, duracaoAtendimento);
+      
       this.modalRef?.hide(); // Fecha o modal após a navegação
   
     } catch (error) {
       console.error('Erro ao salvar avaliação: ', error);
     }
-  }
+  */}
 
   // Encerrar (Função ainda não implementada)
   encerrar(senha:DadosSenha){
@@ -338,9 +352,9 @@ export class OperadorComponent implements OnInit {
   }
       
   // Navega para a página de avaliação
-avaliar() {
+/*avaliar() {
   this.router.navigate(['/avaliar']); 
-}
+}*/
 mostrarSenhasNaoAtendidas() {
   this.adminService.getSenhasGeradas(false).subscribe(senhas => {
     // Elimina duplicatas caso existam no banco de dados ou no retorno
@@ -380,22 +394,106 @@ atenderSenha(senha: DadosSenha) {
       console.error("Erro ao atualizar o status da senha", error);
     });
 }
-// Método para calcular a duração do atendimento
-calcularDuracao(senha: DadosSenha): string {
-  const horaChamada = parseInt(senha.horachamada, 10);  // Hora de chamada
-  const horaFinalizacao = parseInt(senha.finalatendimento, 10);  // Hora de finalização
-  
-  if (!horaChamada || !horaFinalizacao) {
-    return '0 minutos';
+// Método para calcular a duração do atendimento em milissegundos
+calcularDuracao(senha: DadosSenha): number {
+  // Verifica se os campos estão definidos e não são nulos
+  if (!senha.horachamada || !senha.finalatendimento) {
+    console.error('Erro: os campos horachamada ou finalatendimento estão ausentes.');
+    return -1; // Retorna -1 para indicar erro
   }
 
-  const duracaoMs = horaFinalizacao - horaChamada; // Diferença em milissegundos
-  const duracaoMinutos = Math.floor(duracaoMs); // Converte para minutos
+  // Converte os valores para números
+  const horaChamada = parseInt(senha.horachamada, 10);
+  const horaFinalizacao = parseInt(senha.finalatendimento, 10);
 
-  return `${duracaoMinutos} milisegundos`;
+  // Verifica se a conversão resultou em números válidos
+  if (isNaN(horaChamada) || isNaN(horaFinalizacao)) {
+    console.error('Erro: uma das datas não é válida.');
+    return -1; // Retorna -1 para indicar erro
+  }
+
+  // Calcula a diferença em milissegundos
+  const duracaoMs = horaFinalizacao - horaChamada;
+
+  // Verifica se a duração é válida (não negativa)
+  if (duracaoMs < 0) {
+    console.error('Erro: a hora de finalização é anterior à hora de chamada.');
+    return -1; // Retorna -1 para indicar erro
+  }
+
+  return duracaoMs;
 }
 
+selecionarNota(nota: number) {
+  this.notaSelecionada = nota;
 
+}
+
+ // Método para finalizar a senha com nota
+ async finalizarComNota() {
+  console.log('Senha Finalizar:', this.senhaFinalizar);
+console.log('Nota Selecionada:', this.notaSelecionada);
+console.log('Operador:', this.operador);
+console.log('Guichê:', this.guiche);
+console.log('Senha Operador Painel:', this.senhaOperadorPainel);
+  if (this.notaSelecionada === null) {
+    alert('Por favor, selecione uma nota!');
+    return;
+  }
+
+  const time = Date.now().toString();
+
+  // Garante que todos os campos da senha estão preenchidos
+  this.senhaFinalizar.finalatendimento = time;
+  this.senhaFinalizar.status = '3';
+  this.senhaFinalizar.nota = this.notaSelecionada;
+
+  if (!this.senhaFinalizar.guiche) {
+    this.senhaFinalizar.guiche = this.guiche;
+  }
+
+  if (!this.senhaFinalizar.operador) {
+    this.senhaFinalizar.operador = this.operador;
+  }
+
+  if (!this.senhaFinalizar.horachamada) {
+    this.senhaFinalizar.horachamada = time
+   }
+  
+ if (!this.senhaFinalizar.senha) {
+    this.senhaFinalizar.senha = this.senhaOperadorPainel?.senha || 'Não informada';
+  }
+
+  if (!this.senhaFinalizar.senhaid) {
+    this.senhaFinalizar.senhaid = this.senhaOperadorPainel?.senhaid || 'Não informada';
+  }
+
+  if (!this.senhaFinalizar.setor) {
+    this.senhaFinalizar.setor = this.senhaOperadorPainel?.setor || 'Não informado';
+  }
+  
+
+ // Calcula a duração do atendimento
+ const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
+  try {
+    // Salva as informações no banco de dados
+    await this.adminService.finalizarSenhaChamadaConvencional(
+      this.senhaFinalizar,
+      this.notaSelecionada,
+      duracaoAtendimento.toString()
+    );
+
+    alert('Atendimento finalizado com sucesso!');
+    
+    // Esconde os botões após finalizar o atendimento
+    this.mostrarSenhas = false;  
+    this.modalRef?.hide(); // Fecha o modal
+     // Recarrega a página
+     location.reload();
+  } catch (error) {
+    console.error('Erro ao finalizar a senha:', error);
+  }
+}
 
 }
 
