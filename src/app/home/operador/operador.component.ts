@@ -302,47 +302,15 @@ export class OperadorComponent implements OnInit {
   
 
   
-  async finalizarConvencional() {
+  async finalizarConvencional(senha: DadosSenha) {
     let time = Date.now().toString();
-    this.senhaFinalizar.finalatendimento = time;
-    this.senhaFinalizar.status = '3';
-    
+    senha.finalatendimento = time;
+    senha.status = '3';
+    console.log(senha.finalatendimento);
+    this.senhaFinalizar = senha;
      // Abre o modal para que o operador insira a nota
   this.modalRef = this.modalService.show(this.modalTemplate);
-  //this.senhaFinalizar = this.senhaFinalizar; // Passa a senha para o modal
-    
-    const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
-  
-   /* const avaliacao = {
-      nomeOperador: this.operador,
-      guiche: this.guiche,
-      duracaoAtendimento: duracaoAtendimento,
-      nota: null, // A nota pode ser preenchida mais tarde ou com valor padrão
-    };*/
-  
-    //const avaliacaoRef = ref(getDatabase(), 'avaliacoes/' + Date.now());
-  
-    /*try {
-      // Navegar para a página de avaliação
-      await this.router.navigate(['/avaliar'], {
-        queryParams: {
-          operador: this.operador,
-          guiche: this.guiche,
-          duracao: duracaoAtendimento,
-          senha: this.senhaFinalizar.senha
-        }
-      });
-  
-      // Agora chamamos a função `finalizarSenhaChamadaConvencional` passando os parâmetros necessários
-      const nota = 0; // Nota pode ser inicializada com valor 0 ou qualquer valor padrão
-      await this.adminService.finalizarSenhaChamadaConvencional(this.senhaFinalizar, nota, duracaoAtendimento);
-      
-      this.modalRef?.hide(); // Fecha o modal após a navegação
-  
-    } catch (error) {
-      console.error('Erro ao salvar avaliação: ', error);
-    }
-  */}
+  }
 
   // Encerrar (Função ainda não implementada)
   encerrar(senha:DadosSenha){
@@ -373,27 +341,7 @@ mostrarSenhasNaoAtendidas() {
   });
 }
 
- // Método para marcar a senha como atendida e realizar a ação
-atenderSenha(senha: DadosSenha) {
-  senha.status = 'atendido'; // Marca a senha como atendida
 
-  // Atualiza o status da senha no Firestore utilizando o AdminService
-  this.adminService.updateSenha(senha.senhaid, { status: senha.status })
-    .then(() => {
-      alert(`Senha ${senha.senha} atendida com sucesso!`);
-
-      // Atualiza a lista de senhas para refletir a alteração
-      this.mostrarSenhas = false;
-      this.senha = this.senha.filter(s => s.senhaid !== senha.senhaid);
-
-      // Registra como finalizada no Firestore (opcional)
-      senha.finalatendimento = Date.now().toString();
-      this.adminService.salvaSenhafinalizada(senha);
-    })
-    .catch(error => {
-      console.error("Erro ao atualizar o status da senha", error);
-    });
-}
 // Método para calcular a duração do atendimento em milissegundos
 calcularDuracao(senha: DadosSenha): number {
   // Verifica se os campos estão definidos e não são nulos
@@ -431,7 +379,7 @@ selecionarNota(nota: number) {
 
  // Método para finalizar a senha com nota
  async finalizarComNota() {
-  console.log('Senha Finalizar:', this.senhaFinalizar);
+console.log('Senha Finalizar:', this.senhaFinalizar);
 console.log('Nota Selecionada:', this.notaSelecionada);
 console.log('Operador:', this.operador);
 console.log('Guichê:', this.guiche);
@@ -441,14 +389,12 @@ console.log('Senha Operador Painel:', this.senhaOperadorPainel);
     return;
   }
 
-  const time = Date.now().toString();
-
+ 
   // Garante que todos os campos da senha estão preenchidos
-  this.senhaFinalizar.finalatendimento = time;
-  this.senhaFinalizar.status = '3';
+ 
   this.senhaFinalizar.nota = this.notaSelecionada;
 
-  if (!this.senhaFinalizar.guiche) {
+ /* if (!this.senhaFinalizar.guiche) {
     this.senhaFinalizar.guiche = this.guiche;
   }
 
@@ -459,6 +405,11 @@ console.log('Senha Operador Painel:', this.senhaOperadorPainel);
   if (!this.senhaFinalizar.horachamada) {
     this.senhaFinalizar.horachamada = time
    }
+
+   if (!this.senhaFinalizar.finalatendimento) {
+    this.senhaFinalizar.finalatendimento= time
+   }
+   
   
  if (!this.senhaFinalizar.senha) {
     this.senhaFinalizar.senha = this.senhaOperadorPainel?.senha || 'Não informada';
@@ -471,16 +422,15 @@ console.log('Senha Operador Painel:', this.senhaOperadorPainel);
   if (!this.senhaFinalizar.setor) {
     this.senhaFinalizar.setor = this.senhaOperadorPainel?.setor || 'Não informado';
   }
-  
+  */
 
  // Calcula a duração do atendimento
- const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
+ //const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
   try {
     // Salva as informações no banco de dados
-    await this.adminService.finalizarSenhaChamadaConvencional(
+    await this.adminService.salvaSenhaFinalizadaConvencional(
       this.senhaFinalizar,
-      this.notaSelecionada,
-      duracaoAtendimento.toString()
+      
     );
 
     alert('Atendimento finalizado com sucesso!');

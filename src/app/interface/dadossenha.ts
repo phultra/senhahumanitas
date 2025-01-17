@@ -13,6 +13,6 @@ export class DadosSenha {
     nota:number = 0;
     cliente:string='';
     senha: string ='';
-    atendida: boolean = false
-    duracaoAtendimento: number = 0;
+
+    
 }
