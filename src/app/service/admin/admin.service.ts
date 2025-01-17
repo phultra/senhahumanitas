@@ -79,25 +79,23 @@ export class AdminService {
  // Função otimizada para salvar a senha finalizada
  async salvaSenhaFinalizadaConvencional(
   senha: DadosSenha,
-  duracaoAtendimento?: string,
-  nota?: number
+  
 ): Promise<void> {
-  const time = Date.now().toString(); // Hora da finalização
-  senha.finalatendimento = time; // Atualiza o tempo de finalização
+ // const time = Date.now().toString(); // Hora da finalização
+ // senha.finalatendimento = time; // Atualiza o tempo de finalização
 
   // Prepara os dados atualizados da senha
   const updatedSenha = {
     ...senha, // Mantém todos os dados existentes da senha
     status: 'finalizada', // Atualiza o status para "finalizada"
-    ...(duracaoAtendimento ? { duracaoAtendimento } : {}), // Atualiza ou insere a duração do atendimento
-    ...(nota !== undefined ? { nota } : {}), // Atualiza ou insere a nota
+    
   };
 
   // Obtém o dia atual
   const dia = new Date().getDate(); // Obtém o dia atual
 
   // Cria uma referência para salvar os dados no Firebase
-  const itemsRef = ref(this.database, `avelar/senhafinalizada/${dia}/${senha.finalatendimento}`);
+  const itemsRef = ref(this.database, `avelar/senhafinalizada/${senha.finalatendimento}`);
 
   try {
     // Salva os dados da senha no Firebase
@@ -306,9 +304,9 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
         });
 
         // Filtra as senhas com base no parâmetro 'atendida'
-        const senhasFiltradas = listaSenhas.filter(senha => senha.atendida === atendida);
+        
 
-        observer.next(senhasFiltradas); // Emite as senhas filtradas
+        
       } else {
         console.log("Nenhuma senha encontrada.");
         observer.next([]); // Caso não encontre senhas, emite um array vazio
@@ -486,32 +484,29 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
 
  
   //Remove uma senha das referências avelar/senhagerada e avelar/senhachamada no Realtime Database, e a salva como finalizada em avelar/senhafinalizada.
-  async finalizarSenhaChamadaConvencional(
+ /* async finalizarSenhaChamadaConvencional(
     senhaFinalizada: DadosSenha,
-    nota: number,
-    duracaoAtendimento: string
+    
   ) {
     const dat = new Date();
     let dia = dat.getDate();
   
-    // Conversão de string para number
-    senhaFinalizada.nota = nota;
-    senhaFinalizada.duracaoAtendimento = parseFloat(duracaoAtendimento); // Conversão
+  
+    
+   
   
     // Salva no banco de dados
-    await this.salvaSenhaFinalizadaConvencional(senhaFinalizada, duracaoAtendimento);
+    await this.salvaSenhaFinalizadaConvencional(senhaFinalizada) ;
   
-    const updates: { [key: string]: any } = {};
-    updates[`avelar/senhagerada/${dia}/${senhaFinalizada.senhaid}`] = null;
-    updates[`avelar/senhachamada/${senhaFinalizada.horachamada}`] = null;
-  
+    
+   
     // Salva senha finalizada
     //updates[`avelar/senhafinalizada/${dia}/${senhaFinalizada.senhaid}`] = senhaFinalizada;
   
-    await update(ref(this.database), updates);
+   
   
     console.log('Senha finalizada com nota e duração.');
-  }
+  }*/
     // Método para atualizar o status de uma senha
   /*async atualizarStatusSenha(senha: DadosSenha) {
     const senhaDocRef = doc(this.firestore, 'senhagerada', senha.senhaid); // Referência para o documento da senha
