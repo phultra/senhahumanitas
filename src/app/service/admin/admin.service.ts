@@ -107,8 +107,8 @@ export class AdminService {
 }
 
 // Função para recuperar a senha finalizada, caso necessário
-async recuperaSenhaFinalizada(dia: number, finalAtendimento: string): Promise<any> {
-  const senhaRef = ref(this.database, `avelar/senhafinalizada/${dia}/${finalAtendimento}`);
+async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
+  const senhaRef = ref(this.database, `avelar/senhafinalizada/${senha.finalatendimento}`);
   try {
     const snapshot = await get(senhaRef);
     if (snapshot.exists()) {
@@ -131,7 +131,7 @@ async recuperaSenhaFinalizada(dia: number, finalAtendimento: string): Promise<an
     const dat = new Date(millisec);
     let dia = dat.getDate();
      senha.finalatendimento = time;
-    const itemsRef = ref(this.database, `avelar/senhacontador/${dia}/${senha.finalatendimento}` );
+    const itemsRef = ref(this.database, `avelar/senhacontador/${senha.finalatendimento}` );
    // const newItemRef = push(itemsRef);
     await set(itemsRef, senha).then( d => {
       //console.log(d);
@@ -270,10 +270,10 @@ async salvaSenhafinalizada(data:DadosSenha){
    
   
   //Retorna um Observable que emite os dados da coleção senhacontador do Firestore.
-  /*getContador(): Observable<DadosContador[]> {
+  getContador(): Observable<DadosContador[]> {
     const senhasCollection = collection(this.firestore, 'senhacontador');
     return collectionData<DadosContador>(senhasCollection, { idField: 'id' }) as Observable<DadosContador[]>;
-  }*/
+  }
 
 
  // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
@@ -284,11 +284,11 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
   const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
 
   // Calcula dinamicamente o dia do mês atual
-  const hoje = new Date();
-  const diaAtual = hoje.getDate(); // Exemplo: 1, 2, ..., 31
+  //const hoje = new Date();
+  //const diaAtual = hoje.getDate(); // Exemplo: 1, 2, ..., 31
 
   // Caminho dinâmico da coleção 'senhagerada'
-  const senhasRef = ref(db, `/avelar/senhagerada/${diaAtual}`);
+  const senhasRef = ref(db, `/avelar/senhagerada`);
 
   return new Observable(observer => {
     // Escuta os dados da coleção no Firebase em tempo real
@@ -367,7 +367,7 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
     const dat = new Date(millisec);
     let dia = dat.getDate();
      
-    const dbRef = ref(this.database, `avelar/senhacontador/${dia}`);
+    const dbRef = ref(this.database, `avelar/senhacontador`);
 
     return new Observable(observer => {
       onValue(dbRef, (snapshot) => {

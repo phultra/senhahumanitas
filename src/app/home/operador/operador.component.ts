@@ -197,7 +197,7 @@ export class OperadorComponent implements OnInit {
     this.spinner.show();
     let time = Date.now().toString();
   
-    // Usar a senha passada ou a primeira da lista (funcionalidade original)
+    // Usar a senha passada ou a primeira da lista 
     const senha = senhaSelecionada || this.senhaNormalNova[0];
   
     senha.operador = this.operador;
@@ -343,7 +343,7 @@ mostrarSenhasNaoAtendidas() {
 
 
 // Método para calcular a duração do atendimento em milissegundos
-calcularDuracao(senha: DadosSenha): number {
+/*calcularDuracao(senha: DadosSenha): number {
   // Verifica se os campos estão definidos e não são nulos
   if (!senha.horachamada || !senha.finalatendimento) {
     console.error('Erro: os campos horachamada ou finalatendimento estão ausentes.');
@@ -370,7 +370,7 @@ calcularDuracao(senha: DadosSenha): number {
   }
 
   return duracaoMs;
-}
+}*/
 
 selecionarNota(nota: number) {
   this.notaSelecionada = nota;
