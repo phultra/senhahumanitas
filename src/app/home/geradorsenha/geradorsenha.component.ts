@@ -2,15 +2,16 @@ import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../../service/admin/admin.service';
 import { DadosSenha } from '../../interface/dadossenha';
 import { DadosContador } from '../../interface/dadoscontador';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { Database, get, ref } from '@angular/fire/database';
 
 
 @Component({
   selector: 'app-geradorsenha',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule,NgxSpinnerModule],
+  imports: [ReactiveFormsModule, CommonModule,NgxSpinnerModule, FormsModule],
   templateUrl: './geradorsenha.component.html',
   styleUrl: './geradorsenha.component.scss'
 })
@@ -31,19 +32,24 @@ export class GeradorsenhaComponent implements OnInit{
   formularioBusca!: FormGroup;
   // ACESSAR TELA CONVENCIONAL
   convencional: boolean = false;
+
+//SETORES 
+  setoresDisponiveis: string[] = [];
+  setorSelecionado: string = ''; // Setor escolhido
+ 
   constructor(
   private adminService: AdminService,
   private formBuilder: FormBuilder,
-  private spinner: NgxSpinnerService
-  ){
-
-  }
+  private spinner: NgxSpinnerService,
+  private db: Database // Injeta o serviço do Firebase Realtime Database
+  ){}
 
   // Método inicial executado ao carregar o componente
  async ngOnInit(){
     this.formbuilder();
     this.formBusca();
     this.convencional =true;
+    await this.carregarSetores();
    await this.adminService.getContadorSenhaConvencional().subscribe( d => {
         
       console.log(d);
@@ -73,6 +79,20 @@ export class GeradorsenhaComponent implements OnInit{
       corretor:['',[Validators.required, Validators.minLength(8)]],
     })
   }
+ 
+  // Carrega os setores do Firebase
+  async carregarSetores() {
+    const setoresRef = ref(this.db, `avelar/setor`);
+    const snapshot = await get(setoresRef);
+
+    if (snapshot.exists()) {
+      const setoresData = snapshot.val() as Record<string, { setor: string }>;
+      this.setoresDisponiveis = Object.values(setoresData).map((item) => item.setor);
+      console.log('Setores carregados:', this.setoresDisponiveis);
+    } else {
+      console.log('Nenhum setor encontrado no banco de dados.');
+    }
+  }
 
   // Gera uma nova senha normal
   async novaSenhaNormal() {
@@ -80,7 +100,17 @@ export class GeradorsenhaComponent implements OnInit{
     this.senhaNormal = 0;
     this.countNormal= 0;
     this.cadastrarSenha.operador = '';
-    this.cadastrarSenha.guiche = ''
+    this.cadastrarSenha.guiche = '';
+    // Verifica se o setor foi selecionado
+  if (!this.setorSelecionado) {
+    alert('Por favor, selecione um setor antes de gerar a senha.');
+    this.spinner.hide();
+    return;
+  }
+
+  // Atribui o setor selecionado à senha
+  this.cadastrarSenha.setor = this.setorSelecionado;
+  console.log('Setor selecionado para senha normal:', this.setorSelecionado); // Debug
     this.buscaQuantidadeSenhasGeradasConvencional('AN' , this.cadastrarSenha);
 
 
@@ -95,9 +125,20 @@ async  novaSenhaPreferencial() {
   this.cadastrarSenha.operador = 'PAULO';
   this.cadastrarSenha.guiche = '02';
   this.cadastrarSenha.preferencial =true;
-  this.buscaQuantidadeSenhasGeradasConvencional('AP' , this.cadastrarSenha);
 
-  } 
+   // Verifica se o setor foi selecionado
+   if (!this.setorSelecionado) {
+    alert('Por favor, selecione um setor antes de gerar a senha.');
+    this.spinner.hide();
+    return;
+  }
+
+  // Atribui o setor selecionado à senha
+  this.cadastrarSenha.setor = this.setorSelecionado;
+
+  this.buscaQuantidadeSenhasGeradasConvencional('AP', this.cadastrarSenha);
+}
+  
 
 
    // Cadastra uma nova senha a partir do formulário
@@ -109,6 +150,9 @@ async  novaSenhaPreferencial() {
     this.cadastrarSenha.operador = this.formulario.value.corretor;
     this.cadastrarSenha.guiche = this.formulario.value.corretor.slice(0,2);
     console.log(this.cadastrarSenha.guiche);
+
+    this.cadastrarSenha.setor = this.setorSelecionado || 'ATENDIMENTO'; // Usa o setor selecionado ou "ATENDIMENTO"
+    this.cadastrarSenha.senhaid = Date.now().toString();
 
      this.buscaQuantidadeSenhasGeradas(this.cadastrarSenha);
      //this.count++;
@@ -166,7 +210,7 @@ async  novaSenhaPreferencial() {
       // Configura e salva a senha dependendo do tipo
       if (idsenha === 'AP'){
             this.cadastrarSenha.senha = (idsenha + this.senhaPreferencial.toString());
-            this.cadastrarSenha.setor = 'ATENDIMENTO';
+            this.cadastrarSenha.setor = this.setorSelecionado;
             this.cadastrarSenha.status ='0'
             this.cadastrarSenha.senhaid = Date.now().toString();
             console.log(this.cadastrarSenha.senha);
@@ -188,7 +232,7 @@ async  novaSenhaPreferencial() {
 
       if (idsenha === 'AN') {
             this.cadastrarSenha.senha = (idsenha + this.senhaNormal.toString());
-            this.cadastrarSenha.setor = 'ATENDIMENTO';
+            this.cadastrarSenha.setor = this.setorSelecionado;
             this.cadastrarSenha.status ='0'
             this.cadastrarSenha.senhaid = Date.now().toString();
             console.log(this.cadastrarSenha.senha);
@@ -210,38 +254,21 @@ async  novaSenhaPreferencial() {
     }
 
 // Busca a quantidade de senhas geradas para um operador específico 
- async buscaQuantidadeSenhasGeradas(senha: DadosSenha){
-  this.count = 0
+async buscaQuantidadeSenhasGeradas(senha: DadosSenha) {
+  this.count = 0;
 
-  // Obtém o contador de senhas para o operado 
-  await this.adminService.getContadorSenha(senha.operador).then( d => {
-      console.log(d.length);
-       this.count = d.length +1;
-  
+  await this.adminService.getContadorSenha(senha.operador).then((d) => {
+    this.count = d.length + 1;
+  });
 
-    })
-    console.log(this.count);
-    this.cadastrarSenha.senha = ('TS'+ this.count.toString());
-    this.cadastrarSenha.setor = 'ATENDIMENTO';
-    this.cadastrarSenha.senhaid = Date.now().toString();
-    console.log(this.cadastrarSenha.senha);
-    
+  this.cadastrarSenha.senha = 'TS' + this.count.toString();
 
-    // Salva a senha nos serviços correspondentes
-     await this.adminService.salvaSenhaRealTime(this.cadastrarSenha) 
-     await this.adminService.salvaSenhaEvento(this.cadastrarSenha).then(async d => {
-    
-     console.log(d);
-     await this.adminService.imprimir(this.cadastrarSenha).subscribe(d =>{
-      console.log(d);
+  await this.adminService.salvaSenhaRealTime(this.cadastrarSenha);
+  await this.adminService.salvaSenhaEvento(this.cadastrarSenha).then(async () => {
+    await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
       this.spinner.hide();
-     })
-   }).catch(e => {
-     console.log(e);
-   });
-
-    
-  }
-
+    });
+  });
+}
 }
 

@@ -98,38 +98,82 @@ export class AdminComponent implements OnInit {
     this.guiches.removeAt(index);
   }
 
-  cadastrar() {
-    const setores = this.setores.value.map((setor: any) => setor.nomeSetor);
+  async cadastrar() {
+    const setores = this.setores.value.map((setor: any) => setor.nomeSetor.trim());
     const guiches = this.guiches.value.map((guiche: any) => guiche.nomeGuiche);
-    const nome = this.formulario.value.nome;
-    const corretor = this.formulario.value.corretor;
+    const nome = this.formulario.value.nome.trim();
+    const corretor = this.formulario.value.corretor.trim();
+    const status = this.formulario.value.status; // Obtém o valor do campo status
     const timestamp = new Date().getTime(); // Pega o timestamp atual
-
-    // Monta o caminho para salvar no Firebase
-    const caminho = `avelar/${setores[0]}/${timestamp}`; // Utiliza o primeiro setor como nome
-
-    // Salva no Firebase
-    set(ref(this.db, caminho), {
-      nome,
-      corretor,
-      
-      guiches,
-      data: timestamp
-    })
-    .then(() => {
+  
+    console.log('Status:', status); // Verifica o valor de status
+  
+    // Verificar se algum setor está vazio
+    if (setores.some((setor: string) => setor === '')) {
+      alert('Por favor, preencha o nome de todos os setores antes de cadastrar.');
+      return;
+    }
+  
+    // Verificar se o status está preenchido
+    if (status === undefined || status === null || status === '') {
+      console.error('O campo "status" está vazio ou indefinido!');
+      alert('Por favor, preencha o campo "status" antes de cadastrar.');
+      return; // Evita salvar no Firebase se o status não estiver definido
+    }
+  
+    // Verificar se o nome e corretor estão preenchidos
+    if (!nome || !corretor) {
+      alert('Por favor, preencha todos os campos obrigatórios.');
+      return;
+    }
+  
+    try {
+      // Referência ao nó 'setor' no Firebase
+      const setoresRef = ref(this.db, `avelar/setor`);
+      const snapshot = await get(setoresRef);
+  
+      if (snapshot.exists()) {
+        const setoresExistentes = snapshot.val() as Record<string, any>;
+  
+        // Verificar duplicidade ignorando maiúsculas e minúsculas
+        const setorDuplicado = Object.values(setoresExistentes).some(
+          (item: any) => item.setor.toLowerCase() === setores[0].toLowerCase()
+        );
+  
+        if (setorDuplicado) {
+          alert('Já existe um setor com este nome cadastrado.');
+          return;
+        }
+      }
+  
+      // Monta o caminho para salvar no Firebase
+      const caminho = `avelar/setor/${timestamp}`;
+  
+      // Salva no Firebase
+      await set(ref(this.db, caminho), {
+        nome,
+        corretor,
+        setor: setores.length > 0 ? setores[0] : '', // Pega o nome do primeiro setor
+        status,
+        //guiches,
+        data: timestamp,
+      });
+  
       console.log('Dados salvos com sucesso no Firebase!');
-    })
-    .catch((error) => {
-      console.error('Erro ao salvar os dados:', error);
-    });
+      alert('Dados cadastrados com sucesso!');
+    } catch (error) {
+      console.error('Erro ao verificar ou salvar os dados:', error);
+      alert('Erro ao salvar os dados. Verifique o console para mais detalhes.');
+    }
   }
-
+  
   form() {
     this.formulario = this.formBuilder.group({
       nome: ['', [Validators.required, Validators.minLength(6)]],
       corretor: ['', [Validators.required, Validators.minLength(8)]],
       setores: this.formBuilder.array([]),
       guiches: this.formBuilder.array([]),
+      status: ['', [Validators.required]], 
     });
   }
 
@@ -272,10 +316,27 @@ removerFiltro(filtro: string) {
 
 async apagarBanco(): Promise<void> {
   try {
-    const senhaRef = ref(this.db, `avelar/`); // Caminho do nó a ser apagado
-    await remove(senhaRef); // Remove todos os dados do nó
-    console.log('Dados do banco apagados com sucesso.');
-    this.relatorio = '<p>Banco de dados apagado com sucesso.</p>';
+    const avelarRef = ref(this.db, `avelar/`); // Referência ao nó 'avelar'
+    const snapshot = await get(avelarRef);
+
+    if (snapshot.exists()) {
+      const dados = snapshot.val();
+
+      // Filtra os nós para excluir todos, exceto 'setor'
+      const chavesParaApagar = Object.keys(dados).filter((chave) => chave !== 'setor');
+
+      // Apaga cada nó individualmente
+      for (const chave of chavesParaApagar) {
+        const caminho = `avelar/${chave}`;
+        await remove(ref(this.db, caminho));
+        console.log(`Nó '${chave}' apagado com sucesso.`);
+      }
+
+      this.relatorio = '<p>Banco de dados apagado com sucesso, exceto o nó "setor".</p>';
+    } else {
+      console.log('Nenhum dado encontrado em "avelar".');
+      this.relatorio = '<p>Nenhum dado encontrado para apagar.</p>';
+    }
   } catch (error) {
     console.error('Erro ao apagar o banco de dados:', error);
     this.relatorio = '<p>Erro ao apagar o banco de dados.</p>';
