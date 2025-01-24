@@ -6,7 +6,8 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { BsModalRef, BsModalService, } from 'ngx-bootstrap/modal'
 import { Router } from '@angular/router';
-import { getDatabase, ref, set } from 'firebase/database';
+import { get, getDatabase, ref, set, update } from 'firebase/database';
+import { Database } from '@angular/fire/database';
 // Importar o Modal do Bootstrap
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -41,7 +42,12 @@ export class OperadorComponent implements OnInit {
   notasDisponiveis: number[] = Array.from({ length: 11 }, (_, i) => i); // 0 a 10
   notaSelecionada: number | null = null;
  
- 
+ //SETORES
+ setoresDisponiveis: string[] = ['Atendimento', 'Financeiro', 'Suporte']; // Exemplo de setores
+ setorSelecionado: string = '';
+ senhasFiltradas: DadosSenha[] = []; // Senhas filtradas pelo setor
+
+
   // Array para armazenar as senhas geradas
   senhasPreferenciais: DadosSenha[] = [];
   senhasNaoPreferenciais: DadosSenha[] = [];
@@ -61,12 +67,15 @@ export class OperadorComponent implements OnInit {
     private spinner: NgxSpinnerService,
     private modalService: BsModalService,
     private router: Router,
+    private db: Database,
   ) {}
 
 
   ngOnInit(): void {
     this.formbuilder()
-    
+     // Carrega os setores disponíveis
+  this.carregarSetores();
+
     // Obtém as senhas geradas do serviço AdminService
     /*this.adminService.getSenhasGeradas().subscribe(d => {
       console.log(d.length);
@@ -83,6 +92,7 @@ export class OperadorComponent implements OnInit {
     this.adminService.getSenhaGeradaConvencional().subscribe(d =>{
       console.log(d.length);
       this.repetirSenha = d;
+      this.filtrarSenhasPorSetor();
       this.senhaNormalNova = [];
       this.senhaPreferencial = [];
         for (let index = 0; index < d.length; index++) {
@@ -112,12 +122,31 @@ export class OperadorComponent implements OnInit {
   // Criação do formulário de login do operador
   formbuilder(){
     this.formulario = this.formBuilder.group({
+      setor: ['', Validators.required],
       guiche: ['',[Validators.required, Validators.minLength(5)]],
       nome: ['',[Validators.required, Validators.minLength(6)]],
     })      
   }
 
-  
+  // Filtra as senhas com base no setor selecionado
+filtrarSenhasPorSetor() {
+  if (!this.setorSelecionado) {
+    console.warn('Nenhum setor selecionado.');
+    return;
+  }
+
+  // Filtra as senhas geradas convencionalmente pelo setor
+  this.senhaNormalNova = this.repetirSenha.filter(
+    (senha) => senha.setor === this.setorSelecionado && senha.status === '0' && !senha.preferencial
+  );
+
+  this.senhaPreferencial = this.repetirSenha.filter(
+    (senha) => senha.setor === this.setorSelecionado && senha.status === '0' && senha.preferencial
+  );
+
+  console.log('Senhas normais no setor:', this.senhaNormalNova);
+  console.log('Senhas preferenciais no setor:', this.senhaPreferencial);
+}
   // Função para gerar uma nova senha
   novasenha() {}
   
@@ -187,6 +216,7 @@ export class OperadorComponent implements OnInit {
     await this.adminService.salvaSenhaChamada(senha)
     await this.adminService.updateSenha(senha.senhaid, senha).then( d=> {
        this.spinner.hide();
+       this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
     })
      // Registra o momento da chamada da senha
   this.senhaOperadorPainel = senha;  // Armazena a senha chamada
@@ -195,9 +225,9 @@ export class OperadorComponent implements OnInit {
   // Chama uma senha normal convencional
   async chamarSenhaNormalConvencional(senhaSelecionada?: DadosSenha) {
     this.spinner.show();
-    let time = Date.now().toString();
+    const time = Date.now().toString();
   
-    // Usar a senha passada ou a primeira da lista 
+    // Usar a senha passada ou a primeira da lista
     const senha = senhaSelecionada || this.senhaNormalNova[0];
   
     senha.operador = this.operador;
@@ -206,23 +236,33 @@ export class OperadorComponent implements OnInit {
     senha.horachamada = time;
     this.senhaOperadorPainel = senha;
   
+    const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
+    
+  
     try {
       await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
       await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
-      console.log("Senha chamada:", senha);
+  
+      // Remove dos caminhos especificados no Firebase
+      await update(ref(this.db), {
+        [senhageradaPath]: null,
+      });
+  
+      console.log("Senha chamada e removida:", senha);
     } catch (error) {
       console.error("Erro ao chamar senha normal:", error);
     } finally {
       this.spinner.hide();
+      this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
     }
   }
  
   // Chama uma senha preferencial convencional
   async chamarsenhapreferencial(senhaSelecionada?: DadosSenha) {
     this.spinner.show();
-    let time = Date.now().toString();
+    const time = Date.now().toString();
   
-    // Usar a senha passada ou a primeira da lista (funcionalidade original)
+    // Usar a senha passada ou a primeira da lista
     const senha = senhaSelecionada || this.senhaPreferencial[0];
   
     senha.operador = this.operador;
@@ -231,24 +271,48 @@ export class OperadorComponent implements OnInit {
     senha.horachamada = time;
     this.senhaOperadorPainel = senha;
   
+    
+    const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
+
     try {
       await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
       await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
-      console.log("Senha chamada:", senha);
+  
+      // Remove dos caminhos especificados no Firebase
+      await update(ref(this.db), {
+        [senhageradaPath]: null,
+      });
+  
+      console.log("Senha chamada e removida:", senha);
     } catch (error) {
       console.error("Erro ao chamar senha preferencial:", error);
     } finally {
       this.spinner.hide();
+      this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
     }
   }
+// Carrega os setores do Firebase
+async carregarSetores() {
+  const setoresRef = ref(this.db, `avelar/setor`);
+  const snapshot = await get(setoresRef);
 
+  if (snapshot.exists()) {
+    const setoresData = snapshot.val() as Record<string, { setor: string }>;
+    this.setoresDisponiveis = Object.values(setoresData).map((item) => item.setor);
+    console.log('Setores carregados:', this.setoresDisponiveis);
+  } else {
+    console.log('Nenhum setor encontrado no banco de dados.');
+  }
+}
   // Registra operador no sistema
   cadastrar(){
     console.log(this.formulario.value);
     if(this.formulario.value){
       this.operador = this.formulario.value.corretor;
+      this.setorSelecionado = this.formulario.value.setor;
       this.telaoperador = true;
-      console.log(this.operador);
+      this.filtrarSenhasPorSetor(); // Atualiza senhas após cadastro
+      console.log(this.operador);   
     } else {
       alert('você precisa informar nome e número do local de atendimento');
     }
@@ -271,13 +335,18 @@ export class OperadorComponent implements OnInit {
     console.log(this.formulario.value);
     if(this.formulario.value){
       this.operador = this.formulario.value.nome;
+      this.setorSelecionado = this.formulario.value.setor; 
       this.guiche = this.formulario.value.guiche;
       this.telaoperador = true;
+      this.filtrarSenhasPorSetor();
       console.log(this.operador);
     } else {
       alert('você precisa informar nome e número do local de atendimento');
     }
     
+      // Filtra as senhas do operador atual
+  this.senhaVerificar = [];
+
     for (let index = 0; index < this.repetirSenha.length; index++) {
       
       if(this.repetirSenha[index].guiche === this.guiche) {
@@ -342,35 +411,7 @@ mostrarSenhasNaoAtendidas() {
 }
 
 
-// Método para calcular a duração do atendimento em milissegundos
-/*calcularDuracao(senha: DadosSenha): number {
-  // Verifica se os campos estão definidos e não são nulos
-  if (!senha.horachamada || !senha.finalatendimento) {
-    console.error('Erro: os campos horachamada ou finalatendimento estão ausentes.');
-    return -1; // Retorna -1 para indicar erro
-  }
 
-  // Converte os valores para números
-  const horaChamada = parseInt(senha.horachamada, 10);
-  const horaFinalizacao = parseInt(senha.finalatendimento, 10);
-
-  // Verifica se a conversão resultou em números válidos
-  if (isNaN(horaChamada) || isNaN(horaFinalizacao)) {
-    console.error('Erro: uma das datas não é válida.');
-    return -1; // Retorna -1 para indicar erro
-  }
-
-  // Calcula a diferença em milissegundos
-  const duracaoMs = horaFinalizacao - horaChamada;
-
-  // Verifica se a duração é válida (não negativa)
-  if (duracaoMs < 0) {
-    console.error('Erro: a hora de finalização é anterior à hora de chamada.');
-    return -1; // Retorna -1 para indicar erro
-  }
-
-  return duracaoMs;
-}*/
 
 selecionarNota(nota: number) {
   this.notaSelecionada = nota;
@@ -391,47 +432,20 @@ console.log('Senha Operador Painel:', this.senhaOperadorPainel);
 
  
   // Garante que todos os campos da senha estão preenchidos
- 
-  this.senhaFinalizar.nota = this.notaSelecionada;
+ this.senhaFinalizar.nota = this.notaSelecionada;
+ const senhachamadaPath = `avelar/senhachamada/${this.senhaFinalizar.horachamada}`;
 
- /* if (!this.senhaFinalizar.guiche) {
-    this.senhaFinalizar.guiche = this.guiche;
-  }
-
-  if (!this.senhaFinalizar.operador) {
-    this.senhaFinalizar.operador = this.operador;
-  }
-
-  if (!this.senhaFinalizar.horachamada) {
-    this.senhaFinalizar.horachamada = time
-   }
-
-   if (!this.senhaFinalizar.finalatendimento) {
-    this.senhaFinalizar.finalatendimento= time
-   }
-   
-  
- if (!this.senhaFinalizar.senha) {
-    this.senhaFinalizar.senha = this.senhaOperadorPainel?.senha || 'Não informada';
-  }
-
-  if (!this.senhaFinalizar.senhaid) {
-    this.senhaFinalizar.senhaid = this.senhaOperadorPainel?.senhaid || 'Não informada';
-  }
-
-  if (!this.senhaFinalizar.setor) {
-    this.senhaFinalizar.setor = this.senhaOperadorPainel?.setor || 'Não informado';
-  }
-  */
-
- // Calcula a duração do atendimento
- //const duracaoAtendimento = this.calcularDuracao(this.senhaFinalizar);
   try {
     // Salva as informações no banco de dados
-    await this.adminService.salvaSenhaFinalizadaConvencional(
-      this.senhaFinalizar,
-      
-    );
+    await this.adminService.salvaSenhaFinalizadaConvencional(this.senhaFinalizar);
+    
+    
+ // Remove dos caminhos especificados no Firebase (apaga os dados da senha chamada)
+    await update(ref(this.db), {
+      [senhachamadaPath]: null,
+    });
+    
+    console.log(`Senha com finalatendimento ${this.senhaFinalizar.senhaid} apagada com sucesso no caminho: ${senhachamadaPath}`);
 
     alert('Atendimento finalizado com sucesso!');
     

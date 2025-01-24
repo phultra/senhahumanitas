@@ -263,7 +263,7 @@ async buscaQuantidadeSenhasGeradas(senha: DadosSenha) {
 
   this.cadastrarSenha.senha = 'TS' + this.count.toString();
 
-  await this.adminService.salvaSenhaRealTime(this.cadastrarSenha);
+  //await this.adminService.salvaSenhaRealTime(this.cadastrarSenha);
   await this.adminService.salvaSenhaEvento(this.cadastrarSenha).then(async () => {
     await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
       this.spinner.hide();
