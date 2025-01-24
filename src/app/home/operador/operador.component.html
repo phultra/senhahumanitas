@@ -136,7 +136,16 @@ type="ball-scale-multiple"
               <input class="fa fa-user" name="nome" type="text" formControlName="nome"   Placeholder="Nome do Operador" required> <!-- JS because of IE support; better: placeholder="Username" -->
 
             </div>
-              
+              <!-- Seleção de setor -->
+<div class="mb-4">
+  <label style="color: aliceblue;" for="setorSelecionado" class="m-1">Informe o Setor:</label>
+  <select id="setorSelecionado" formControlName="setor">
+    <option value="" disabled selected>Selecione um setor</option> <!-- Placeholder -->
+    <option *ngFor="let setor of setoresDisponiveis" [value]="setor">
+      {{ setor }}
+    </option>
+  </select>
+</div>
             <!-- Botão para entrar no sistema -->
              <div>
                 <!--  <span style="width:48%; text-align:left;  display: inline-block;"><a class="small-text" href="#">Forgot

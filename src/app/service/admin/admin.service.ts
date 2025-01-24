@@ -151,7 +151,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
     const dat = new Date(millisec);
     let dia = dat.getDate();
      
-    const itemsRef = ref(this.database, `avelar/senhagerada/${dia}/${senha.senhaid}` );
+    const itemsRef = ref(this.database, `avelar/senhagerada/${senha.senhaid}` );
    // const newItemRef = push(itemsRef);
     return set(itemsRef, senha).then(async d => {
       //console.log(d);
@@ -187,7 +187,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
 
 
   // Salva uma senha em um caminho genérico no Realtime Database
- async salvaSenhaRealTime(senha: DadosSenha){
+/* async salvaSenhaRealTime(senha: DadosSenha){
    
     const millisec = Number(Date.now());
     const dat = new Date(millisec);
@@ -203,7 +203,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
       console.log(e);
    
    })
-  }
+  }*/
 
 
   // Salva os contadores de senhas (normal e preferencial) no Firestore
@@ -392,7 +392,7 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
     const dat = new Date();
     let dia = dat.getDate();
      console.log(dia);
-    const dbRef = ref(this.database, `avelar/senhagerada/${dia}`);
+    const dbRef = ref(this.database, `avelar/senhagerada/`);
    
     return new Observable(observer => {
       onValue(dbRef, (snapshot) => {
@@ -436,7 +436,7 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
   updateSenhaRealtimeConvencional(id: string, data: Partial<DadosSenha>): Promise<void> {
     const dat = new Date();
     let dia = dat.getDate();
-    const senhaRef = ref(this.database, `avelar/senhagerada/${dia}/${id}`);
+    const senhaRef = ref(this.database, `avelar/senhagerada/${id}`);
     return update(senhaRef, data);
   }
 
