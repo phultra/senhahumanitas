@@ -91,6 +91,26 @@
               </select>
               <button *ngIf="filtroNota" (click)="removerFiltro('nota')" class="btn btn-sm btn-danger mt-2">Remover</button>
             </div>
+            <div class="filter col-md-3 text-center">
+              <label>Setor:</label>
+              <select [(ngModel)]="filtroSetor" (ngModelChange)="filtrarRelatorio()">
+                <option value="">Todos</option>
+                <option *ngFor="let setor of setoresList" [value]="setor">{{ setor }}</option>
+              </select>
+              
+              <button *ngIf="filtroSetor" (click)="removerFiltro('setor')" class="btn btn-sm btn-danger mt-2">Remover</button>
+            </div>
+
+            <div class="filter col-md-3 text-center">
+              <label>Preferencial:</label>
+              <select [(ngModel)]="filtroPreferencial" (ngModelChange)="filtrarRelatorio()">
+                <option value="">Todos</option>
+                
+                <option *ngFor="let preferencial of preferencialList" [value]="preferencial">{{ preferencial }}</option>
+              </select>
+              
+              <button *ngIf="filtroPreferencial" (click)="removerFiltro('preferencial')" class="btn btn-sm btn-danger mt-2">Remover</button>
+            </div>
           </div>
 
           <div class="filters row justify-content-center">

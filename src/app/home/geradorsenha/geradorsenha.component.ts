@@ -186,73 +186,65 @@ async  novaSenhaPreferencial() {
 
   
   // Busca a quantidade de senhas geradas no modo convencional
-  async buscaQuantidadeSenhasGeradasConvencional(idsenha: string, senha: DadosSenha){
-    this.count =0
+  async buscaQuantidadeSenhasGeradasConvencional(idsenha: string, senha: DadosSenha) {
+    this.count = 0;
     this.senhaNormal = 0;
     this.senhaPreferencial = 0;
-
-       // Conta as senhas preferenciais e normais
-      for (let index = 0; index < this.senha.length; index++) {
-        if(this.senha[index].preferencial === true){
-          this.senhaPreferencial = this.senhaPreferencial +1;  
-          console.log(this.senhaPreferencial);  
-        } else if(this.senha[index].preferencial === false){
-          this.senhaNormal=this.senhaNormal +1;
-          console.log(this.senhaNormal);
-        } 
-      }
-
-     
-      console.log(this.senhaNormal++);
-      console.log(this.senhaPreferencial++);
-
-      
-      // Configura e salva a senha dependendo do tipo
-      if (idsenha === 'AP'){
-            this.cadastrarSenha.senha = (idsenha + this.senhaPreferencial.toString());
-            this.cadastrarSenha.setor = this.setorSelecionado;
-            this.cadastrarSenha.status ='0'
-            this.cadastrarSenha.senhaid = Date.now().toString();
-            console.log(this.cadastrarSenha.senha);
-          await this.adminService.salvaSenhaContadorConvencional(this.cadastrarSenha); 
-          
-          // Salva a senha no banco de dados e imprime
-          await this.adminService.salvaSenhaConvencionalRealime(this.cadastrarSenha).then(async d => {
-          
-            console.log(d);
-           // this.spinner.hide();
-           await this.adminService.imprimir(this.cadastrarSenha).subscribe(d =>{
-            console.log(d);
-            this.spinner.hide();
-            })
-          }).catch(e => {
-            console.log(e);
-          });
-      } 
-
-      if (idsenha === 'AN') {
-            this.cadastrarSenha.senha = (idsenha + this.senhaNormal.toString());
-            this.cadastrarSenha.setor = this.setorSelecionado;
-            this.cadastrarSenha.status ='0'
-            this.cadastrarSenha.senhaid = Date.now().toString();
-            console.log(this.cadastrarSenha.senha);
-          await this.adminService.salvaSenhaContadorConvencional(this.cadastrarSenha); 
-          await this.adminService.salvaSenhaConvencionalRealime(this.cadastrarSenha).then(async d => {
-          
-            console.log(d);
-            //this.spinner.hide();
-           await this.adminService.imprimir(this.cadastrarSenha).subscribe(d =>{
-            console.log(d);
-            this.spinner.hide();
-            })
-          }).catch(e => {
-            console.log(e);
-          });
-      }
   
-      this.cadastrarSenha.preferencial =false;
+    // Conta as senhas preferenciais e normais, filtrando pelo setor
+    for (let index = 0; index < this.senha.length; index++) {
+      if (this.senha[index].setor === this.setorSelecionado) { // Filtra pelo setor
+        if (this.senha[index].preferencial === true) {
+          this.senhaPreferencial++;
+          console.log(this.senhaPreferencial);
+        } else if (this.senha[index].preferencial === false) {
+          this.senhaNormal++;
+          console.log(this.senhaNormal);
+        }
+      }
     }
-
+  
+    console.log(this.senhaNormal);
+    console.log(this.senhaPreferencial);
+  
+    // Configura e salva a senha dependendo do tipo
+    if (idsenha === 'AP') {
+      this.cadastrarSenha.senha = idsenha + this.senhaPreferencial.toString();
+      this.cadastrarSenha.setor = this.setorSelecionado;
+      this.cadastrarSenha.status = '0';
+      this.cadastrarSenha.senhaid = Date.now().toString();
+      console.log(this.cadastrarSenha.senha);
+  
+      await this.adminService.salvaSenhaContadorConvencional(this.cadastrarSenha);
+      await this.adminService.salvaSenhaConvencionalRealime(this.cadastrarSenha).then(async () => {
+        await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
+          this.spinner.hide();
+        });
+      }).catch((e) => {
+        console.log(e);
+      });
+    }
+  
+    if (idsenha === 'AN') {
+      this.cadastrarSenha.senha = idsenha + this.senhaNormal.toString();
+      this.cadastrarSenha.setor = this.setorSelecionado;
+      this.cadastrarSenha.status = '0';
+      this.cadastrarSenha.senhaid = Date.now().toString();
+      console.log(this.cadastrarSenha.senha);
+  
+      await this.adminService.salvaSenhaContadorConvencional(this.cadastrarSenha);
+      await this.adminService.salvaSenhaConvencionalRealime(this.cadastrarSenha).then(async () => {
+        await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
+          this.spinner.hide();
+        });
+      }).catch((e) => {
+        console.log(e);
+      });
+    }
+  
+    this.cadastrarSenha.preferencial = false;
+  }
+  
 // Busca a quantidade de senhas geradas para um operador específico 
 async buscaQuantidadeSenhasGeradas(senha: DadosSenha) {
   this.count = 0;

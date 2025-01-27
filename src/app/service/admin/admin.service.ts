@@ -279,13 +279,9 @@ async salvaSenhafinalizada(data:DadosSenha){
  // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
 // Agora recebe um parâmetro opcional 'atendida' para filtrar as senhas atendidas ou não atendidas.
 // Função para buscar senhas de acordo com o parâmetro atendida
-getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
+getSenhasGeradas(): Observable<DadosSenha[]> {
   const db = getDatabase(); // Obtenha a instância do banco de dados
   const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
-
-  // Calcula dinamicamente o dia do mês atual
-  //const hoje = new Date();
-  //const diaAtual = hoje.getDate(); // Exemplo: 1, 2, ..., 31
 
   // Caminho dinâmico da coleção 'senhagerada'
   const senhasRef = ref(db, `/avelar/senhagerada`);
@@ -303,10 +299,7 @@ getSenhasGeradas(atendida: boolean): Observable<DadosSenha[]> {
           return senha;
         });
 
-        // Filtra as senhas com base no parâmetro 'atendida'
-        
-
-        
+        observer.next(listaSenhas); // Emite todas as senhas
       } else {
         console.log("Nenhuma senha encontrada.");
         observer.next([]); // Caso não encontre senhas, emite um array vazio
