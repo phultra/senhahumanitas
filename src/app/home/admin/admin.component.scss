@@ -134,18 +134,23 @@ h3 {
 /* Estilos para o relatório */
 .relatorio {
   margin-top: 30px;
+  
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 20px;
+  margin: 10px; /* Adiciona margem ao redor da tabela */
+  border: 2px solid black; /* Borda preta */
+  
 }
 
 th, td {
   padding: 10px;
   text-align: center;
-  border: 1px solid #ccc;
+  border: 1px solid black; /* Borda preta nas células */
+
 }
 
 th {
@@ -164,7 +169,7 @@ button {
 
 button.btn-info {
   background-color: #17a2b8;
-  color: white;
+  color: rgb(20, 19, 19);
 }
 
 button.btn-primary {
@@ -181,3 +186,4 @@ button.btn-success {
   background-color: #28a745;
   color: white;
 }
+

@@ -18,6 +18,8 @@ interface RelatorioItem {
   dataCompleta:Date;
   finalatendimento: number;
   horachamada: number;
+  setor: string;
+  preferencial: boolean;
 }
 
 @Component({
@@ -41,6 +43,8 @@ export class AdminComponent implements OnInit {
    filtroNota: string = '';
    filtroMes: string = '';  
    filtroSemana: string = ''; 
+   filtroSetor: string = '';
+   filtroPreferencial: string = '';
  
    // Armazenar listas de valores únicos para cada coluna
    operadores: string[] = [];
@@ -48,6 +52,9 @@ export class AdminComponent implements OnInit {
    senhasList: string[] = [];
    notasList: number[] = [];
    diasList: number[] = [];
+   setoresList:string[] = [];
+   preferencialList: string[] = [];
+
   
   // Dados armazenados para o relatório
   dadosArray: RelatorioItem[] = [];
@@ -217,7 +224,8 @@ async exibirRelatorio() {
         this.senhasList = [...new Set(dadosArray.map((item) => item.senha))];
         this.notasList = [...new Set(dadosArray.map((item) => Number(item.nota)))];
         this.diasList = [...new Set(dadosArray.map((item) => item.dia))];
-
+        this.setoresList = [...new Set(dadosArray.map((item) => item.setor))];
+        this.preferencialList = ['Sim' , 'Não']
         // Gerar a tabela com a filtragem
         this.relatorio = this.formatarRelatorioEmTabela(dadosArray);
       } else {
@@ -243,9 +251,10 @@ getSemanaDoAno(data: Date): number {
 
 // Função para formatar os dados em uma tabela HTML com filtro de seleção
 formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
-  let tabelaHTML = `<table class="table table-bordered">
+  let tabelaHTML = `<table class="table-bordered">
                       <thead>
                         <tr>
+                          <th>Setor</th>
                           <th>Dia</th>
                           <th>Mês</th>
                           <th>Semana</th>
@@ -254,6 +263,7 @@ formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
                           <th>Senha</th>
                           <th>Duração Atendimento (ms)</th>
                           <th>Nota</th>
+                          <th>Preferencial</th>
                         </tr>
                       </thead>
                       <tbody>`;
@@ -270,9 +280,12 @@ formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
       (this.filtroOperador ? valor.operador === this.filtroOperador : true) &&
       (this.filtroGuiche ? valor.guiche === this.filtroGuiche : true) &&
       (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
-      (this.filtroNota ? valor.nota === Number(this.filtroNota) : true)
+      (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) &&
+      (this.filtroSetor ? valor.setor === this.filtroSetor : true) &&
+      (this.filtroPreferencial ? valor.preferencial.toString() === this.filtroPreferencial : true)
     ) {
       tabelaHTML += `<tr>
+                      <td>${valor.setor || 'Não informado'}</td>
                       <td>${valor.dia || 'Não informado'}</td>
                       <td>${valor.mes || 'Não informado'}</td>
                       <td>${valor.semana || 'Não informado'}</td>
@@ -281,6 +294,7 @@ formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
                       <td>${valor.senha || 'Não informado'}</td>
                       <td>${valor.duracaoAtendimento || 'Não informado'}</td>
                       <td>${valor.nota || 'Não informado'}</td>
+                      <td>${valor.preferencial ? 'Sim' : 'Não'}</td>
                     </tr>`;
     }
   }
@@ -310,6 +324,11 @@ removerFiltro(filtro: string) {
     this.filtroMes = '';
   } else if (filtro === 'semana') {
     this.filtroSemana = '';
+  } else if (filtro === 'setor') {
+    this.filtroSetor = '';
+  }
+  else if (filtro === 'preferencial') {
+    this.filtroPreferencial = '';
   }
   this.exibirRelatorio(); // Atualiza o relatório com o filtro removido
 }

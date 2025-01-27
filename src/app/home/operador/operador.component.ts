@@ -333,6 +333,22 @@ async carregarSetores() {
   // Registra operador convencional no sistema
   cadastrarConvencional(){
     console.log(this.formulario.value);
+    
+     // Verifica se o setor foi selecionado
+  if (!this.formulario.value.setor) {
+    alert('Por favor, selecione um setor!');
+    return; // Sai do método se o setor não foi selecionado
+  }
+  if (!this.formulario.value.guiche) {
+    alert('Por favor, selecione um guichê!');
+    return; // Sai do método se o guiche não foi selecionado
+  }
+  if (!this.formulario.value.nome) {
+    alert('Por favor, escreva seu nome!');
+    return; // Sai do método se o nome não foi escrito
+  } 
+    
+    
     if(this.formulario.value){
       this.operador = this.formulario.value.nome;
       this.setorSelecionado = this.formulario.value.setor; 
@@ -393,21 +409,37 @@ async carregarSetores() {
   this.router.navigate(['/avaliar']); 
 }*/
 mostrarSenhasNaoAtendidas() {
-  this.adminService.getSenhasGeradas(false).subscribe(senhas => {
-    // Elimina duplicatas caso existam no banco de dados ou no retorno
-    const senhasUnicas = Array.from(new Set(senhas.map(s => s.senha)))
-      .map(senhaUnica => senhas.find(s => s.senha === senhaUnica)!);
+  console.log("Função chamada!");
 
-    // Atribui a lista de senhas filtradas
-    this.senha = senhasUnicas; // Para manter compatibilidade com o estado anterior
-    this.senhasPreferenciais = senhasUnicas.filter(s => s.preferencial);
-    this.senhasNaoPreferenciais = senhasUnicas.filter(s => !s.preferencial);
+  this.adminService.getSenhasGeradas().subscribe(
+    (senhas) => {
+      console.log('Senhas recebidas:', senhas);
+      if (!senhas || senhas.length === 0) {
+        console.warn('Nenhuma senha encontrada.');
+        return;
+      }
 
-    console.log("Senhas Preferenciais:", this.senhasPreferenciais);
-    console.log("Senhas Não Preferenciais:", this.senhasNaoPreferenciais);
-  }, error => {
-    console.error("Erro ao buscar senhas:", error);
-  });
+      // Elimina duplicatas baseado no campo 'senha'
+      const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
+        .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
+     
+
+      // Filtra as senhas de acordo com o setor (guiche)
+      const senhasDoSetor = senhasUnicas.filter(s => s.setor === this.setorSelecionado);
+      console.log('Senhas do setor:', senhasDoSetor);
+
+      // Atribui a lista de senhas filtradas
+      this.senha = senhasDoSetor; // Lista de senhas do setor
+      this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
+      this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
+
+      // Atualiza a flag para exibir as senhas
+      this.mostrarSenhas = true;
+    },
+    (error) => {
+      console.error('Erro ao buscar senhas:', error);
+    }
+  );
 }
 
 
