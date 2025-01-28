@@ -51,6 +51,52 @@
               </div>
             </form>
           </div>
+
+          <!-- Formulário para cadastrar usuário -->
+<form [formGroup]="formulario" (ngSubmit)="cadastrarUsuario()">
+  <div>
+    <label for="nome">Nome</label>
+    <input id="nome" formControlName="nome" type="text" />
+    <div *ngIf="formulario.get('nome')?.invalid && formulario.get('nome')?.touched">
+      <small *ngIf="formulario.get('nome')?.hasError('required')">Nome é obrigatório.</small>
+      <small *ngIf="formulario.get('nome')?.hasError('minlength')">Nome deve ter pelo menos 6 caracteres.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="email">Email</label>
+    <input id="email" formControlName="email" type="email" />
+    <div *ngIf="formulario.get('email')?.invalid && formulario.get('email')?.touched">
+      <small *ngIf="formulario.get('email')?.hasError('required')">Email é obrigatório.</small>
+      <small *ngIf="formulario.get('email')?.hasError('email')">Email inválido.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="senha">Senha</label>
+    <input id="senha" formControlName="senha" type="password" />
+    <div *ngIf="formulario.get('senha')?.invalid && formulario.get('senha')?.touched">
+      <small *ngIf="formulario.get('senha')?.hasError('required')">Senha é obrigatória.</small>
+      <small *ngIf="formulario.get('senha')?.hasError('minlength')">Senha deve ter pelo menos 6 caracteres.</small>
+    </div>
+  </div>
+
+  <div>
+    <label for="funcao">Função</label>
+    <select id="funcao" formControlName="funcao">
+      <option value="">Selecione uma função</option>
+      <option value="admin">Admin</option>
+      <option value="user">User</option>
+    </select>
+    <div *ngIf="formulario.get('funcao')?.invalid && formulario.get('funcao')?.touched">
+      <small *ngIf="formulario.get('funcao')?.hasError('required')">Função é obrigatória.</small>
+    </div>
+  </div>
+
+  <button type="submit" [disabled]="formulario.invalid">Cadastrar</button>
+</form>
+
+  
           
            <!-- Relatório com filtros -->
            <div class="form-group">

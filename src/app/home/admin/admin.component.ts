@@ -5,6 +5,8 @@ import { Database } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import{ jsPDF} from 'jspdf';
+import { AuthService } from '../../service/auth/auth.service';
+import { createUserWithEmailAndPassword, getAuth } from '@angular/fire/auth';
 
 interface RelatorioItem {
   operador: string;
@@ -62,13 +64,47 @@ export class AdminComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private db: Database,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {}
 
   ngOnInit() {
-    this.form();
+    // Verifica se o usuário está autenticado ao carregar o componente
+    if (!this.authService.isUserAuthenticated()) {
+      this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
+    } else {
+      this.form();  // Continua com o carregamento normal do componente
+      this.formCadastroUsuario();
+    }
   }
 
+    // Função para o cadastro de um novo usuário
+    async cadastrarUsuario() {
+      const { email, senha, funcao } = this.formulario.value;
+  
+      try {
+        // Cria o usuário no Firebase Authentication
+        const auth = getAuth();
+        const userCredential = await createUserWithEmailAndPassword(auth, email, senha);
+        const user = userCredential.user;
+  
+        // Após criar o usuário, salve a função no banco de dados
+        const userRef = ref(this.db, 'usuarios/' + user.uid); // Salva no nó 'usuarios' com o UID do usuário
+        await set(userRef, {
+          email: user.email,
+          funcao: funcao, // Atribui a função ao usuário
+          uid: user.uid,
+        });
+        console.log(this.formulario.valid);
+        alert('Usuário cadastrado com sucesso!');
+        this.formulario.reset();
+        // Redirecionar para a página de login ou outra página, caso necessário
+        this.router.navigate(['/login']);
+      } catch (error) {
+        console.error('Erro ao cadastrar usuário:', error);
+        alert('Erro ao cadastrar o usuário. Verifique os dados e tente novamente.');
+      }
+    }
   get setores(): FormArray {
     return this.formulario.get('setores') as FormArray;
   }
@@ -174,6 +210,17 @@ export class AdminComponent implements OnInit {
     }
   }
   
+   // Função para inicializar o formulário de cadastro de usuário
+   formCadastroUsuario() {
+    this.formulario = this.formBuilder.group({
+      nome: ['', [Validators.required, Validators.minLength(6)]],
+      email: ['', [Validators.required, Validators.email]],
+      senha: ['', [Validators.required, Validators.minLength(6)]],
+      funcao: ['', [Validators.required]] // Campo para a função do usuário
+      
+    });
+  }
+
   form() {
     this.formulario = this.formBuilder.group({
       nome: ['', [Validators.required, Validators.minLength(6)]],
@@ -282,7 +329,7 @@ formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
       (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
       (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) &&
       (this.filtroSetor ? valor.setor === this.filtroSetor : true) &&
-      (this.filtroPreferencial ? valor.preferencial.toString() === this.filtroPreferencial : true)
+      (this.filtroPreferencial ? valor.preferencial === (this.filtroPreferencial === 'Sim') : true)
     ) {
       tabelaHTML += `<tr>
                       <td>${valor.setor || 'Não informado'}</td>

@@ -62,7 +62,7 @@ export class AdminService {
       //nota: 0,
       cliente: senha.cliente,
       senha: senha.senha,
-      atendida: false, //ainda nao atendida
+      //atendida: false, //ainda nao atendida
     }).then(async d => {
        //console.log(d);
        console.log('Senha salva com SUCESSO'+ d);
@@ -295,7 +295,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
         // Converte o objeto de senhas em um array
         const listaSenhas: DadosSenha[] = Object.values(senhas).map((senha: any) => {
           // Define o status de 'atendida' com base na propriedade 'horachamada'
-          senha.atendida = (senha.horachamada !== ''); // Atendida se 'horachamada' não estiver vazia
+          //senha.atendida = (senha.horachamada !== ''); // Atendida se 'horachamada' não estiver vazia
           return senha;
         });
 
