@@ -8,19 +8,19 @@ type="ball-scale-multiple"
 </ngx-spinner>
 
 <!--TELA DE CADASTRO DE SENHA-->
-<section *ngIf="!convencional">
-<div class="main">
+<!--<section *ngIf="!convencional">
+<div class="main">-->
   
   
-  <div class="container">    
+ <!--<div class="container"> -->   
      <!-- Logo da empresa -->
-    <div class="d-flex justify-content-center"><img style="width:10%; margin-bottom: 8%;" src="./assets/img/logouai.png"/></div> 
+   <!-- <div class="d-flex justify-content-center"><img style="width:10%; margin-bottom: 8%;" src="./assets/img/logouai.png"/></div> 
   <div class="middle">
     <div id="login">
       <form  [formGroup]="formulario"  (ngSubmit)="cadastrar()">
-        <fieldset class="clearfix">
+        <fieldset class="clearfix">-->
            <!-- Campo para selecionar o corretor -->
-          <div class="mb-4">
+         <!-- <div class="mb-4">
             <label style="width:60%; color: aliceblue;" for="selectedOption">Selecione Corretor:</label>
             <select id="selectedOption" formControlName="corretor">
               
@@ -42,19 +42,19 @@ type="ball-scale-multiple"
               <option value="16 - LEONARDO">16 - LEONARDO</option>  
               <option value="00 - TESTE">00 - TESTE</option> 
             </select>
-          </div>
+          </div> -->
            
           <!-- Campo para informar o nome do cliente -->
-          <div class="mb-4" >
+          <!--<div class="mb-4" >
             <label style=" color: aliceblue;" for="selectedOption">Informe nome do cliente:</label>
-            <input class="fa fa-user" name="nome" type="text" formControlName="nome"   Placeholder="Nome do Cliente" required> <!-- JS because of IE support; better: placeholder="Username" -->
-          </div>
+            <input class="fa fa-user" name="nome" type="text" formControlName="nome"   Placeholder="Nome do Cliente" required>  JS because of IE support; better: placeholder="Username" 
+          </div>-->
 
              <!-- Botão de envio do formulário para cadastrar a senha -->
-            <div>
+         <!--   <div> -->
               <!--  <span style="width:48%; text-align:left;  display: inline-block;"><a class="small-text" href="#">Forgot
                password?</a></span> -->
-               <span style="width:60%; text-align:right;  display: inline-block;"><input type="submit" name="submit" value="CADASTRAR  SENHA"></span>
+              <!-- <span style="width:60%; text-align:right;  display: inline-block;"><input type="submit" name="submit" value="CADASTRAR  SENHA"></span>
             </div>
 
         </fieldset>
@@ -64,16 +64,16 @@ type="ball-scale-multiple"
 
       <div class="clearfix"></div>
 
-    </div> <!-- end login -->
+    </div>--> <!-- end login -->
     
     <!-- Seção de verificação de clientes por corretor -->
-    <div class="logo ">
-        <div>
+   <!--<div class="logo ">
+        <div> -->
           <!-- Label para buscar clientes por corretor -->
-          <label style=" color: aliceblue;" for="selectedOption">Verfique Clientes por corretor:</label>
-          <form  [formGroup]="formularioBusca"  (ngSubmit)="verificar()">
-            <fieldset class="clearfix">
-              <div class="mb-4">
+          <!--<label style=" color: aliceblue;" for="selectedOption">Verfique Clientes por corretor:</label>
+         <form  [formGroup]="formularioBusca"  (ngSubmit)="verificar()">
+            <fieldset class="clearfix"> -->
+             <!--- <div class="mb-4">
                 <select id="selectedOption" formControlName="corretor">
                   
                   <option value="01 - ALESSANDRA FRANCO">01 - ALESSANDRA FRANCO</option>
@@ -94,19 +94,19 @@ type="ball-scale-multiple"
                   <option value="16 - LEONARDO">16 - LEONARDO</option>  
                   <option value="00 - TESTE">00 - TESTE</option> 
                 </select>
-              </div>
+              </div>-->
                    
                <!-- Botão para verificar os clientes cadastrados para o corretor selecionado -->  
-              <div class="mb-3">
+              <!--<div class="mb-3">
                    <span style="width:60%;  text-align:right;  display: inline-block;"><input style="padding:5%; background-color: rgb(19, 18, 17); color: aliceblue;" type="submit" name="submit" value="VERIFICAR"></span>
-                </div>
+                </div>-->
   
-            </fieldset>
+           <!-- </fieldset>
          <div class="clearfix"></div>
-          </form>
+          </form> -->
           
            <!-- Tabela com a lista de clientes e suas senhas -->
-          <div class="table-container">
+         <!-- <div class="table-container">
             <table class="table">
               <thead>
                 <tr>
@@ -133,7 +133,7 @@ type="ball-scale-multiple"
    </div>
   </div>
 </div> 
-</section>  
+</section> --> 
 <!--TELA CONVENCIONAL-->
 <section *ngIf="convencional" >
   <div class="main">
