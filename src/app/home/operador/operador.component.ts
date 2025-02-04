@@ -8,6 +8,7 @@ import { BsModalRef, BsModalService, } from 'ngx-bootstrap/modal'
 import { Router } from '@angular/router';
 import { get, getDatabase, ref, set, update } from 'firebase/database';
 import { Database } from '@angular/fire/database';
+import { AuthService } from '../../service/auth/auth.service';
 // Importar o Modal do Bootstrap
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -68,13 +69,18 @@ export class OperadorComponent implements OnInit {
     private modalService: BsModalService,
     private router: Router,
     private db: Database,
+     private authService: AuthService
   ) {}
 
 
   ngOnInit(): void {
+    // Verifica se o usuário está autenticado ao carregar o componente
+  if (!this.authService.isUserAuthenticated()) {
+    this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
+  } else {
     this.formbuilder()
      // Carrega os setores disponíveis
-  this.carregarSetores();
+  this.carregarSetores();}
 
     // Obtém as senhas geradas do serviço AdminService
     /*this.adminService.getSenhasGeradas().subscribe(d => {

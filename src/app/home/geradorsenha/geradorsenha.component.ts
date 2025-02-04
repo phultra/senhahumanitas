@@ -6,6 +6,8 @@ import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { Database, get, ref } from '@angular/fire/database';
+import { AuthService } from '../../service/auth/auth.service';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -41,11 +43,17 @@ export class GeradorsenhaComponent implements OnInit{
   private adminService: AdminService,
   private formBuilder: FormBuilder,
   private spinner: NgxSpinnerService,
-  private db: Database // Injeta o serviço do Firebase Realtime Database
+  private db: Database, // Injeta o serviço do Firebase Realtime Database
+  private router: Router,
+  private authService: AuthService
   ){}
 
   // Método inicial executado ao carregar o componente
  async ngOnInit(){
+  // Verifica se o usuário está autenticado ao carregar o componente
+  if (!this.authService.isUserAuthenticated()) {
+    this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
+  } else {
     this.formbuilder();
     this.formBusca();
     this.convencional =true;
@@ -59,7 +67,7 @@ export class GeradorsenhaComponent implements OnInit{
 
      
     })
-
+}
   }
 
  // Método para inicializar o formulário de cadastro de senhas
@@ -122,8 +130,8 @@ async  novaSenhaPreferencial() {
   this.spinner.show();
   this.senhaPreferencial = 0;
   this.countPreferencial = 0;
-  this.cadastrarSenha.operador = 'PAULO';
-  this.cadastrarSenha.guiche = '02';
+  //this.cadastrarSenha.operador = 'PAULO';
+ // this.cadastrarSenha.guiche = '02';
   this.cadastrarSenha.preferencial =true;
 
    // Verifica se o setor foi selecionado
