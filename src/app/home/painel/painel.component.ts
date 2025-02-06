@@ -3,145 +3,191 @@ import { AdminService } from '../../service/admin/admin.service';
 import { DadosSenha } from '../../interface/dadossenha';
 import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
+import { AuthService } from '../../service/auth/auth.service';
+import { Router } from '@angular/router';
+import { Database, ref, get } from '@angular/fire/database';
 
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
+
 @Component({
   selector: 'app-painel',
   standalone: true,
-  imports: [CommonModule,],
+  imports: [CommonModule],
   templateUrl: './painel.component.html',
   styleUrl: './painel.component.scss'
 })
-export class PainelComponent implements OnInit{
+export class PainelComponent implements OnInit {
 
   psenha: string = '000';
   pguiche: string = '00';
   pnome: string = 'Nome';
-  senha: DadosSenha[] =[];
-  senhasChamadas:DadosSenha[] = [];
+  senha: DadosSenha[] = [];
+  senhasChamadas: DadosSenha[] = [];
+  setorUsuario: string = ''; // Armazena o setor do usuário logado
+  setoresDisponiveis: string[] = []; // Lista de setores disponíveis
+  setorSelecionado: string = ''; // Setor escolhido pelo usuário
   ppreferencial: boolean = false;
   private synth = window.speechSynthesis;
   audio = new Audio();
-  
-   
-  //private currentIndex: number = 0; // Índice da senha atual
-  
-  
   private queue: (() => Promise<void>)[] = [];
   private isSpeaking = false;
   private senhasChamadasSubject = new BehaviorSubject<DadosSenha[]>([]);
-  senhasChamadas$ = this.senhasChamadasSubject.asObservable(); // Exponha como Observable para o HTML
+  senhasChamadas$ = this.senhasChamadasSubject.asObservable();
   ni: number = 0;
+  private setorUsuarioDefinido = false; // Impede que o setor seja alterado mais de uma vez
+
+
 
   constructor(
-    private adminService: AdminService
+    private adminService: AdminService,
+    private authService: AuthService,
+    private router: Router,
+    private db: Database
   ) {}
- 
- // Inicializa o componente e carrega as senhas do painel convencional.
-  ngOnInit(){
+
+  ngOnInit() {
+    if (!this.authService.isUserAuthenticated()) {
+      this.router.navigate(['/login']);
+    } else {
+      this.carregarSetores(); // Carrega os setores disponíveis
+      this.verificarSetorUsuario(); // Garante que o usuário selecione o setor correto
+    }
+  }
+
+  // Carrega os setores do Firebase
+  async carregarSetores() {
+    const setoresRef = ref(this.db, `avelar/setor`);
+    const snapshot = await get(setoresRef);
+
+    if (snapshot.exists()) {
+      const setoresData = snapshot.val() as Record<string, { setor: string }>;
+      this.setoresDisponiveis = Object.values(setoresData).map(item => item.setor);
+      console.log('Setores carregados:', this.setoresDisponiveis);
+    } else {
+      console.log('Nenhum setor encontrado no banco de dados.');
+    }
+  }
+
+  // Verifica se o usuário logado pertence ao setor selecionado
+  async verificarSetorUsuario() {
+    // Criamos um identificador único para cada aba
+    const abaId = this.gerarIdentificadorAba();
   
-     // CÓDIGO PAINEL CONVENCIONAL
-    this.adminService.getSenhaPainelConvencional().subscribe(async d =>{
-      console.log(d.length);
-      this.senha = [];
-      this.senhasChamadas =[];
-      
-      // Filtra as senhas baseadas no status e popula os arrays correspondentes.
-      for (let index = 0; index < d.length; index++) {
-       // console.log(index);
-        if ( d[index].status === '1' ){
-            this.senha.push(d[index]);  
-            console.log(this.senha);
-         
+    // Verifica se já há um setor salvo para esta aba
+    const setorSalvo = localStorage.getItem(`setorUsuario_${abaId}`);
+    if (setorSalvo) {
+      this.setorUsuario = setorSalvo;
+      this.setorUsuarioDefinido = true;
+      console.log(`Setor carregado para a aba ${abaId}:`, this.setorUsuario);
+      this.carregarSenhasDoSetor();
+      return;
+    }
+  
+    // Se ainda não foi definido, busca do banco
+    this.authService.getUser().subscribe(async user => {
+      if (user && !this.setorUsuarioDefinido) {
+        const userRef = ref(this.db, `usuarios/${user.uid}`);
+        const snapshot = await get(userRef);
+  
+        if (snapshot.exists()) {
+          this.setorUsuario = snapshot.val().setor.trim().toLowerCase();
+  
+          // Salva no localStorage com o ID da aba
+          localStorage.setItem(`setorUsuario_${abaId}`, this.setorUsuario);
+          this.setorUsuarioDefinido = true;
+          
+          console.log(`Setor do usuário logado (Aba ${abaId}):`, this.setorUsuario);
+  
+          // Se o setor selecionado for diferente, corrige
+          if (this.setorSelecionado.trim().toLowerCase() !== this.setorUsuario) {
+            alert(`Você só pode acessar senhas do setor: ${this.setorUsuario}`);
+            this.setorSelecionado = this.setorUsuario;
+          }
+  
+          this.carregarSenhasDoSetor();
         }
-
-        if ( d[index].status === '2' ){
-          this.senhasChamadas.push(d[index]);  
-        //  console.log(this.senhasChamadas);
       }
-      }
-        
-     // this.senha.reverse()
-     // console.log(this.senha);
-     console.log(this.senha);
-     console.log(this.senhasChamadas);
-
-
-     // Configura um intervalo para tocar o áudio da próxima senha a cada 3 segundos.
-     const interval = setInterval(async () => {
-      if(this.senha[0] != undefined) {
-        
-        await this.playAudio(this.senha[0]);
-        console.log('ENTROU MAIS UMA VEZ');
-      }
-     }, 3000);
+    });
+  }
   
+  // Gera um identificador único para cada aba
+private gerarIdentificadorAba(): string {
+  // Sempre gera um novo ID quando a aba é recarregada
+  const abaId = Math.random().toString(36).substring(2, 15); // Gera um ID aleatório
+  sessionStorage.setItem('abaId', abaId); // Salva o novo ID no sessionStorage
+  return abaId;
+}
 
+  // Carrega apenas as senhas do setor correspondente
+  private carregarSenhasDoSetor() {
+    this.adminService.getSenhaPainelConvencional().subscribe(async d => {
+      this.senha = [];
+      this.senhasChamadas = [];
+
+      for (let index = 0; index < d.length; index++) {
+        const senhaRef = ref(this.db, `avelar/senhachamada/${d[index].horachamada}`);
+        const snapshot = await get(senhaRef);
+
+        if (snapshot.exists()) {
+          const senhaData = snapshot.val();
+
+          // Filtra apenas senhas do setor do usuário logado
+          if (senhaData.setor && senhaData.setor.trim().toLowerCase() === this.setorUsuario.trim().toLowerCase()) {
+            if (d[index].status === '1') {
+              this.senha.push(d[index]);
+            } else if (d[index].status === '2') {
+              this.senhasChamadas.push(d[index]);
+            }
+          }
+        }
+      }
+
+      console.log('Senhas filtradas:', this.senha);
+      console.log('Senhas chamadas filtradas:', this.senhasChamadas);
+
+      const interval = setInterval(async () => {
+        if (this.senha[0] != undefined) {
+          await this.playAudio(this.senha[0]);
+        }
+      }, 3000);
     });
 
-    
-  
     this.pegavalor(this.senhasChamadas.length);
     this.audio.src = "../assets/audio/SOM.wav";
     this.audio.load();
-  
   }
 
- // Função para adicionar e substituir senhas chamadas
- atualizarSenhasChamadas(senha: DadosSenha) {
-  const senhas = this.senhasChamadasSubject.value; // Obtém o valor atual
-  
-  // Remove a senha mais antiga se já houver 3
-  if (senhas.length >= 4) {
-    senhas.shift();
+  atualizarSenhasChamadas(senha: DadosSenha) {
+    const senhas = this.senhasChamadasSubject.value;
+    if (senhas.length >= 4) {
+      senhas.shift();
+    }
+    senhas.push(senha);
+    this.senhasChamadasSubject.next(senhas);
   }
 
-  // Adiciona a nova senha
-  senhas.push(senha);
-
-  // Atualiza o Subject com o novo valor
-  this.senhasChamadasSubject.next(senhas);
-}
-
-
-  // Define o valor do índice de senhas chamadas.
   pegavalor(valor: number) {
     this.ni = valor;
-    
   }
 
+  async playAudio(senha: DadosSenha) {
+    this.senha[0].status = '2';
+    this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
 
- // Reproduz o áudio associado à senha atual e atualiza seu status.
-async  playAudio(senha:DadosSenha) {
-   // const audio = new Audio();
-   // audio.src = "../assets/audio/SOM.wav";
-   //  audio.load();
-   //  audio.play(); // Espera o áudio ser tocado
-   this.senha[0].status = '2';
-  this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
-   console.log(senha.senha)
-    await delay(3000).then(async d=>{
-      console.log('Audio OK');
+    await delay(3000).then(async () => {
       this.psenha = senha.senha;
       this.pguiche = senha.guiche;
       this.pnome = senha.cliente;
-      
       this.atualizarSenhasChamadas(senha);
-      
-      // Converte a senha em fala e toca o áudio associado.
-      await this.falarSenha(senha).then(d =>{
-        console.log(d);
+
+      await this.falarSenha(senha).then(() => {
         this.audio.play();
-       
-      })
-    })
-    
+      });
+    });
   }
 
-
-    // Converte a senha e informações associadas em fala utilizando a API SpeechSynthesis.
   private async falarSenha(senha: DadosSenha) {
     return new Promise<void>((resolve, reject) => {
       const checkSpeaking = setInterval(() => {
@@ -149,49 +195,38 @@ async  playAudio(senha:DadosSenha) {
           clearInterval(checkSpeaking);
 
           const utterThis = new SpeechSynthesisUtterance(`${senha.cliente} Senha ${senha.senha} Guichê ${senha.guiche}`);
-          utterThis.rate = 0.9; // Define a velocidade da fala.
+          utterThis.rate = 0.9;
 
-
-          // Resolve a promessa quando a fala for concluída.
           utterThis.onend = () => {
-            console.log('Terminado de falar.');
             this.isSpeaking = false;
-            this.processQueue(); // Processa a próxima fala na fila
+            this.processQueue();
             resolve();
           };
 
-          
-          // Lida com erros durante a fala.
-          utterThis.onerror = (event) => {
+          utterThis.onerror = event => {
             console.error('Erro ao falar: ', event.error);
             this.isSpeaking = false;
-            this.processQueue(); // Processa a próxima fala na fila, mesmo em caso de erro
+            this.processQueue();
             reject(event.error);
           };
 
-
-          // Inicia a fala.
           this.synth.speak(utterThis);
           this.isSpeaking = true;
         }
-      }, 100); // Verifica a cada 100ms
+      }, 100);
     });
   }
 
-
-  // Processa a fila de falas para garantir que uma fala seja executada de cada vez.
   private processQueue() {
     if (!this.isSpeaking && this.queue.length > 0) {
-      const speakFn = this.queue.shift(); // Pega a próxima função na fila
+      const speakFn = this.queue.shift();
       if (speakFn) {
-        speakFn().catch((error) => {
+        speakFn().catch(error => {
           console.error(error);
           this.isSpeaking = false;
-          this.processQueue(); // Em caso de erro, processa a próxima na fila
+          this.processQueue();
         });
       }
     }
   }
-
-
 }

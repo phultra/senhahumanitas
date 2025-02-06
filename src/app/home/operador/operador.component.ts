@@ -490,8 +490,14 @@ console.log('Senha Operador Painel:', this.senhaOperadorPainel);
     // Esconde os botões após finalizar o atendimento
     this.mostrarSenhas = false;  
     this.modalRef?.hide(); // Fecha o modal
-     // Recarrega a página
-     location.reload();
+     // Remove a senha finalizada da lista de senhas não atendidas
+    this.senha = this.senha.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
+    this.senhasPreferenciais = this.senhasPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
+    this.senhasNaoPreferenciais = this.senhasNaoPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
+
+     
+    // Recarrega a página
+     //location.reload();
   } catch (error) {
     console.error('Erro ao finalizar a senha:', error);
   }
