@@ -47,7 +47,7 @@ export class AuthService {
       this.router.navigate(['/admin']);
     } else if (funcao === 'ChamaSenha') {
       this.router.navigate(['/inicio']);
-    } else if (funcao === 'painel') {
+    } else if (funcao === 'Painel') {
       this.router.navigate(['/painel']);
     } else if (funcao === 'operador') {
       this.router.navigate(['/operador']);
