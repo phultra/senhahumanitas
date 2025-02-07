@@ -54,8 +54,8 @@ export class GeradorsenhaComponent implements OnInit{
   if (!this.authService.isUserAuthenticated()) {
     this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
   } else {
-    this.formbuilder();
-    this.formBusca();
+    //this.formbuilder();
+   // this.formBusca();
     this.convencional =true;
     await this.carregarSetores();
    await this.adminService.getContadorSenhaConvencional().subscribe( d => {
@@ -71,7 +71,7 @@ export class GeradorsenhaComponent implements OnInit{
   }
 
  // Método para inicializar o formulário de cadastro de senhas
-  formbuilder(){
+  /*formbuilder(){
       
     this.formulario = this.formBuilder.group({
      
@@ -79,14 +79,14 @@ export class GeradorsenhaComponent implements OnInit{
       corretor:['',[Validators.required, Validators.minLength(8)]],
       
     })      
-  }
+  }*/
 
   // Método para inicializar o formulário de busca de senhas
-  formBusca() {
+ /* formBusca() {
     this.formularioBusca = this.formBuilder.group({
       corretor:['',[Validators.required, Validators.minLength(8)]],
     })
-  }
+  }*/
  
   // Carrega os setores do Firebase
   async carregarSetores() {
@@ -150,7 +150,7 @@ async  novaSenhaPreferencial() {
 
 
    // Cadastra uma nova senha a partir do formulário
-  async cadastrar(){
+ /* async cadastrar(){
     this.spinner.show();
     this.count = 0
     console.log(this.formulario.value.corretor);
@@ -166,11 +166,11 @@ async  novaSenhaPreferencial() {
      //this.count++;
     
      this.formulario.reset()
-  }
+  }*/
 
   
   // Verifica as senhas cadastradas para o operador informado
-  verificar() {
+ /* verificar() {
     this.senhaVerificar = [];
     console.log(this.formularioBusca.value);
     this.operador = this.formularioBusca.value.corretor;
@@ -190,7 +190,7 @@ async  novaSenhaPreferencial() {
     if (this.senhaVerificar.length ===0){
       alert('Não exite senha cadastrada para esse corretor');
      }
-  }
+  }*/
 
   
   // Busca a quantidade de senhas geradas no modo convencional

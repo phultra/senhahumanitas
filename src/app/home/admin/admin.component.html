@@ -6,7 +6,11 @@
           <div class="mt-4 text-center">
             <h3 class="text-white">Cadastrar Dados da Empresa</h3>
           </div>
-
+          <div style="margin-bottom: 160px;"></div>
+          
+          <div style="text-align: center;">
+            <strong>Cadastrar novo setor</strong>
+          </div>
           <div class="col-md-12">
             <form [formGroup]="formulario" (ngSubmit)="cadastrar()">
               <div class="form-group">
@@ -51,13 +55,15 @@
               </div>
             </form>
           </div>
-
-          <!-- Formulário para cadastrar usuário -->
+          <div style="margin-bottom: 40px;"></div>
+          <div style="text-align: center;">
+            <strong>Cadastrar Usuário</strong>
+          </div>
 <!-- Formulário para cadastrar usuário -->
 <form [formGroup]="formularioUsuario" (ngSubmit)="cadastrarUsuario()">
   <div>
     <label for="nomeUsuario">Nome</label>
-    <input id="nomeUsuario" formControlName="nome" type="text" />
+    <input id="nomeUsuario" formControlName="nome" class="form-control" type="text" />
     <div *ngIf="formularioUsuario.get('nome')?.invalid && formularioUsuario.get('nome')?.touched">
       <small *ngIf="formularioUsuario.get('nome')?.hasError('required')">Nome é obrigatório.</small>
       <small *ngIf="formularioUsuario.get('nome')?.hasError('minlength')">Nome deve ter pelo menos 6 caracteres.</small>
@@ -66,7 +72,7 @@
 
   <div>
     <label for="email">Email</label>
-    <input id="email" formControlName="email" type="email" />
+    <input id="email" formControlName="email" class="form-control" type="email" />
     <div *ngIf="formularioUsuario.get('email')?.invalid && formularioUsuario.get('email')?.touched">
       <small *ngIf="formularioUsuario.get('email')?.hasError('required')">Email é obrigatório.</small>
       <small *ngIf="formularioUsuario.get('email')?.hasError('email')">Email inválido.</small>
@@ -75,7 +81,7 @@
 
   <div>
     <label for="senha">Senha</label>
-    <input id="senha" formControlName="senha" type="password" />
+    <input id="senha" formControlName="senha" class="form-control" type="password" />
     <div *ngIf="formularioUsuario.get('senha')?.invalid && formularioUsuario.get('senha')?.touched">
       <small *ngIf="formularioUsuario.get('senha')?.hasError('required')">Senha é obrigatória.</small>
       <small *ngIf="formularioUsuario.get('senha')?.hasError('minlength')">Senha deve ter pelo menos 6 caracteres.</small>
@@ -84,7 +90,7 @@
 
   <div>
     <label for="funcao">Função</label>
-    <select id="funcao" formControlName="funcao">
+    <select id="funcao" class="form-control" formControlName="funcao">
       <option value="">Selecione uma função</option>
       <option value="admin">Admin</option>
       <option value="operador">Operador</option>
@@ -99,7 +105,7 @@
 
   <div>
     <label for="setor">Setor</label>
-    <select id="setor" formControlName="setor">
+    <select id="setor" class="form-control" formControlName="setor">
       <option value="">Selecione um setor</option>
       <option *ngFor="let setor of setoresDisponiveis" [value]="setor">{{ setor }}</option>
     </select>
@@ -108,13 +114,15 @@
     </div>
   </div>
 
-  <button type="submit" [disabled]="formularioUsuario.invalid">Cadastrar</button>
+  <button type="submit" [disabled]="formularioUsuario.invalid" class="btn btn-success">Cadastrar</button>
 </form>
   
           
            <!-- Relatório com filtros -->
            <div class="form-group">
             <button type="button" class="btn btn-primary" (click)="exibirRelatorio()">Exibir Relatório</button>
+            <!-- Botão para carregar usuários -->
+            <button type="button" class="btn btn-primary" (click)="exibirUsuarios()">Exibir Usuários</button>
           </div>
 
           <!-- Filtros -->
@@ -197,12 +205,34 @@
               </select>
             </div>
           </div>
-
-          <!-- Relatório -->
-          <div class="relatorio">
-            <div class="relatorio" [innerHTML]="relatorio"></div>
-            <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
-          </div>
+<!-- Tabela de usuários -->
+<div *ngIf="mostrarUsuarios" class="usuarios-container">
+  <h3>Usuários Cadastrados</h3>
+  <table class="table-bordered">
+    <thead>
+      <tr>
+        <th>Email</th>
+        <th>Setor</th>
+        <th>Função</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let usuario of usuariosSalvos">
+        <td>{{ usuario.email }}</td>
+        <td>{{ usuario.setor }}</td>
+        <td>{{ usuario.funcao }}</td>
+      </tr>
+    </tbody>
+  </table>
+  <button (click)="fecharUsuarios()" class="btn btn-secondary">Fechar lista de usuários</button>
+  <div style="margin-bottom: 20px;"></div>
+</div>
+        <!-- Relatório -->
+<div *ngIf="mostrarRelatorio" class="usuarios-container">
+  <div class="usuarios-container" [innerHTML]="relatorio"></div>
+  <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
+  <button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>
+</div>
         </div>
       </div>
     </div>

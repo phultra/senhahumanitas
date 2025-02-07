@@ -86,7 +86,10 @@ type="ball-scale-multiple"
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirSenhaConvencional(senhaOperadorPainel)">REPETIR SENHA</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
             
-
+ <!-- Exibição do setor selecionado no canto da tela -->
+ <div *ngIf="setorSelecionado" class="setor-info">
+  <p>Setor Selecionado: {{ setorSelecionado }}</p>
+</div>
 
             
           </tr>
@@ -139,12 +142,14 @@ type="ball-scale-multiple"
               <!-- Seleção de setor -->
 <div class="mb-4">
   <label style="color: aliceblue;" for="setorSelecionado" class="m-1">Informe o Setor:</label>
-  <select id="setorSelecionado" formControlName="setor">
+  <select id="setorSelecionado" formControlName="setor" (change)="onSetorSelecionado()">
     <option value="" disabled selected>Selecione um setor</option> <!-- Placeholder -->
     <option *ngFor="let setor of setoresDisponiveis" [value]="setor">
       {{ setor }}
     </option>
   </select>
+
+ 
 </div>
             <!-- Botão para entrar no sistema -->
              <div>
