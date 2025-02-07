@@ -58,7 +58,11 @@ export class AdminComponent implements OnInit {
    diasList: number[] = [];
    setoresList:string[] = [];
    preferencialList: string[] = [];
+   usuariosSalvos: { email: string; setor: string; funcao: string }[] = []; // Lista de usuários
+   //exibirUsuarios: boolean = false; // Controla a exibição da tabela
 
+   mostrarUsuarios: boolean = false;
+   mostrarRelatorio: boolean = false;
   
   // Dados armazenados para o relatório
   dadosArray: RelatorioItem[] = [];
@@ -120,6 +124,43 @@ export class AdminComponent implements OnInit {
         alert('Erro ao cadastrar o usuário. Tente novamente.');
       }
     }
+
+
+
+    async exibirUsuarios() {
+      try {
+        const usuariosRef = ref(this.db, 'usuarios');
+        const snapshot = await get(usuariosRef);
+    
+        if (snapshot.exists()) {
+          const dadosUsuarios = snapshot.val();
+          this.usuariosSalvos = Object.values(dadosUsuarios).map((user: any) => ({
+            email: user.email,
+            setor: user.setor || 'Não informado',
+            funcao: user.funcao
+          }));
+    
+          this.mostrarUsuarios = true; // Exibe os usuários
+        } else {
+          alert('Nenhum usuário encontrado.');
+        }
+      } catch (error) {
+        console.error('Erro ao recuperar os usuários:', error);
+        alert('Erro ao recuperar os usuários.');
+      }
+    }
+    
+    // Método para ocultar a exibição dos usuários
+    fecharUsuarios() {
+      this.mostrarUsuarios = false;
+    }
+    
+    // Método para ocultar o relatório
+    fecharRelatorio() {
+      this.mostrarRelatorio = false;
+    }
+
+
   get setores(): FormArray {
     return this.formulario.get('setores') as FormArray;
   }
@@ -266,6 +307,7 @@ export class AdminComponent implements OnInit {
 
 async exibirRelatorio() {
   try {
+    this.mostrarRelatorio = true; // Exibe o relatório
     const dadosArray: RelatorioItem[] = [];
     const senhaRef = ref(this.db, `avelar/senhafinalizada`);
     const snapshot = await get(senhaRef);

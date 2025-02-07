@@ -38,13 +38,13 @@ export class OperadorComponent implements OnInit {
   mostrarSenhas: boolean = false; // Controla a exibição das senhas não atendidas
   
   
-  // Nova propriedade para controle de avaliação
+  //propriedade para controle de avaliação
   exibirSelecaoNota: boolean = false;
   notasDisponiveis: number[] = Array.from({ length: 11 }, (_, i) => i); // 0 a 10
   notaSelecionada: number | null = null;
  
  //SETORES
- setoresDisponiveis: string[] = ['Atendimento', 'Financeiro', 'Suporte']; // Exemplo de setores
+ setoresDisponiveis: string[] = []; // Exemplo de setores
  setorSelecionado: string = '';
  senhasFiltradas: DadosSenha[] = []; // Senhas filtradas pelo setor
 
@@ -122,7 +122,10 @@ export class OperadorComponent implements OnInit {
     })
   }
 
-  
+  onSetorSelecionado() {
+    this.setorSelecionado = this.formulario.get('setor')?.value;
+  }
+
  
 
   // Criação do formulário de login do operador
@@ -311,7 +314,7 @@ async carregarSetores() {
   }
 }
   // Registra operador no sistema
-  cadastrar(){
+  /*cadastrar(){
     console.log(this.formulario.value);
     if(this.formulario.value){
       this.operador = this.formulario.value.corretor;
@@ -333,7 +336,7 @@ async carregarSetores() {
       
     }
 
-  }
+  }*/
 
   
   // Registra operador convencional no sistema
