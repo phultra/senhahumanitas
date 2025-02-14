@@ -1,4 +1,4 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { AdminService } from '../../service/admin/admin.service';
 import { DadosSenha } from '../../interface/dadossenha';
 import { CommonModule } from '@angular/common';
@@ -22,7 +22,7 @@ function delay(ms: number) {
   styleUrl: './operador.component.scss',
   providers:[BsModalRef, BsModalService]
 })
-export class OperadorComponent implements OnInit {
+export class OperadorComponent implements OnInit, OnDestroy {
   operador: string ='';
   guiche: string = '';
   setor: string ='';
@@ -36,13 +36,19 @@ export class OperadorComponent implements OnInit {
   telaoperador:boolean = false;
   telalogin:boolean = true;
   mostrarSenhas: boolean = false; // Controla a exibição das senhas não atendidas
-  
+ 
+  private keyPressHandler!: (event: KeyboardEvent) => void;
+  private setorUsuarioDefinido = false;
+  setorUsuario: string = '';
   
   //propriedade para controle de avaliação
   exibirSelecaoNota: boolean = false;
-  notasDisponiveis: number[] = Array.from({ length: 11 }, (_, i) => i); // 0 a 10
-  notaSelecionada: number | null = null;
- 
+  //notasDisponiveis: number[] = Array.from({ length: 11 }, (_, i) => i); // 0 a 10
+  //notaSelecionada: number | null = null;
+  
+  notaFinalizada: number | null = null; 
+  // Captura de nota via teclado
+  notaDigitada: string | null = null;
  //SETORES
  setoresDisponiveis: string[] = []; // Exemplo de setores
  setorSelecionado: string = '';
@@ -81,7 +87,10 @@ export class OperadorComponent implements OnInit {
     this.formbuilder()
      // Carrega os setores disponíveis
   this.carregarSetores();}
-
+  
+  this.verificarSetorUsuario();
+  this.formulario.get('setor')?.setValue(this.setorUsuario);
+  
     // Obtém as senhas geradas do serviço AdminService
     /*this.adminService.getSenhasGeradas().subscribe(d => {
       console.log(d.length);
@@ -92,7 +101,8 @@ export class OperadorComponent implements OnInit {
         
      
     });*/
-   
+    //document.addEventListener('keydown', this.onKeyPress.bind(this));
+    
     
      // Obtém senhas convencionais e organiza em preferencial e normal
     this.adminService.getSenhaGeradaConvencional().subscribe(d =>{
@@ -120,13 +130,66 @@ export class OperadorComponent implements OnInit {
     this.adminService.getSenhaPainelConvencional().subscribe(async d =>{
        this.senhaPainel = d
     })
+  
+    
+    this.keyPressHandler = this.onKeyPress.bind(this);
+  }
+  ngOnDestroy() {
+    document.removeEventListener('keydown', this.keyPressHandler);
   }
 
-  onSetorSelecionado() {
-    this.setorSelecionado = this.formulario.get('setor')?.value;
-  }
+  // Verifica se o usuário logado pertence ao setor selecionado
+    async verificarSetorUsuario() {
+      // Criamos um identificador único para cada aba
+      const abaId = this.gerarIdentificadorAba();
+    
+      // Verifica se já há um setor salvo para esta aba
+      const setorSalvo = localStorage.getItem(`setorUsuario_${abaId}`);
+      if (setorSalvo) {
+        this.setorUsuario = setorSalvo;
+        this.setorUsuarioDefinido = true;
+        console.log(`Setor carregado para a aba ${abaId}:`, this.setorUsuario);
+        //this.carregarSenhasDoSetor();
+        return;
+      }
+    
+      // Se ainda não foi definido, busca do banco
+      this.authService.getUser().subscribe(async user => {
+        if (user && !this.setorUsuarioDefinido) {
+          const userRef = ref(this.db, `usuarios/${user.uid}`);
+          const snapshot = await get(userRef);
+    
+          if (snapshot.exists()) {
+            this.setorUsuario = snapshot.val().setor.trim().toLowerCase();
+    
+            // Salva no localStorage com o ID da aba
+            localStorage.setItem(`setorUsuario_${abaId}`, this.setorUsuario);
+            this.setorUsuarioDefinido = true;
+            
+            console.log(`Setor do usuário logado (Aba ${abaId}):`, this.setorUsuario);
+    
+            // Se o setor selecionado for diferente, corrige
+            if (this.setorSelecionado.trim().toLowerCase() !== this.setorUsuario) {
+              alert(`Confira se selecionou o setor correto, o seu setor é: ${this.setorUsuario}`);
+              this.setorSelecionado == this.setorUsuario;
+            }
+            this.formulario.get('setor')?.setValue(this.setorUsuario);
+           // this.carregarSenhasDoSetor();
+          }
+        }
+      });
+    }
 
- 
+        
+     
+    
+ // Gera um identificador único para cada aba
+private gerarIdentificadorAba(): string {
+  // Sempre gera um novo ID quando a aba é recarregada
+  const abaId = Math.random().toString(36).substring(2, 15); // Gera um ID aleatório
+  sessionStorage.setItem('abaId', abaId); // Salva o novo ID no sessionStorage
+  return abaId;
+}
 
   // Criação do formulário de login do operador
   formbuilder(){
@@ -139,18 +202,18 @@ export class OperadorComponent implements OnInit {
 
   // Filtra as senhas com base no setor selecionado
 filtrarSenhasPorSetor() {
-  if (!this.setorSelecionado) {
+  if (!this.setorUsuarioDefinido) {
     console.warn('Nenhum setor selecionado.');
     return;
   }
 
   // Filtra as senhas geradas convencionalmente pelo setor
   this.senhaNormalNova = this.repetirSenha.filter(
-    (senha) => senha.setor === this.setorSelecionado && senha.status === '0' && !senha.preferencial
+    (senha) => senha.setor === this.setorUsuario && senha.status === '0' && !senha.preferencial
   );
 
   this.senhaPreferencial = this.repetirSenha.filter(
-    (senha) => senha.setor === this.setorSelecionado && senha.status === '0' && senha.preferencial
+    (senha) => senha.setor === this.setorUsuario && senha.status === '0' && senha.preferencial
   );
 
   console.log('Senhas normais no setor:', this.senhaNormalNova);
@@ -360,7 +423,8 @@ async carregarSetores() {
     
     if(this.formulario.value){
       this.operador = this.formulario.value.nome;
-      this.setorSelecionado = this.formulario.value.setor; 
+      this.setorUsuario = this.formulario.value.setorUsuario; 
+      //this.setor = this.formulario.value.setor; 
       this.guiche = this.formulario.value.guiche;
       this.telaoperador = true;
       this.filtrarSenhasPorSetor();
@@ -386,11 +450,11 @@ async carregarSetores() {
 
   
   // Abre um modal para avaliar e finalizar atendimento
-  openModal(template:TemplateRef<any>, senha:DadosSenha){
+  /*openModal(template:TemplateRef<any>, senha:DadosSenha){
     this.modalRef = this.modalService.show(template);
     this.senhaFinalizar = senha;
     this.notasDisponiveis = Array.from({ length: 10 }, (_, i) => i); 
-  }
+  }*/
 
   
   
@@ -402,9 +466,17 @@ async carregarSetores() {
     senha.status = '3';
     console.log(senha.finalatendimento);
     this.senhaFinalizar = senha;
-     // Abre o modal para que o operador insira a nota
+    
+    this.notaDigitada = null;
+ 
+    // Abre o modal para que o operador insira a nota
   this.modalRef = this.modalService.show(this.modalTemplate);
-  }
+ 
+  document.addEventListener('keydown', this.keyPressHandler);
+  
+ 
+   }
+  
 
   // Encerrar (Função ainda não implementada)
   encerrar(senha:DadosSenha){
@@ -431,10 +503,13 @@ mostrarSenhasNaoAtendidas() {
       // Elimina duplicatas baseado no campo 'senha'
       const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
         .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
+
+          // Normaliza os setores (converte para minúsculas e remove espaços extras)
+      const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
      
 
       // Filtra as senhas de acordo com o setor (guiche)
-      const senhasDoSetor = senhasUnicas.filter(s => s.setor === this.setorSelecionado);
+      const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
       console.log('Senhas do setor:', senhasDoSetor);
 
       // Atribui a lista de senhas filtradas
@@ -454,57 +529,84 @@ mostrarSenhasNaoAtendidas() {
 
 
 
-selecionarNota(nota: number) {
+/*selecionarNota(nota: number) {
   this.notaSelecionada = nota;
 
-}
+}*/
+
+  // Função chamada quando o valor de ngModel muda (captura a tecla pressionada)
+  onKeyPress(event: KeyboardEvent): void {
+    const key = event.key;
+  
+    // Permite apenas números de 0 a 9
+    if (key >= '0' && key <= '9') {
+      this.notaDigitada = key; // Sobrescreve a nota com o número pressionado
+    }
+  
+    // Exibe no console a nota que foi digitada até o momento
+    console.log('Nota digitada:', this.notaDigitada);
+    
+  }
+  hide() {
+    document.removeEventListener('keydown', this.keyPressHandler);
+  }
 
  // Método para finalizar a senha com nota
- async finalizarComNota() {
-console.log('Senha Finalizar:', this.senhaFinalizar);
-console.log('Nota Selecionada:', this.notaSelecionada);
-console.log('Operador:', this.operador);
-console.log('Guichê:', this.guiche);
-console.log('Senha Operador Painel:', this.senhaOperadorPainel);
-  if (this.notaSelecionada === null) {
-    alert('Por favor, selecione uma nota!');
+ async finalizarComNota(modal: BsModalRef) {
+  const nota = Number(this.notaDigitada); // Converte a nota para um número
+  
+  // Validação para garantir que a nota está entre 0 e 10
+  if (nota < 1 || nota > 10) {
+    alert('Por favor, insira uma nota válida entre 1 e 10!');
     return;
   }
 
- 
-  // Garante que todos os campos da senha estão preenchidos
- this.senhaFinalizar.nota = this.notaSelecionada;
- const senhachamadaPath = `avelar/senhachamada/${this.senhaFinalizar.horachamada}`;
+  this.senhaFinalizar.nota = nota; // Atribui a nota à senhaFinalizar
+  const senhachamadaPath = `avelar/senhachamada/${this.senhaFinalizar.horachamada}`;
 
   try {
     // Salva as informações no banco de dados
     await this.adminService.salvaSenhaFinalizadaConvencional(this.senhaFinalizar);
-    
-    
- // Remove dos caminhos especificados no Firebase (apaga os dados da senha chamada)
+
+    // Remove a senha chamada do Firebase
     await update(ref(this.db), {
       [senhachamadaPath]: null,
     });
-    
+
     console.log(`Senha com finalatendimento ${this.senhaFinalizar.senhaid} apagada com sucesso no caminho: ${senhachamadaPath}`);
 
     alert('Atendimento finalizado com sucesso!');
     
     // Esconde os botões após finalizar o atendimento
-    this.mostrarSenhas = false;  
-    this.modalRef?.hide(); // Fecha o modal
-     // Remove a senha finalizada da lista de senhas não atendidas
+    this.mostrarSenhas = false;
+    if (this.modalRef) {
+      this.modalRef.hide(); // Fecha o modal de forma segura
+     
+    }
+    
+    document.removeEventListener('keydown', this.keyPressHandler);
+
+    // Remove a senha finalizada das listas de senhas
     this.senha = this.senha.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
     this.senhasPreferenciais = this.senhasPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
     this.senhasNaoPreferenciais = this.senhasNaoPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
 
-     
-    // Recarrega a página
-     //location.reload();
   } catch (error) {
     console.error('Erro ao finalizar a senha:', error);
   }
 }
+
+// Função chamada quando o modal é aberto
+/*onModalOpen(modal: any): void {
+  // Adiciona um evento de captura de tecla para o modal
+  document.addEventListener('keydown', this.onKeyPress.bind(this));
+}
+
+// Função chamada quando o modal é fechado
+onModalClose(modal: any): void {
+  // Remove o evento de captura de tecla quando o modal é fechado
+  document.removeEventListener('keydown', this.onKeyPress.bind(this));
+}*/
 
 }
 

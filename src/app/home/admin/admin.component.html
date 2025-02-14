@@ -6,7 +6,7 @@
           <div class="mt-4 text-center">
             <h3 class="text-white">Cadastrar Dados da Empresa</h3>
           </div>
-          <div style="margin-bottom: 160px;"></div>
+          <div style="margin-bottom: 250px;"></div>
           
           <div style="text-align: center;">
             <strong>Cadastrar novo setor</strong>
@@ -22,17 +22,23 @@
                 <label for="corretor">Corretor:</label>
                 <input id="corretor" class="form-control" formControlName="corretor">
               </div>
+             
 
               <div class="form-group">
                 <button type="button" class="btn btn-primary" (click)="adicionarSetor()">Adicionar Setor</button>
               </div>
-
+              <div class="form-group" *ngIf="mostrarSigla">
+                <label for="sigla">Sigla do Setor:</label>
+                <input id="sigla" class="form-control" formControlName="sigla">
+              </div>
               <div formArrayName="setores">
                 <div *ngFor="let setor of setores.controls; let i = index" [formGroupName]="i" class="form-group">
                   <label for="setor-{{i}}">Setor {{ i + 1 }}:</label>
                   <input id="setor-{{i}}" class="form-control" formControlName="nomeSetor">
                   <button type="button" class="btn btn-danger" (click)="removerSetor(i)">Remover</button>
-
+                  
+                  
+                  
                   <div class="m-4">
                     <button type="button" class="btn btn-primary" (click)="adicionarGuiche()">Adicionar Guiche</button>
                     <div *ngFor="let guiche of guiches.controls; let j = index" [formGroupName]="j" class="form-group">
@@ -41,6 +47,7 @@
                       <button type="button" class="btn btn-danger" (click)="removerGuiche(j)">Remover</button>
                     </div>
                   </div>
+               
                 </div>
               </div>
               <div>
@@ -227,12 +234,14 @@
   <button (click)="fecharUsuarios()" class="btn btn-secondary">Fechar lista de usuários</button>
   <div style="margin-bottom: 20px;"></div>
 </div>
-        <!-- Relatório -->
+       <!-- Relatório -->
 <div *ngIf="mostrarRelatorio" class="usuarios-container">
-  <div class="usuarios-container" [innerHTML]="relatorio"></div>
-  <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
+  <!-- Aqui estamos adicionando uma div com a classe de rolagem para o conteúdo do relatório -->
+  <div class="relatorio-container" [innerHTML]="relatorio"></div>
+ 
   <button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>
 </div>
+<button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
         </div>
       </div>
     </div>

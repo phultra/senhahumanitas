@@ -13,7 +13,13 @@ div.main {
   overflow-y: auto; /* Permite rolagem vertical caso o conteúdo seja grande */
   
 }
-
+.relatorio-container {
+  max-height: 400px;   /* Ajuste a altura máxima conforme necessário */
+  overflow-y: auto;    /* Habilita a rolagem vertical */
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ddd;  /* Adiciona uma borda para definir a área do conteúdo */
+}
 .container {
   background-color: #fff;
   padding: 30px;
