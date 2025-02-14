@@ -36,7 +36,8 @@ export class AdminService {
         cliente: senha.cliente, 
         guiche: senha.guiche,
         senha: senha.senha,
-        operador: senha.operador
+        operador: senha.operador,
+        tipo: senha.preferencial ? 'Preferencial' : 'Normal'
       };
       
       return this.http.post(this.apimpresao, dados);
@@ -277,8 +278,6 @@ async salvaSenhafinalizada(data:DadosSenha){
 
 
  // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
-// Agora recebe um parâmetro opcional 'atendida' para filtrar as senhas atendidas ou não atendidas.
-// Função para buscar senhas de acordo com o parâmetro atendida
 getSenhasGeradas(): Observable<DadosSenha[]> {
   const db = getDatabase(); // Obtenha a instância do banco de dados
   const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
@@ -294,8 +293,6 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
       if (senhas) {
         // Converte o objeto de senhas em um array
         const listaSenhas: DadosSenha[] = Object.values(senhas).map((senha: any) => {
-          // Define o status de 'atendida' com base na propriedade 'horachamada'
-          //senha.atendida = (senha.horachamada !== ''); // Atendida se 'horachamada' não estiver vazia
           return senha;
         });
 

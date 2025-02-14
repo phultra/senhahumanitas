@@ -199,6 +199,19 @@ async  novaSenhaPreferencial() {
     this.senhaNormal = 0;
     this.senhaPreferencial = 0;
   
+// Buscar a sigla do setor
+const setorRef = ref(this.db, `avelar/setor`);
+const snapshot = await get(setorRef);
+let siglaSetor = 'GEN'; // Valor padrão caso a sigla não seja encontrada
+
+if (snapshot.exists()) {
+  const setoresData = snapshot.val() as Record<string, { setor: string; sigla: string }>;
+  const setorInfo = Object.values(setoresData).find(s => s.setor === this.setorSelecionado);
+  if (setorInfo) {
+    siglaSetor = setorInfo.sigla;
+  }
+}
+
     // Conta as senhas preferenciais e normais, filtrando pelo setor
     for (let index = 0; index < this.senha.length; index++) {
       if (this.senha[index].setor === this.setorSelecionado) { // Filtra pelo setor
@@ -211,12 +224,30 @@ async  novaSenhaPreferencial() {
         }
       }
     }
-  
+   // Definir o número da senha
+   let numeroSenha = (senha.preferencial ? this.senhaPreferencial : this.senhaNormal) + 1;
+   senha.senha = `${siglaSetor}${numeroSenha.toString().padStart(2, '0')}`;
+   senha.setor = this.setorSelecionado;
+   senha.status = '0';
+   senha.senhaid = Date.now().toString();
+ 
+   console.log('Senha gerada:', senha.senha);
+ 
+   // Salvar e imprimir senha
+   await this.adminService.salvaSenhaContadorConvencional(senha);
+   await this.adminService.salvaSenhaConvencionalRealime(senha).then(async () => {
+     await this.adminService.imprimir(senha).subscribe(() => {
+       this.spinner.hide();
+     });
+   }).catch((e) => {
+     console.log(e);
+   });
+ 
     console.log(this.senhaNormal);
     console.log(this.senhaPreferencial);
   
     // Configura e salva a senha dependendo do tipo
-    if (idsenha === 'AP') {
+   /*f (idsenha === 'AP') {
       this.cadastrarSenha.senha = idsenha + this.senhaPreferencial.toString();
       this.cadastrarSenha.setor = this.setorSelecionado;
       this.cadastrarSenha.status = '0';
@@ -251,7 +282,7 @@ async  novaSenhaPreferencial() {
     }
   
     this.cadastrarSenha.preferencial = false;
-  }
+*/}
   
 // Busca a quantidade de senhas geradas para um operador específico 
 async buscaQuantidadeSenhasGeradas(senha: DadosSenha) {
@@ -265,10 +296,11 @@ async buscaQuantidadeSenhasGeradas(senha: DadosSenha) {
 
   //await this.adminService.salvaSenhaRealTime(this.cadastrarSenha);
   await this.adminService.salvaSenhaEvento(this.cadastrarSenha).then(async () => {
-    await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
+   /* await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
       this.spinner.hide();
     });
-  });
+  */});
 }
 }
+
 

@@ -63,6 +63,7 @@ export class AdminComponent implements OnInit {
 
    mostrarUsuarios: boolean = false;
    mostrarRelatorio: boolean = false;
+   mostrarSigla: boolean = false;
   
   // Dados armazenados para o relatório
   dadosArray: RelatorioItem[] = [];
@@ -117,7 +118,7 @@ export class AdminComponent implements OnInit {
         });
     
         alert('Usuário cadastrado com sucesso!');
-        this.formulario.reset();
+        this.formularioUsuario.reset();
         //this.router.navigate(['/login']);
       } catch (error) {
         console.error('Erro ao cadastrar usuário:', error);
@@ -182,7 +183,13 @@ export class AdminComponent implements OnInit {
   }
 
   adicionarSetor() {
-    this.setores.push(this.novoSetor());
+    if (this.setores.length > 0) { // Verifica se já existe um setor
+      alert("Completa o cadastro do setor antes da fazer um novo");
+    } else {
+      const setor = this.novoSetor();
+      this.setores.push(setor);
+      this.mostrarSigla = true;
+    }
   }
 
   adicionarGuiche() {
@@ -191,6 +198,7 @@ export class AdminComponent implements OnInit {
 
   removerSetor(index: number) {
     this.setores.removeAt(index);
+    this.mostrarSigla = false;
   }
 
   removerGuiche(index: number) {
@@ -202,6 +210,7 @@ export class AdminComponent implements OnInit {
     const guiches = this.guiches.value.map((guiche: any) => guiche.nomeGuiche);
     const nome = this.formulario.value.nome.trim();
     const corretor = this.formulario.value.corretor.trim();
+    const sigla = this.formulario.value.sigla.trim()
     const status = this.formulario.value.status; // Obtém o valor do campo status
     const timestamp = new Date().getTime(); // Pega o timestamp atual
   
@@ -221,7 +230,7 @@ export class AdminComponent implements OnInit {
     }
   
     // Verificar se o nome e corretor estão preenchidos
-    if (!nome || !corretor) {
+    if (!nome || !corretor || !sigla) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
@@ -254,10 +263,17 @@ export class AdminComponent implements OnInit {
         corretor,
         setor: setores.length > 0 ? setores[0] : '', // Pega o nome do primeiro setor
         status,
-        //guiches,
+        sigla,
         data: timestamp,
       });
-  
+   // Limpar os campos após o cadastro
+   this.formulario.reset(); // Reseta o formulário
+   this.mostrarSigla = false; // Reseta a flag mostrarSigla (se necessário)
+   
+   for (let i = this.setores.length - 1; i >= 0; i--) {
+    this.removerSetor(i); // Chama a função removerSetor passando o índice de cada setor
+  }
+
       console.log('Dados salvos com sucesso no Firebase!');
       alert('Dados cadastrados com sucesso!');
     } catch (error) {
@@ -298,7 +314,8 @@ export class AdminComponent implements OnInit {
       corretor: ['', [Validators.required, Validators.minLength(8)]],
       setores: this.formBuilder.array([]),
       guiches: this.formBuilder.array([]),
-      status: ['', [Validators.required]], 
+      status: ['', [Validators.required]],
+      sigla: ['', [Validators.required]]   
     });
   }
 
@@ -370,22 +387,24 @@ getSemanaDoAno(data: Date): number {
 
 // Função para formatar os dados em uma tabela HTML com filtro de seleção
 formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
-  let tabelaHTML = `<table class="table-bordered">
-                      <thead>
-                        <tr>
-                          <th>Setor</th>
-                          <th>Dia</th>
-                          <th>Mês</th>
-                          <th>Semana</th>
-                          <th>Operador</th>
-                          <th>Guiche</th>
-                          <th>Senha</th>
-                          <th>Duração Atendimento (ms)</th>
-                          <th>Nota</th>
-                          <th>Preferencial</th>
-                        </tr>
-                      </thead>
-                      <tbody>`;
+  let tabelaHTML = `
+    <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+      <table class="table-bordered" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>Setor</th>
+            <th>Dia</th>
+            <th>Mês</th>
+            <th>Semana</th>
+            <th>Operador</th>
+            <th>Guiche</th>
+            <th>Senha</th>
+            <th>Duração Atendimento (ms)</th>
+            <th>Nota</th>
+            <th>Preferencial</th>
+          </tr>
+        </thead>
+        <tbody>`;
 
   // Itera sobre os dados e cria as linhas da tabela
   for (let i = 0; i < dados.length; i++) {
@@ -418,7 +437,7 @@ formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
     }
   }
 
-  tabelaHTML += `</tbody></table>`;
+  tabelaHTML += `</tbody></table></div>`;
   return tabelaHTML;
 }
 
