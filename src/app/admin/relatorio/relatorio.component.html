@@ -1,0 +1,90 @@
+<section>
+    <app-menu></app-menu>
+  </section>
+
+<!-- Relatório com filtros -->
+<div class="form-group">
+    <button type="button" class="btn btn-primary" (click)="exibirRelatorio()">Exibir Relatório</button>
+
+   
+  </div>
+ <!-- Filtros -->
+ <div class="filters row justify-content-center">
+    <div class="filter col-md-3 text-center">
+      <label>Operador:</label>
+      <select [(ngModel)]="filtroOperador" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let operador of operadores" [value]="operador">{{ operador }}</option>
+      </select>
+      <button *ngIf="filtroOperador" (click)="removerFiltro('operador')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+    <div class="filter col-md-3 text-center">
+      <label>Guiche:</label>
+      <select [(ngModel)]="filtroGuiche" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let guiche of guichesList" [value]="guiche">{{ guiche }}</option>
+      </select>
+      <button *ngIf="filtroGuiche" (click)="removerFiltro('guiche')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+    <div class="filter col-md-3 text-center">
+      <label>Senha:</label>
+      <select [(ngModel)]="filtroSenha" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let senha of senhasList" [value]="senha">{{ senha }}</option>
+      </select>
+      <button *ngIf="filtroSenha" (click)="removerFiltro('senha')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+    <div class="filter col-md-3 text-center">
+      <label>Nota:</label>
+      <select [(ngModel)]="filtroNota" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let nota of notasList" [value]="nota">{{ nota }}</option>
+      </select>
+      <button *ngIf="filtroNota" (click)="removerFiltro('nota')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+    <div class="filter col-md-3 text-center">
+      <label>Setor:</label>
+      <select [(ngModel)]="filtroSetor" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let setor of setoresList" [value]="setor">{{ setor }}</option>
+      </select>
+      
+      <button *ngIf="filtroSetor" (click)="removerFiltro('setor')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+
+    <div class="filter col-md-3 text-center">
+      <label>Preferencial:</label>
+      <select [(ngModel)]="filtroPreferencial" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        
+        <option *ngFor="let preferencial of preferencialList" [value]="preferencial">{{ preferencial }}</option>
+      </select>
+      
+      <button *ngIf="filtroPreferencial" (click)="removerFiltro('preferencial')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+  </div>
+
+  <div class="filters row justify-content-center">
+    <div class="filter col-md-3 text-center">
+      <label>Dia:</label>
+      <select [(ngModel)]="filtroDia" (ngModelChange)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let dia of diasList" [value]="dia">{{ dia }}</option>
+      </select>
+      <button *ngIf="filtroDia" (click)="removerFiltro('dia')" class="btn btn-sm btn-danger mt-2">Remover</button>
+    </div>
+    <div class="filter col-md-3 text-center">
+      <label for="mes">Mês:</label>
+      <select [(ngModel)]="filtroMes" (change)="filtrarRelatorio()">
+        <option value="">Todos</option>
+        <option *ngFor="let mes of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="mes">{{ mes }}</option>
+      </select>
+    </div>
+    <div class="filter col-md-3 text-center">
+      <label for="semana">Semana:</label>
+      <select [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
+        <option value="">Todas</option>
+        <option *ngFor="let semana of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]" [value]="semana">{{ semana }}</option>
+      </select>
+    </div>
+  </div>

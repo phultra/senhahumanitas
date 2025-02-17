@@ -1,0 +1,61 @@
+<section>
+    <app-menu></app-menu>
+  </section>
+
+<!-- Formulário para cadastrar usuário -->
+<form [formGroup]="formularioUsuario" (ngSubmit)="cadastrarUsuario()">
+    <div>
+      <label for="nomeUsuario">Nome</label>
+      <input id="nomeUsuario" formControlName="nome" class="form-control" type="text" />
+      <div *ngIf="formularioUsuario.get('nome')?.invalid && formularioUsuario.get('nome')?.touched">
+        <small *ngIf="formularioUsuario.get('nome')?.hasError('required')">Nome é obrigatório.</small>
+        <small *ngIf="formularioUsuario.get('nome')?.hasError('minlength')">Nome deve ter pelo menos 6 caracteres.</small>
+      </div>
+    </div>
+  
+    <div>
+      <label for="email">Email</label>
+      <input id="email" formControlName="email" class="form-control" type="email" />
+      <div *ngIf="formularioUsuario.get('email')?.invalid && formularioUsuario.get('email')?.touched">
+        <small *ngIf="formularioUsuario.get('email')?.hasError('required')">Email é obrigatório.</small>
+        <small *ngIf="formularioUsuario.get('email')?.hasError('email')">Email inválido.</small>
+      </div>
+    </div>
+  
+    <div>
+      <label for="senha">Senha</label>
+      <input id="senha" formControlName="senha" class="form-control" type="password" />
+      <div *ngIf="formularioUsuario.get('senha')?.invalid && formularioUsuario.get('senha')?.touched">
+        <small *ngIf="formularioUsuario.get('senha')?.hasError('required')">Senha é obrigatória.</small>
+        <small *ngIf="formularioUsuario.get('senha')?.hasError('minlength')">Senha deve ter pelo menos 6 caracteres.</small>
+      </div>
+    </div>
+  
+    <div>
+      <label for="funcao">Função</label>
+      <select id="funcao" class="form-control" formControlName="funcao">
+        <option value="">Selecione uma função</option>
+        <option value="admin">Admin</option>
+        <option value="operador">Operador</option>
+        <option value="chamaSenha">ChamaSenha</option>
+        <option value="Painel">Painel</option>
+        
+      </select>
+      <div *ngIf="formularioUsuario.get('funcao')?.invalid && formularioUsuario.get('funcao')?.touched">
+        <small *ngIf="formularioUsuario.get('funcao')?.hasError('required')">Função é obrigatória.</small>
+      </div>
+    </div>
+  
+    <div>
+      <label for="setor">Setor</label>
+      <select id="setor" class="form-control" formControlName="setor">
+        <option value="">Selecione um setor</option>
+        <option *ngFor="let setor of setoresDisponiveis" [value]="setor">{{ setor }}</option>
+      </select>
+      <div *ngIf="formularioUsuario.get('setor')?.invalid && formularioUsuario.get('setor')?.touched">
+        <small *ngIf="formularioUsuario.get('setor')?.hasError('required')">Setor é obrigatório.</small>
+      </div>
+    </div>
+  
+    <button type="submit" [disabled]="formularioUsuario.invalid" class="btn btn-success">Cadastrar</button>
+  </form>

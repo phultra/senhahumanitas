@@ -109,6 +109,7 @@ export class GeradorsenhaComponent implements OnInit{
     this.countNormal= 0;
     this.cadastrarSenha.operador = '';
     this.cadastrarSenha.guiche = '';
+    this.cadastrarSenha.preferencial =false;
     // Verifica se o setor foi selecionado
   if (!this.setorSelecionado) {
     alert('Por favor, selecione um setor antes de gerar a senha.');
