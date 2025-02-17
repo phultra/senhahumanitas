@@ -9,6 +9,8 @@ import { Router } from '@angular/router';
 import { get, getDatabase, ref, set, update } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { AuthService } from '../../service/auth/auth.service';
+
+
 // Importar o Modal do Bootstrap
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -42,6 +44,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
   private keyPressHandler!: (event: KeyboardEvent) => void;
   private setorUsuarioDefinido = false;
   setorUsuario: string = '';
+  
   
   //propriedade para controle de avaliação
   exibirSelecaoNota: boolean = false;
@@ -524,39 +527,49 @@ async carregarSetores() {
 mostrarSenhasNaoAtendidas() {
   console.log("Função chamada!");
 
-  this.adminService.getSenhasGeradas().subscribe(
-    (senhas) => {
-      console.log('Senhas recebidas:', senhas);
-      if (!senhas || senhas.length === 0) {
-        console.warn('Nenhuma senha encontrada.');
-        return;
+  // Definir o intervalo de 5 segundos para reiniciar a função
+  setInterval(() => {
+    // Resetando os dados antes de fazer a nova chamada
+    this.senha = [];  // Resetar a lista de senhas
+    this.senhasPreferenciais = [];  // Resetar a lista de senhas preferenciais
+    this.senhasNaoPreferenciais = [];  // Resetar a lista de senhas não preferenciais
+    this.mostrarSenhas = false;  // Resetar a flag de exibição das senhas
+
+    // Repetir o processo de busca e filtragem como na primeira execução
+    this.adminService.getSenhasGeradas().subscribe(
+      (senhas) => {
+        console.log('Senhas recebidas:', senhas);
+        if (!senhas || senhas.length === 0) {
+          console.warn('Nenhuma senha encontrada.');
+          return;
+        }
+
+        // Elimina duplicatas baseado no campo 'senha'
+        const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
+          .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
+
+        // Normaliza os setores (converte para minúsculas e remove espaços extras)
+        const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
+
+        // Filtra as senhas de acordo com o setor (guiche)
+        const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
+        console.log('Senhas do setor:', senhasDoSetor);
+
+        // Atribui a lista de senhas filtradas
+        this.senha = senhasDoSetor; // Lista de senhas do setor
+        this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
+        this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
+
+        // Atualiza a flag para exibir as senhas
+        this.mostrarSenhas = true;
+      },
+      (error) => {
+        console.error('Erro ao buscar senhas:', error);
       }
-
-      // Elimina duplicatas baseado no campo 'senha'
-      const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
-        .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
-
-          // Normaliza os setores (converte para minúsculas e remove espaços extras)
-      const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
-     
-
-      // Filtra as senhas de acordo com o setor (guiche)
-      const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
-      console.log('Senhas do setor:', senhasDoSetor);
-
-      // Atribui a lista de senhas filtradas
-      this.senha = senhasDoSetor; // Lista de senhas do setor
-      this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
-      this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
-
-      // Atualiza a flag para exibir as senhas
-      this.mostrarSenhas = true;
-    },
-    (error) => {
-      console.error('Erro ao buscar senhas:', error);
-    }
-  );
+    );
+  }, 5000); // 5000 milissegundos = 5 segundos
 }
+
 
 
 
