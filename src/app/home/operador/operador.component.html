@@ -92,8 +92,8 @@ type="ball-scale-multiple"
               </div>
             </td>
  <!-- Exibição do setor selecionado no canto da tela -->
- <div *ngIf="setorSelecionado" class="setor-info">
-  <p>Setor Selecionado: {{ setorSelecionado }}</p>
+ <div *ngIf="setorUsuario" class="setor-info">
+  <p>Setor: {{ setorUsuario }}</p>
 </div>
 
             
@@ -147,17 +147,15 @@ type="ball-scale-multiple"
            <!-- Seleção de setor -->
  
            <div class="mb-4">
-            <label style="color: aliceblue;" for="setor" class="m-1">Informe o Setor:</label>
-            <select id="setor" formControlName="setor" (change)="verificarSetorUsuario()"
-              [disabled]="formulario.get('setor')?.disabled ?? false">
-              <!-- Placeholder -->
-              <option value="setorUsuario" disabled>Selecione um setor</option> 
-          
-              <!-- Opção para o setor do usuário -->
-              <option *ngFor="let setor of setoresDisponiveis" [value]="setorUsuario">
-                {{ setorUsuario }}
-              </option>
-            </select>
+            <label style="color: aliceblue;" for="setor" class="m-1">Setor:</label>
+            <input 
+              type="text" 
+              [value]="setorUsuario" 
+              class="form-control" 
+              disabled 
+              aria-label="Setor do usuário"
+              style="border: none; background: transparent; box-shadow: none; font-size: 1.5rem; display: inline-block; width: auto; margin-left: 10px;" 
+            />
           </div>
 
 

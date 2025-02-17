@@ -14,6 +14,8 @@ function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+//finalizado
+
 @Component({
   selector: 'app-operador',
   standalone: true,
@@ -89,7 +91,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
   this.carregarSetores();}
   
   this.verificarSetorUsuario();
-  this.formulario.get('setor')?.setValue(this.setorUsuario);
+  //this.formulario.get('setor')?.setValue(this.setorUsuario);
   
     // Obtém as senhas geradas do serviço AdminService
     /*this.adminService.getSenhasGeradas().subscribe(d => {
@@ -242,39 +244,27 @@ filtrarSenhasPorSetor() {
    }
 
  // Repete a chamada de uma senha convencional  
- async repetirSenhaConvencional(senha:DadosSenha) {
-  this.spinner.show();  
-   console.log(senha);
-    let senhaRepetida: DadosSenha = senha; 
-   
-    for (let index = 0; index < this.senhaPainel.length; index++) {
-      if( senha.senhaid === this.senhaPainel[index].senhaid ){
-        this.senhaPainel[index].status = '1'
-      await  this.adminService.deleteSenhaChamadaConvencional(this.senhaPainel[index].horachamada).then( async d => {
-    
-           if(senhaRepetida.preferencial) {
-                  this.senhaPreferencial[0] = senhaRepetida;
-                  this.chamarsenhapreferencial().then(async d => {
-                    await delay(4000);
-                    this.spinner.hide();
-                  });    
-            } else {
-                  this.senhaNormalNova[0] = senhaRepetida;
-                  this.chamarSenhaNormalConvencional().then(async d =>{
-                    await delay(4000);
-                    this.spinner.hide();
-                  })
-            }
-    
-      }); 
-      
-      } 
-    }
-     this.spinner.hide();
-     console.log(senhaRepetida);
-        
-  }
+ async repetirSenhaConvencional(senha: DadosSenha) {
+  this.spinner.show();
+  console.log("Repetindo senha:", senha);
 
+  // Remove a senha chamada anteriormente do painel
+  this.senhaPainel = this.senhaPainel.filter(s => s.senhaid !== senha.senhaid);
+
+  try {
+    if (senha.preferencial) {
+      console.log("Repetindo senha preferencial...");
+      await this.chamarsenhapreferencial(senha);
+    } else {
+      console.log("Repetindo senha normal...");
+      await this.chamarSenhaNormalConvencional(senha);
+    }
+  } catch (error) {
+    console.error("Erro ao repetir senha:", error);
+  } finally {
+    this.spinner.hide();
+  }
+}
 
    // Chama uma senha normal no painel
   async chamarsenhanormal(senha:DadosSenha) {
@@ -294,73 +284,115 @@ filtrarSenhasPorSetor() {
   this.senhaOperadorPainel = senha;  // Armazena a senha chamada
   }
   
-  // Chama uma senha normal convencional
-  async chamarSenhaNormalConvencional(senhaSelecionada?: DadosSenha) {
-    this.spinner.show();
-    const time = Date.now().toString();
-  
-    // Usar a senha passada ou a primeira da lista
-    const senha = senhaSelecionada || this.senhaNormalNova[0];
-  
-    senha.operador = this.operador;
-    senha.guiche = this.guiche;
-    senha.status = '1';
-    senha.horachamada = time;
-    this.senhaOperadorPainel = senha;
-  
-    const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
-    
-  
-    try {
-      await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
-      await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
-  
-      // Remove dos caminhos especificados no Firebase
-      await update(ref(this.db), {
-        [senhageradaPath]: null,
-      });
-  
-      console.log("Senha chamada e removida:", senha);
-    } catch (error) {
-      console.error("Erro ao chamar senha normal:", error);
-    } finally {
+  // Método para buscar as senhas do setor sem chamar automaticamente
+buscarSenhasDoSetor(): Promise<DadosSenha[]> {
+  return new Promise((resolve, reject) => {
+      this.adminService.getSenhasGeradas().subscribe(
+          (senhas) => {
+              console.log('Senhas recebidas para chamada:', senhas);
+              if (!senhas || senhas.length === 0) {
+                  console.warn('Nenhuma senha disponível para chamada.');
+                  resolve([]);
+                  return;
+              }
+
+              // Elimina duplicatas baseado no campo 'senha'
+              const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
+                  .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
+
+              // Normaliza os setores
+              const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
+
+              // Filtra as senhas do setor do usuário
+              const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
+              console.log('Senhas do setor para chamada:', senhasDoSetor);
+
+              resolve(senhasDoSetor);
+          },
+          (error) => {
+              console.error('Erro ao buscar senhas para chamada:', error);
+              reject(error);
+          }
+      );
+  });
+}
+
+// Método que só chama a senha quando o botão for clicado
+async chamarSenhaNormalConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
+  this.spinner.show();
+  const time = Date.now().toString();
+
+  try {
+    const senha = senhaSelecionada || (await this.buscarSenhasDoSetor()).find((s) => !s.preferencial);
+
+    if (!senha) {
+      console.warn('Nenhuma senha normal disponível para chamada.');
       this.spinner.hide();
-      this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
+      return;
     }
-  }
- 
-  // Chama uma senha preferencial convencional
-  async chamarsenhapreferencial(senhaSelecionada?: DadosSenha) {
-    this.spinner.show();
-    const time = Date.now().toString();
-  
-    // Usar a senha passada ou a primeira da lista
-    const senha = senhaSelecionada || this.senhaPreferencial[0];
-  
+
     senha.operador = this.operador;
     senha.guiche = this.guiche;
     senha.status = '1';
     senha.horachamada = time;
     this.senhaOperadorPainel = senha;
-  
-    
+
     const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
 
+    await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
+    await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
+
+    // Se não for repetição, remove do banco
+    if (!repeticao) {
+      await update(ref(this.db), { [senhageradaPath]: null });
+    }
+
+    console.log("Senha chamada:", senha);
+  } catch (error) {
+    console.error("Erro ao chamar senha normal:", error);
+  } finally {
+    this.spinner.hide();
+    this.filtrarSenhasPorSetor();
+  }
+}
+
+ 
+  // Chama uma senha preferencial convencional
+  async chamarsenhapreferencial(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
+    this.spinner.show();
+    const time = Date.now().toString();
+  
     try {
+      const senha = senhaSelecionada || (await this.buscarSenhasDoSetor()).find((s) => s.preferencial);
+  
+      if (!senha) {
+        console.warn('Nenhuma senha preferencial disponível para chamada.');
+        this.spinner.hide();
+        return;
+      }
+  
+      senha.operador = this.operador;
+      senha.guiche = this.guiche;
+      senha.status = '1';
+      senha.horachamada = time;
+      this.senhaOperadorPainel = senha;
+  
+      const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
+  
       await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
       await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
   
-      // Remove dos caminhos especificados no Firebase
-      await update(ref(this.db), {
-        [senhageradaPath]: null,
-      });
+      // Se não for repetição, remove do banco
+      if (!repeticao) {
+        await update(ref(this.db), { [senhageradaPath]: null });
+      }
   
-      console.log("Senha chamada e removida:", senha);
+      console.log("Senha chamada:", senha);
     } catch (error) {
       console.error("Erro ao chamar senha preferencial:", error);
     } finally {
       this.spinner.hide();
-      this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
+      this.filtrarSenhasPorSetor();
     }
   }
 // Carrega os setores do Firebase
@@ -423,8 +455,8 @@ async carregarSetores() {
     
     if(this.formulario.value){
       this.operador = this.formulario.value.nome;
-      this.setorUsuario = this.formulario.value.setorUsuario; 
-      //this.setor = this.formulario.value.setor; 
+      //this.setorUsuario = this.formulario.value.setorUsuario; 
+      this.setor = this.formulario.value.setor; 
       this.guiche = this.formulario.value.guiche;
       this.telaoperador = true;
       this.filtrarSenhasPorSetor();
