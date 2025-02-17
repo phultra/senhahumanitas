@@ -43,7 +43,7 @@ export class SetoresComponent {
        // corretor: ['', [Validators.required, Validators.minLength(8)]],
         setores: this.formBuilder.array([]),
         //iches: this.formBuilder.array([]),
-       // status: ['', [Validators.required]],
+        status: ['', [Validators.required]],
         sigla: ['', [Validators.required]]   
       });
     }
@@ -70,17 +70,16 @@ export class SetoresComponent {
 
 novoSetor(): FormGroup {
     return this.formBuilder.group({
-      nomeSetor: ['', Validators.required]
+      nomeSetor: ['', Validators.required],
+      sigla: ['', [Validators.required]] 
     });
   }
 
-async cadastrar() {
+  async cadastrar() {
     const setores = this.setores.value.map((setor: any) => setor.nomeSetor.trim());
-    //const guiches = this.guiches.value.map((guiche: any) => guiche.nomeGuiche);
-    //const nome = this.formulario.value.nome.trim();
-    //const corretor = this.formulario.value.corretor.trim();
-    const sigla = this.formulario.value.sigla.trim()
+    const sigla = this.formulario.value.sigla.trim();
     const status = this.formulario.value.status; // Obtém o valor do campo status
+    
     const timestamp = new Date().getTime(); // Pega o timestamp atual
   
     console.log('Status:', status); // Verifica o valor de status
@@ -92,14 +91,14 @@ async cadastrar() {
     }
   
     // Verificar se o status está preenchido
-    /*if (status === undefined || status === null || status === '') {
+    if (status === undefined || status === null || status === '') {
       console.error('O campo "status" está vazio ou indefinido!');
       alert('Por favor, preencha o campo "status" antes de cadastrar.');
       return; // Evita salvar no Firebase se o status não estiver definido
-    }*/
+    }
   
-    // Verificar se o nome e corretor estão preenchidos
-    if ( !sigla) {
+    // Verificar se o nome da sigla está preenchido
+    if (!sigla) {
       alert('Por favor, preencha todos os campos obrigatórios.');
       return;
     }
@@ -128,21 +127,21 @@ async cadastrar() {
   
       // Salva no Firebase
       await set(ref(this.db, caminho), {
-        //nome,
-        //corretor,
         setor: setores.length > 0 ? setores[0] : '', // Pega o nome do primeiro setor
         status,
         sigla,
         data: timestamp,
       });
-   // Limpar os campos após o cadastro
-   this.formulario.reset(); // Reseta o formulário
-   this.mostrarSigla = false; // Reseta a flag mostrarSigla (se necessário)
-   
-   for (let i = this.setores.length - 1; i >= 0; i--) {
-    this.removerSetor(i); // Chama a função removerSetor passando o índice de cada setor
-  }
-
+  
+      // Limpar os campos após o cadastro
+      this.formulario.reset(); // Reseta o formulário
+      this.mostrarSigla = false; // Reseta a flag mostrarSigla (se necessário)
+  
+      // Limpa os setores
+      for (let i = this.setores.length - 1; i >= 0; i--) {
+        this.removerSetor(i); // Chama a função removerSetor passando o índice de cada setor
+      }
+  
       console.log('Dados salvos com sucesso no Firebase!');
       alert('Dados cadastrados com sucesso!');
     } catch (error) {
@@ -150,4 +149,4 @@ async cadastrar() {
       alert('Erro ao salvar os dados. Verifique o console para mais detalhes.');
     }
   }
-}
+}  

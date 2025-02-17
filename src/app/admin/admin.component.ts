@@ -184,7 +184,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  adicionarSetor() {
+  /*adicionarSetor() {
     if (this.setores.length > 0) { // Verifica se já existe um setor
       alert("Completa o cadastro do setor antes da fazer um novo");
     } else {
@@ -192,20 +192,20 @@ export class AdminComponent implements OnInit {
       this.setores.push(setor);
       this.mostrarSigla = true;
     }
-  }
+  }*/
 
   adicionarGuiche() {
     this.guiches.push(this.novoGuiche());
   }
 
-  removerSetor(index: number) {
+  /*removerSetor(index: number) {
     this.setores.removeAt(index);
     this.mostrarSigla = false;
-  }
+  }*/
 
-  removerGuiche(index: number) {
+  /*removerGuiche(index: number) {
     this.guiches.removeAt(index);
-  }
+  }*/
 
  /* async cadastrar() {
     const setores = this.setores.value.map((setor: any) => setor.nomeSetor.trim());
