@@ -5,7 +5,7 @@ html, body {
 }
 div.main {
   background: radial-gradient(ellipse at center, #0264d6 1%, #1c2b5a 100%);
-  height: 100vh;
+  min-height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
@@ -19,6 +19,7 @@ div.main {
   margin: 10px 0;
   padding: 10px;
   border: 1px solid #ddd;  /* Adiciona uma borda para definir a área do conteúdo */
+  max-width: 90vw;
 }
 .container {
   background-color: #fff;
@@ -41,6 +42,11 @@ h3 {
   justify-content: space-between;
   flex-wrap: wrap;
   margin-top: 20px;
+  gap: 10px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 }
 
 .filter {
@@ -62,7 +68,7 @@ h3 {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
-  text-align: center;
+  text-align-last: center;
   font-size: 1rem;
 }
 
@@ -116,7 +122,7 @@ h3 {
   padding: 8px;
   border-radius: 4px;
   border: 1px solid #ccc;
-  text-align: center;
+  text-align-last: center;
   font-size: 1rem;
   width: 45%;
 }
@@ -161,10 +167,21 @@ table {
 }
 
 .table-responsive {
-  max-height: 500px; /* Define uma altura máxima */
-  overflow-y: auto; /* Permite rolagem caso o conteúdo seja grande */
-}
+  max-height: 500px;
+  overflow-y: auto;
 
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background-color: #0264d6;
+    z-index: 10;
+  }
+}
 th, td {
   padding: 10px;
   text-align: center;
