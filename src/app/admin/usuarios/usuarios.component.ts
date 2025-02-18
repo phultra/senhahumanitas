@@ -32,7 +32,7 @@ export class UsuariosComponent {
   ngOnInit() {
     // Verifica se o usuário está autenticado ao carregar o componente
     {
-    // Inicializa o formulário de cadastro
+    this.carregarSetores();
     this.formCadastroUsuario();
     }
   }

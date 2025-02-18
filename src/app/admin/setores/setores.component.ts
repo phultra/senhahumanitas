@@ -31,9 +31,9 @@ export class SetoresComponent {
     
     
     ngOnInit() {
-      // Verifica se o usuário está autenticado ao carregar o componente
       {
         this.form();
+        this.adicionarSetor();
       }
     }
     
@@ -52,10 +52,10 @@ export class SetoresComponent {
       return this.formulario.get('setores') as FormArray;
     }
   
-  removerSetor(index: number) {
+ /* removerSetor(index: number) {
     this.setores.removeAt(index);
     this.mostrarSigla = false;
-  }
+  }*/
 
 
   adicionarSetor() {
@@ -76,77 +76,77 @@ novoSetor(): FormGroup {
   }
 
   async cadastrar() {
-    const setores = this.setores.value.map((setor: any) => setor.nomeSetor.trim());
-    const sigla = this.formulario.value.sigla.trim();
-    const status = this.formulario.value.status; // Obtém o valor do campo status
-    
-    const timestamp = new Date().getTime(); // Pega o timestamp atual
+    const setores = this.setores.value.map((setor: { nomeSetor: string; sigla: string }) => ({
+      nomeSetor: setor.nomeSetor?.trim() || '',
+      sigla: setor.sigla?.trim() || ''
+    }));
   
-    console.log('Status:', status); // Verifica o valor de status
+    const status = this.formulario.get('status')?.value?.trim() || ''; 
+    const timestamp = new Date().getTime(); 
   
-    // Verificar se algum setor está vazio
-    if (setores.some((setor: string) => setor === '')) {
-      alert('Por favor, preencha o nome de todos os setores antes de cadastrar.');
+    console.log('Status:', status); 
+    console.log('Setores:', setores);
+  
+    if (setores.some((setor: { nomeSetor: string; sigla: string; }) => setor.nomeSetor === '' || setor.sigla === '')) {
+      alert('Por favor, preencha todos os campos obrigatórios (Nome do Setor e Sigla).');
       return;
     }
   
-    // Verificar se o status está preenchido
-    if (status === undefined || status === null || status === '') {
-      console.error('O campo "status" está vazio ou indefinido!');
-      alert('Por favor, preencha o campo "status" antes de cadastrar.');
-      return; // Evita salvar no Firebase se o status não estiver definido
-    }
-  
-    // Verificar se o nome da sigla está preenchido
-    if (!sigla) {
-      alert('Por favor, preencha todos os campos obrigatórios.');
+    if (!status) {
+      alert('Por favor, preencha o campo "status".');
       return;
     }
   
     try {
-      // Referência ao nó 'setor' no Firebase
       const setoresRef = ref(this.db, `avelar/setor`);
       const snapshot = await get(setoresRef);
   
       if (snapshot.exists()) {
         const setoresExistentes = snapshot.val() as Record<string, any>;
   
-        // Verificar duplicidade ignorando maiúsculas e minúsculas
-        const setorDuplicado = Object.values(setoresExistentes).some(
-          (item: any) => item.setor.toLowerCase() === setores[0].toLowerCase()
+        const setorOuSiglaDuplicado = setores.some((setor: { nomeSetor: string; sigla: string; }) =>
+          Object.values(setoresExistentes).some((item: any) => 
+            item.setor.toLowerCase() === setor.nomeSetor.toLowerCase() || 
+            item.sigla.toLowerCase() === setor.sigla.toLowerCase()
+          )
         );
   
-        if (setorDuplicado) {
-          alert('Já existe um setor com este nome cadastrado.');
+        if (setorOuSiglaDuplicado) {
+          alert('Já existe um setor ou sigla igual cadastrada.');
           return;
         }
       }
   
-      // Monta o caminho para salvar no Firebase
-      const caminho = `avelar/setor/${timestamp}`;
+      for (const setor of setores) {
+        const caminho = `avelar/setor/${timestamp}`;
   
-      // Salva no Firebase
-      await set(ref(this.db, caminho), {
-        setor: setores.length > 0 ? setores[0] : '', // Pega o nome do primeiro setor
-        status,
-        sigla,
-        data: timestamp,
-      });
-  
-      // Limpar os campos após o cadastro
-      this.formulario.reset(); // Reseta o formulário
-      this.mostrarSigla = false; // Reseta a flag mostrarSigla (se necessário)
-  
-      // Limpa os setores
-      for (let i = this.setores.length - 1; i >= 0; i--) {
-        this.removerSetor(i); // Chama a função removerSetor passando o índice de cada setor
+        await set(ref(this.db, caminho), {
+          setor: setor.nomeSetor,
+          sigla: setor.sigla,
+          status,
+          data: timestamp,
+        });
       }
+  
+      // Limpar apenas os valores dos campos
+      for (let i = 0; i < this.setores.length; i++) {
+        this.setores.at(i).patchValue({
+          nomeSetor: '',
+          sigla: ''
+        });
+      }
+  
+      // Limpar o campo "status" do formulário
+      this.formulario.get('status')?.patchValue('');
+  
+      // Reseta a flag e limpa os setores se necessário
+      this.mostrarSigla = false;
   
       console.log('Dados salvos com sucesso no Firebase!');
       alert('Dados cadastrados com sucesso!');
     } catch (error) {
-      console.error('Erro ao verificar ou salvar os dados:', error);
+      console.error('Erro ao salvar os dados:', error);
       alert('Erro ao salvar os dados. Verifique o console para mais detalhes.');
     }
   }
-}  
+}

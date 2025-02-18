@@ -1,0 +1,39 @@
+/* Centraliza os itens dentro da navbar */
+#navbarNav {
+    display: flex;
+    justify-content: center;  /* Centraliza os itens horizontalmente */
+    align-items: center;  /* Alinha os itens verticalmente */
+    width: 100%;  /* Garante que a navbar ocupe toda a largura */
+  }
+  
+  /* Centraliza os itens dentro da navbar */
+#navbarNav {
+    display: flex;
+    justify-content: center;  /* Centraliza os itens horizontalmente */
+    align-items: center;  /* Alinha os itens verticalmente */
+    width: 100%;  /* Garante que a navbar ocupe toda a largura */
+  }
+  
+  .nav-item {
+    margin: 0 15px;  /* Espaçamento entre os itens */
+  }
+  
+  /* Aumenta o tamanho da fonte e muda a cor para azul */
+  #navbarNav .nav-link {
+    font-size: 30px;  /* Aumenta o tamanho da fonte */
+    color: rgb(252, 252, 252) !important;  /* Muda a cor da fonte para azul e força a aplicação */
+    text-decoration: none;  /* Remove o sublinhado (decoração padrão do link) */
+  }
+  
+  #navbarNav .nav-link:hover {
+    color: darkblue !important;  /* Muda a cor para um tom de azul mais escuro quando o item é hover */
+  }
+  .navbar {
+    background-color: #003366 !important;  /* Azul escuro */
+  }
+  .navbar-nav {
+    display: flex;
+    justify-content: center;  /* Centraliza os itens dentro da lista */
+    list-style: none;  /* Remove o estilo padrão de lista */
+    padding: 0;  /* Remove o padding da lista */
+  }

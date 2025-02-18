@@ -3,12 +3,14 @@
   </section>
 
 <!-- Relatório com filtros -->
-<div class="form-group">
+<!--<div class="form-group">
     <button type="button" class="btn btn-primary" (click)="exibirRelatorio()">Exibir Relatório</button>
 
    
-  </div>
+  </div>-->
  <!-- Filtros -->
+ 
+ <section  style="background-color: #003366; color: white; height: 100vh;">
  <div class="filters row justify-content-center">
     <div class="filter col-md-3 text-center">
       <label>Operador:</label>
@@ -79,12 +81,21 @@
         <option value="">Todos</option>
         <option *ngFor="let mes of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="mes">{{ mes }}</option>
       </select>
+      <button *ngIf="filtroMes" (click)="removerFiltro('mes')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
     <div class="filter col-md-3 text-center">
       <label for="semana">Semana:</label>
       <select [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
         <option value="">Todas</option>
-        <option *ngFor="let semana of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]" [value]="semana">{{ semana }}</option>
+        <option *ngFor="let semana of [1,2,3,4,5]" [value]="semana">{{ semana }}</option>
+        <button *ngIf="filtroSemana" (click)="removerFiltro('semana')" class="btn btn-sm btn-danger mt-2">Remover</button>
       </select>
     </div>
+    <div *ngIf="mostrarRelatorio">
+      <!-- Aqui estamos adicionando uma div com a classe de rolagem para o conteúdo do relatório -->
+      <div class="relatorio-container" [innerHTML]="relatorio"></div>
+     
+      <!--<button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>-->
+    </div>
   </div>
+</section>

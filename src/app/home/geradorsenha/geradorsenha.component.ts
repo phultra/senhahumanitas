@@ -5,7 +5,7 @@ import { DadosContador } from '../../interface/dadoscontador';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { Database, get, ref } from '@angular/fire/database';
+import { Database, get, ref, set } from '@angular/fire/database';
 import { AuthService } from '../../service/auth/auth.service';
 import { Router } from '@angular/router';
 
@@ -200,19 +200,28 @@ async  novaSenhaPreferencial() {
     this.senhaNormal = 0;
     this.senhaPreferencial = 0;
   
-// Buscar a sigla do setor
-const setorRef = ref(this.db, `avelar/setor`);
-const snapshot = await get(setorRef);
-let siglaSetor = 'GEN'; // Valor padrão caso a sigla não seja encontrada
-
-if (snapshot.exists()) {
-  const setoresData = snapshot.val() as Record<string, { setor: string; sigla: string }>;
-  const setorInfo = Object.values(setoresData).find(s => s.setor === this.setorSelecionado);
-  if (setorInfo) {
-    siglaSetor = setorInfo.sigla;
-  }
-}
-
+    // Buscar a sigla do setor
+    const setorRef = ref(this.db, `avelar/setor`);
+    const snapshot = await get(setorRef);
+    let siglaSetor = 'GEN'; // Valor padrão caso a sigla não seja encontrada
+  
+    if (snapshot.exists()) {
+      const setoresData = snapshot.val() as Record<string, { setor: string; sigla: string }>;
+      const setorInfo = Object.values(setoresData).find(s => s.setor === this.setorSelecionado);
+      if (setorInfo) {
+        siglaSetor = setorInfo.sigla;
+      }
+    }
+  
+    // Recupera o contador de senhas para o setor
+    const contadorRef = ref(this.db, `avelar/senhacontador/${siglaSetor}`);
+    const snapshotContador = await get(contadorRef);
+    let contador = 0; // Valor padrão caso não haja um contador
+  
+    if (snapshotContador.exists()) {
+      contador = snapshotContador.val(); // Pega o contador atual
+    }
+  
     // Conta as senhas preferenciais e normais, filtrando pelo setor
     for (let index = 0; index < this.senha.length; index++) {
       if (this.senha[index].setor === this.setorSelecionado) { // Filtra pelo setor
@@ -225,65 +234,35 @@ if (snapshot.exists()) {
         }
       }
     }
-   // Definir o número da senha
-   let numeroSenha = (senha.preferencial ? this.senhaPreferencial : this.senhaNormal) + 1;
-   senha.senha = `${siglaSetor}${numeroSenha.toString().padStart(2, '0')}`;
-   senha.setor = this.setorSelecionado;
-   senha.status = '0';
-   senha.senhaid = Date.now().toString();
- 
-   console.log('Senha gerada:', senha.senha);
- 
-   // Salvar e imprimir senha
-   await this.adminService.salvaSenhaContadorConvencional(senha);
-   await this.adminService.salvaSenhaConvencionalRealime(senha).then(async () => {
-     await this.adminService.imprimir(senha).subscribe(() => {
-       this.spinner.hide();
-     });
-   }).catch((e) => {
-     console.log(e);
-   });
- 
+  
+    // Definir o número da senha
+    let numeroSenha = contador + 1;  // Incrementa a partir do contador recuperado
+    contador = numeroSenha; // Atualiza o contador
+  
+    // Atualiza o contador no Firebase
+    await set(contadorRef, contador);
+  
+    senha.senha = `${siglaSetor}${numeroSenha.toString().padStart(2, '0')}`;
+    senha.setor = this.setorSelecionado;
+    senha.status = '0';
+    senha.senhaid = Date.now().toString();
+  
+    console.log('Senha gerada:', senha.senha);
+  
+    // Salvar e imprimir senha
+    await this.adminService.salvaSenhaContadorConvencional(senha);
+    await this.adminService.salvaSenhaConvencionalRealime(senha).then(async () => {
+      await this.adminService.imprimir(senha).subscribe(() => {
+        this.spinner.hide();
+      });
+    }).catch((e) => {
+      console.log(e);
+    });
+  
     console.log(this.senhaNormal);
     console.log(this.senhaPreferencial);
+  }
   
-    // Configura e salva a senha dependendo do tipo
-   /*f (idsenha === 'AP') {
-      this.cadastrarSenha.senha = idsenha + this.senhaPreferencial.toString();
-      this.cadastrarSenha.setor = this.setorSelecionado;
-      this.cadastrarSenha.status = '0';
-      this.cadastrarSenha.senhaid = Date.now().toString();
-      console.log(this.cadastrarSenha.senha);
-  
-      await this.adminService.salvaSenhaContadorConvencional(this.cadastrarSenha);
-      await this.adminService.salvaSenhaConvencionalRealime(this.cadastrarSenha).then(async () => {
-        await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
-          this.spinner.hide();
-        });
-      }).catch((e) => {
-        console.log(e);
-      });
-    }
-  
-    if (idsenha === 'AN') {
-      this.cadastrarSenha.senha = idsenha + this.senhaNormal.toString();
-      this.cadastrarSenha.setor = this.setorSelecionado;
-      this.cadastrarSenha.status = '0';
-      this.cadastrarSenha.senhaid = Date.now().toString();
-      console.log(this.cadastrarSenha.senha);
-  
-      await this.adminService.salvaSenhaContadorConvencional(this.cadastrarSenha);
-      await this.adminService.salvaSenhaConvencionalRealime(this.cadastrarSenha).then(async () => {
-        await this.adminService.imprimir(this.cadastrarSenha).subscribe(() => {
-          this.spinner.hide();
-        });
-      }).catch((e) => {
-        console.log(e);
-      });
-    }
-  
-    this.cadastrarSenha.preferencial = false;
-*/}
   
 // Busca a quantidade de senhas geradas para um operador específico 
 async buscaQuantidadeSenhasGeradas(senha: DadosSenha) {

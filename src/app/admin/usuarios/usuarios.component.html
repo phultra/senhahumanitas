@@ -1,9 +1,12 @@
-<section>
-    <app-menu></app-menu>
-  </section>
+<section style="background-color: #003366; color: rgb(240, 0, 0); height: 0vh;">
+  <app-menu></app-menu>
+</section>
 
-<!-- Formulário para cadastrar usuário -->
-<form [formGroup]="formularioUsuario" (ngSubmit)="cadastrarUsuario()">
+<section class="d-flex justify-content-center align-items-center" style="background-color: #003366; color: white; height: 100vh;">
+  <!-- Formulário para cadastrar usuário -->
+  
+  <form [formGroup]="formularioUsuario" (ngSubmit)="cadastrarUsuario()" style="width: 100%; max-width: 600px;">
+    
     <div>
       <label for="nomeUsuario">Nome</label>
       <input id="nomeUsuario" formControlName="nome" class="form-control" type="text" />
@@ -12,7 +15,7 @@
         <small *ngIf="formularioUsuario.get('nome')?.hasError('minlength')">Nome deve ter pelo menos 6 caracteres.</small>
       </div>
     </div>
-  
+
     <div>
       <label for="email">Email</label>
       <input id="email" formControlName="email" class="form-control" type="email" />
@@ -21,7 +24,7 @@
         <small *ngIf="formularioUsuario.get('email')?.hasError('email')">Email inválido.</small>
       </div>
     </div>
-  
+
     <div>
       <label for="senha">Senha</label>
       <input id="senha" formControlName="senha" class="form-control" type="password" />
@@ -30,7 +33,7 @@
         <small *ngIf="formularioUsuario.get('senha')?.hasError('minlength')">Senha deve ter pelo menos 6 caracteres.</small>
       </div>
     </div>
-  
+
     <div>
       <label for="funcao">Função</label>
       <select id="funcao" class="form-control" formControlName="funcao">
@@ -39,13 +42,12 @@
         <option value="operador">Operador</option>
         <option value="chamaSenha">ChamaSenha</option>
         <option value="Painel">Painel</option>
-        
       </select>
       <div *ngIf="formularioUsuario.get('funcao')?.invalid && formularioUsuario.get('funcao')?.touched">
         <small *ngIf="formularioUsuario.get('funcao')?.hasError('required')">Função é obrigatória.</small>
       </div>
     </div>
-  
+
     <div>
       <label for="setor">Setor</label>
       <select id="setor" class="form-control" formControlName="setor">
@@ -56,6 +58,7 @@
         <small *ngIf="formularioUsuario.get('setor')?.hasError('required')">Setor é obrigatório.</small>
       </div>
     </div>
-  
+
     <button type="submit" [disabled]="formularioUsuario.invalid" class="btn btn-success">Cadastrar</button>
   </form>
+</section>
