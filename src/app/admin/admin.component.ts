@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { get, ref, remove, set } from 'firebase/database';
+import { get, ref, remove, set, update } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -9,7 +9,7 @@ import { AuthService } from '../service/auth/auth.service';
 import { createUserWithEmailAndPassword, getAuth } from '@angular/fire/auth';
 import { MenuComponent } from "./menu/menu/menu.component";
 
-interface RelatorioItem {
+/*interface RelatorioItem {
   operador: string;
   guiche: string;
   senha: string;
@@ -23,7 +23,7 @@ interface RelatorioItem {
   horachamada: number;
   setor: string;
   preferencial: boolean;
-}
+}*/
 
 @Component({
   selector: 'app-admin',
@@ -41,7 +41,7 @@ export class AdminComponent implements OnInit {
   
   
    // Filtros
-   filtroDia: string = '';
+   /*filtroDia: string = '';
    filtroOperador: string = '';
    filtroGuiche: string = '';
    filtroSenha: string = '';
@@ -49,7 +49,7 @@ export class AdminComponent implements OnInit {
    filtroMes: string = '';  
    filtroSemana: string = ''; 
    filtroSetor: string = '';
-   filtroPreferencial: string = '';
+   filtroPreferencial: string = '';*/
  
    // Armazenar listas de valores únicos para cada coluna
   /* operadores: string[] = [];
@@ -65,9 +65,12 @@ export class AdminComponent implements OnInit {
    mostrarUsuarios: boolean = false;
    mostrarRelatorio: boolean = false;
    mostrarSigla: boolean = false;
+
+   setoresSalvos: { nomeSetor: string; sigla: string; status: string }[] = []; // Lista de setores
+mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
   
   // Dados armazenados para o relatório
-  dadosArray: RelatorioItem[] = [];
+ // dadosArray: RelatorioItem[] = [];
   
   constructor(
     private formBuilder: FormBuilder,
@@ -82,6 +85,7 @@ export class AdminComponent implements OnInit {
       this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
     } else {
       this.exibirUsuarios();
+      this.exibirSetores();
      // this.carregarSetores();
       //this.inicializarFormularios();
     }
@@ -97,7 +101,7 @@ export class AdminComponent implements OnInit {
   }*/
 
     // Função para o cadastro de um novo usuário
-    async cadastrarUsuario() {
+   /* async cadastrarUsuario() {
       if (this.formularioUsuario.invalid) {
         alert('Por favor, preencha todos os campos corretamente.');
         return;
@@ -126,7 +130,7 @@ export class AdminComponent implements OnInit {
         console.error('Erro ao cadastrar usuário:', error);
         alert('Erro ao cadastrar o usuário. Tente novamente.');
       }
-    }
+    }*/
 
 
 
@@ -140,7 +144,8 @@ export class AdminComponent implements OnInit {
           this.usuariosSalvos = Object.values(dadosUsuarios).map((user: any) => ({
             email: user.email,
             setor: user.setor || 'Não informado',
-            funcao: user.funcao
+            funcao: user.funcao,
+            uid: user.uid
           }));
     
           this.mostrarUsuarios = true; // Exibe os usuários
@@ -152,11 +157,50 @@ export class AdminComponent implements OnInit {
         alert('Erro ao recuperar os usuários.');
       }
     }
+
+    async exibirSetores() {
+      try {
+        const setoresRef = ref(this.db, 'avelar/setor'); // Ajuste para o caminho correto dos setores no Firebase
+        const snapshot = await get(setoresRef);
+    
+        if (snapshot.exists()) {
+          const dadosSetores = snapshot.val();
+          this.setoresSalvos = Object.values(dadosSetores).map((setor: any) => ({
+            nomeSetor: setor.setor,
+            sigla: setor.sigla,
+            status: setor.status
+          }));
+    
+          this.mostrarSetores = true; // Exibe os setores
+        } else {
+          alert('Nenhum setor encontrado.');
+        }
+      } catch (error) {
+        console.error('Erro ao recuperar os setores:', error);
+        alert('Erro ao recuperar os setores.');
+      }
+    }
+
+    async alterarSetor(usuario: any) {
+      try {
+        const usuarioRef = ref(this.db, `usuarios/${usuario.uid}`);
+    
+        // Usando 'update()' para atualizar apenas o setor, sem sobrescrever os outros dados
+        await update(usuarioRef, {
+          setor: usuario.setor  // Atualiza apenas o setor
+        });
+    
+        alert('Setor alterado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao atualizar o setor:', error);
+        alert('Erro ao atualizar o setor. Tente novamente.');
+      }
+    }
     
     // Método para ocultar a exibição dos usuários
-    fecharUsuarios() {
+    /*fecharUsuarios() {
       this.mostrarUsuarios = false;
-    }
+    }*/
     
     // Método para ocultar o relatório
    /* fecharRelatorio() {
@@ -164,27 +208,27 @@ export class AdminComponent implements OnInit {
     }*/
 
 
-  get setores(): FormArray {
+ /* get setores(): FormArray {
     return this.formulario.get('setores') as FormArray;
-  }
+  }*/
 
-  get guiches(): FormArray {
+ /* get guiches(): FormArray {
     return this.formulario.get('guiches') as FormArray;
-  }
+  }*/
 
-  novoSetor(): FormGroup {
+/*  novoSetor(): FormGroup {
     return this.formBuilder.group({
       nomeSetor: ['', Validators.required]
     });
-  }
+  }*/
 
-  novoGuiche(): FormGroup {
+  /*novoGuiche(): FormGroup {
     return this.formBuilder.group({
       nomeGuiche: ['', Validators.required]
     });
-  }
+  }*/
 
-  adicionarSetor() {
+  /*adicionarSetor() {
     if (this.setores.length > 0) { // Verifica se já existe um setor
       alert("Completa o cadastro do setor antes da fazer um novo");
     } else {
@@ -192,20 +236,20 @@ export class AdminComponent implements OnInit {
       this.setores.push(setor);
       this.mostrarSigla = true;
     }
-  }
+  }*/
 
-  adicionarGuiche() {
+ /* adicionarGuiche() {
     this.guiches.push(this.novoGuiche());
-  }
+  }*/
 
-  removerSetor(index: number) {
+  /*removerSetor(index: number) {
     this.setores.removeAt(index);
     this.mostrarSigla = false;
-  }
+  }*/
 
-  removerGuiche(index: number) {
+  /*removerGuiche(index: number) {
     this.guiches.removeAt(index);
-  }
+  }*/
 
  /* async cadastrar() {
     const setores = this.setores.value.map((setor: any) => setor.nomeSetor.trim());

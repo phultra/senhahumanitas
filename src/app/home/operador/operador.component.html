@@ -26,9 +26,9 @@ type="ball-scale-multiple"
     <div class=" col-md-6 mt-5 ">
       <button class="btn  botao" (click)="chamarsenhapreferencial()">SENHA PREFERENCIAL</button>
     </div>
-    <div class="col-md-6 mt-5">
+    <!--<div class="col-md-6 mt-5">
       <button class="btn botao" (click)="mostrarSenhasNaoAtendidas()">Seleciona uma senha</button>
-    </div>
+    </div>-->
     
    
 </div>
@@ -74,6 +74,7 @@ type="ball-scale-multiple"
                   <li *ngFor="let senha of senhasPreferenciais">
                     <button class="btn btn-primary m-1" (click)="chamarsenhapreferencial(senha)">
                       Senha: {{ senha.senha }}
+                     | Hora: {{senha.horaGeracao}}
                     </button>
                   </li>
                 </ul>
@@ -86,6 +87,7 @@ type="ball-scale-multiple"
                   <li *ngFor="let senha of senhasNaoPreferenciais">
                     <button class="btn btn-secondary m-1" (click)="chamarSenhaNormalConvencional(senha)">
                       Senha: {{ senha.senha }}
+                      | Hora: {{senha.horaGeracao}}
                     </button>
                   </li>
                 </ul>

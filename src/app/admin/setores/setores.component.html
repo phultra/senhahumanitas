@@ -1,65 +1,40 @@
 <section>
   <app-menu></app-menu>
 </section>
-<section>
-<div style="text-align: center;">
+
+<section  style="background-color: #003366; color: white; height: 100vh;">
+  <div style="text-align: center; margin-bottom: 20px;">
     <strong>Cadastrar novo setor</strong>
   </div>
-  <div class="col-md-12">
+  
+  <div class="col-md-12" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+
     <form [formGroup]="formulario" (ngSubmit)="cadastrar()">
-     <!-- <div class="form-group">
-        <label for="nomeCriadorDoSetor">Nome:</label>
-        <input id="nomeCriadorDoSetor" class="form-control" formControlName="nome">
-      </div>
-
-      <div class="form-group">
-        <label for="corretor">Corretor:</label>
-        <input id="corretor" class="form-control" formControlName="corretor">
-      </div>
-    
-
-      
-      <div class="form-group" *ngIf="mostrarSigla">
-        <label for="sigla">Sigla do Setor:</label>
-        <input id="sigla" class="form-control" formControlName="sigla">
-      </div>-->
-     
-      <div formArrayName="setores">
+      <div formArrayName="setores" style="width: 100%; max-width: 600px;">
         <div *ngFor="let setor of setores.controls; let i = index" [formGroupName]="i" class="form-group">
-          <label for="setor-{{i}}">Setor {{ i + 1 }}:</label>
-          <input id="setor-{{i}}" class="form-control" formControlName="nomeSetor">
-          <button type="button" class="btn btn-danger" (click)="removerSetor(i)">Remover</button>
-         
-          <div class="form-group" *ngIf="mostrarSigla">
+          <label for="setor-{{i}}">Setor:</label>
+          <input id="setor-{{i}}" class="form-control" formControlName="nomeSetor" style="width: 100%;" />
+        
+          <div class="form-group">
             <label for="sigla">Sigla do Setor:</label>
-            <input id="sigla" class="form-control" formControlName="sigla">
+            <input id="sigla" class="form-control" formControlName="sigla" style="width: 100%;" />
           </div>
-          
-          <!--<div class="m-4">
-            <button type="button" class="btn btn-primary" (click)="adicionarGuiche()">Adicionar Guiche</button>
-            <div *ngFor="let guiche of guiches.controls; let j = index" [formGroupName]="j" class="form-group">
-              <label for="guiche-{{j}}">Guiche {{ j + 1 }}:</label>
-              <input id="guiche-{{j}}" class="form-control" formControlName="nomeGuiche">
-              <button type="button" class="btn btn-danger" (click)="removerGuiche(j)">Remover</button>
-            </div>
-          </div>-->
-       
         </div>
       </div>
-      <div class="form-group">
-        <button type="button" class="btn btn-primary" (click)="adicionarSetor()">Adicionar Setor</button>
-      </div>
-      <div>
+
+      <div style="width: 100%; max-width: 600px;">
         <label for="status">Status:</label>
-        <input id="status" formControlName="status" type="text" class="form-control" />
+        <input id="status" formControlName="status" type="text" class="form-control" style="width: 100%;" />
         <div *ngIf="formulario.get('status')?.invalid && formulario.get('status')?.touched">
           <small class="text-danger">O campo status é obrigatório.</small>
         </div>
       </div>
-      <div class="form-group">
-        <button type="submit" class="btn btn-success">Cadastrar</button>
+
+      <div class="form-group" style="width: 100%; max-width: 600px; text-align: center;">
+        <button type="submit" class="btn btn-success" style="width: 100%;">Cadastrar</button>
       </div>
     </form>
   </div>
+
   <div style="margin-bottom: 40px;"></div>
 </section>

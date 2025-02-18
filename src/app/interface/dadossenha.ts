@@ -14,6 +14,7 @@ export class DadosSenha {
     cliente:string='';
     senha: string ='';
     tipo: string = '';
+  horaGeracao: string = '';
 
     
 }

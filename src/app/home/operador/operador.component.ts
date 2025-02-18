@@ -94,6 +94,8 @@ export class OperadorComponent implements OnInit, OnDestroy {
   this.carregarSetores();}
   
   this.verificarSetorUsuario();
+
+  this.mostrarSenhasNaoAtendidas();
   //this.formulario.get('setor')?.setValue(this.setorUsuario);
   
     // Obtém as senhas geradas do serviço AdminService
@@ -560,6 +562,14 @@ mostrarSenhasNaoAtendidas() {
         this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
         this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
 
+        // Para cada senha, calcular a hora com base no 'senhaid' (timestamp)
+        this.senha.forEach(s => {
+          // Converter o 'senhaid' (timestamp) em milissegundos para uma data
+          const dataGeracao = new Date(Number(s.senhaid));
+           // Obter apenas a hora, minutos e segundos
+           s.horaGeracao = dataGeracao.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        });
+
         // Atualiza a flag para exibir as senhas
         this.mostrarSenhas = true;
       },
@@ -569,6 +579,8 @@ mostrarSenhasNaoAtendidas() {
     );
   }, 5000); // 5000 milissegundos = 5 segundos
 }
+
+
 
 
 

@@ -1,132 +1,65 @@
-<section>
+<section style="background-color: #003366; color: white; height: 100vh;">
   <app-menu></app-menu>
-</section>
-<section>
-  <div class="main">
-    <div class="container">
-      <div class="row justify-content-center">
-        <div class="col-md-8">
-          <div class="mt-4 text-center">
-            <h3 class="text-black">Dados da Empresa</h3>
+  <div class="main" style="background-color: #003366; color: rgb(10, 160, 247);">
+    <div class="container" style="background-color: #003366;">
+      <div class="row justify-content-center" style="background-color: #003366;">
+        <div class="col-md-8" style="background-color: #003366;">
+          <div class="mt-4 text-center" style="background-color: #003366;">
+            <h3 class="text-white">Dados da Empresa</h3>
           </div>
-          <!--<div style="margin-bottom: 250px;"></div>-->
-            <div style="margin-bottom: 40px;"></div>
-         
-  
-          
-           
-           
+        
 
-          <!-- Filtros -->
-       <!-- <div class="filters row justify-content-center">
-            <div class="filter col-md-3 text-center">
-              <label>Operador:</label>
-              <select [(ngModel)]="filtroOperador" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let operador of operadores" [value]="operador">{{ operador }}</option>
-              </select>
-              <button *ngIf="filtroOperador" (click)="removerFiltro('operador')" class="btn btn-sm btn-danger mt-2">Remover</button>
-            </div>
-            <div class="filter col-md-3 text-center">
-              <label>Guiche:</label>
-              <select [(ngModel)]="filtroGuiche" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let guiche of guichesList" [value]="guiche">{{ guiche }}</option>
-              </select>
-              <button *ngIf="filtroGuiche" (click)="removerFiltro('guiche')" class="btn btn-sm btn-danger mt-2">Remover</button>
-            </div>
-            <div class="filter col-md-3 text-center">
-              <label>Senha:</label>
-              <select [(ngModel)]="filtroSenha" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let senha of senhasList" [value]="senha">{{ senha }}</option>
-              </select>
-              <button *ngIf="filtroSenha" (click)="removerFiltro('senha')" class="btn btn-sm btn-danger mt-2">Remover</button>
-            </div>
-            <div class="filter col-md-3 text-center">
-              <label>Nota:</label>
-              <select [(ngModel)]="filtroNota" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let nota of notasList" [value]="nota">{{ nota }}</option>
-              </select>
-              <button *ngIf="filtroNota" (click)="removerFiltro('nota')" class="btn btn-sm btn-danger mt-2">Remover</button>
-            </div>
-            <div class="filter col-md-3 text-center">
-              <label>Setor:</label>
-              <select [(ngModel)]="filtroSetor" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let setor of setoresList" [value]="setor">{{ setor }}</option>
-              </select>
-              
-              <button *ngIf="filtroSetor" (click)="removerFiltro('setor')" class="btn btn-sm btn-danger mt-2">Remover</button>
-            </div>
+          <!-- Tabela de usuários -->
+          <div *ngIf="mostrarUsuarios" class="usuarios-container" style="background-color: #003366;">
+            <h3 class="text-white">Usuários Cadastrados</h3>
+            <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
+              <thead>
+                <tr>
+                  <th>Email</th>
+                  <th>Setor</th>
+                  <th>Função</th>
+                  <th>Alterar Setor</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let usuario of usuariosSalvos">
+                  <td>{{ usuario.email }}</td>
+                  <td>{{ usuario.setor }}</td>
+                  <td>{{ usuario.funcao }}</td>
+                  <td>
+                    <!-- Select para mudar o setor -->
+                    <select [(ngModel)]="usuario.setor" (change)="alterarSetor(usuario)" class="form-control">
+                      <option *ngFor="let setor of setoresSalvos" [value]="setor.nomeSetor">
+                        {{ setor.nomeSetor }}
+                      </option>
+                    </select>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-            <div class="filter col-md-3 text-center">
-              <label>Preferencial:</label>
-              <select [(ngModel)]="filtroPreferencial" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                
-                <option *ngFor="let preferencial of preferencialList" [value]="preferencial">{{ preferencial }}</option>
-              </select>
-              
-              <button *ngIf="filtroPreferencial" (click)="removerFiltro('preferencial')" class="btn btn-sm btn-danger mt-2">Remover</button>
+            <h3 class="text-white">Setores Cadastrados</h3>
+            <div *ngIf="mostrarSetores">
+              <table class="table table-bordered" style="background-color: #003366; color: white;">
+                <thead>
+                  <tr>
+                    <th>Nome do Setor</th>
+                    <th>Sigla</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let setor of setoresSalvos">
+                    <td>{{ setor.nomeSetor }}</td>
+                    <td>{{ setor.sigla }}</td>
+                    <td>{{ setor.status }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
 
-          <div class="filters row justify-content-center">
-            <div class="filter col-md-3 text-center">
-              <label>Dia:</label>
-              <select [(ngModel)]="filtroDia" (ngModelChange)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let dia of diasList" [value]="dia">{{ dia }}</option>
-              </select>
-              <button *ngIf="filtroDia" (click)="removerFiltro('dia')" class="btn btn-sm btn-danger mt-2">Remover</button>
-            </div>
-            <div class="filter col-md-3 text-center">
-              <label for="mes">Mês:</label>
-              <select [(ngModel)]="filtroMes" (change)="filtrarRelatorio()">
-                <option value="">Todos</option>
-                <option *ngFor="let mes of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="mes">{{ mes }}</option>
-              </select>
-            </div>
-            <div class="filter col-md-3 text-center">
-              <label for="semana">Semana:</label>
-              <select [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
-                <option value="">Todas</option>
-                <option *ngFor="let semana of [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]" [value]="semana">{{ semana }}</option>
-              </select>
-            </div>
-          </div>--> 
-<!-- Tabela de usuários -->
-<div *ngIf="mostrarUsuarios" class="usuarios-container">
-  <h3>Usuários Cadastrados</h3>
-  <table class="table-bordered">
-    <thead>
-      <tr>
-        <th>Email</th>
-        <th>Setor</th>
-        <th>Função</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let usuario of usuariosSalvos">
-        <td>{{ usuario.email }}</td>
-        <td>{{ usuario.setor }}</td>
-        <td>{{ usuario.funcao }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <button (click)="fecharUsuarios()" class="btn btn-secondary">Fechar lista de usuários</button>
-  <div style="margin-bottom: 20px;"></div>
-</div>
-       <!-- Relatório -->
-<div *ngIf="mostrarRelatorio" class="usuarios-container">
-  <!-- Aqui estamos adicionando uma div com a classe de rolagem para o conteúdo do relatório -->
-  <div class="relatorio-container" [innerHTML]="relatorio"></div>
- 
-  <!--<button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>-->
-</div>
-<button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
+          <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
         </div>
       </div>
     </div>
