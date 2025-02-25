@@ -45,6 +45,10 @@ export class OperadorComponent implements OnInit, OnDestroy {
   private setorUsuarioDefinido = false;
   setorUsuario: string = '';
   
+
+  private nomeUsuarioDefinido = false;
+  nomeUsuario: string = '';
+  nomeSelecionado: string = '';
   
   //propriedade para controle de avaliação
   exibirSelecaoNota: boolean = false;
@@ -96,6 +100,8 @@ export class OperadorComponent implements OnInit, OnDestroy {
   this.verificarSetorUsuario();
 
   this.mostrarSenhasNaoAtendidas();
+
+  this.verificarNomeUsuario();
   //this.formulario.get('setor')?.setValue(this.setorUsuario);
   
     // Obtém as senhas geradas do serviço AdminService
@@ -177,7 +183,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
     
             // Se o setor selecionado for diferente, corrige
             if (this.setorSelecionado.trim().toLowerCase() !== this.setorUsuario) {
-              alert(`Confira se selecionou o setor correto, o seu setor é: ${this.setorUsuario}`);
+              alert(`Setor: ${this.setorUsuario}`);
               this.setorSelecionado == this.setorUsuario;
             }
             this.formulario.get('setor')?.setValue(this.setorUsuario);
@@ -187,7 +193,47 @@ export class OperadorComponent implements OnInit, OnDestroy {
       });
     }
 
-        
+    async verificarNomeUsuario() {
+      // Criamos um identificador único para cada aba
+      const abaId = this.gerarIdentificadorAba();
+    
+      // Verifica se já há um nome salvo para esta aba
+      const nomeSalvo = localStorage.getItem(`nomeUsuario_${abaId}`);
+      if (nomeSalvo) {
+        this.nomeUsuario = nomeSalvo;
+        this.nomeUsuarioDefinido = true;
+        console.log(`Nome carregado para a aba ${abaId}:`, this.nomeUsuario);
+        return;
+      }
+    
+      // Se ainda não foi definido, busca do banco
+      this.authService.getUser().subscribe(async user => {
+        if (user && !this.nomeUsuarioDefinido) {
+          const userRef = ref(this.db, `usuarios/${user.uid}`);
+          const snapshot = await get(userRef);
+    
+          if (snapshot.exists()) {
+            this.nomeUsuario = snapshot.val().nome.trim(); // Aqui estamos assumindo que o campo se chama 'nome'
+            
+            // Salva no localStorage com o ID da aba
+            localStorage.setItem(`nomeUsuario_${abaId}`, this.nomeUsuario);
+            this.nomeUsuarioDefinido = true;
+            
+            console.log(`Nome do usuário logado (Aba ${abaId}):`, this.nomeUsuario);
+    
+            // Se o nome selecionado for diferente, corrige
+            if (this.nomeSelecionado.trim().toLowerCase() !== this.nomeUsuario.toLowerCase()) {
+              alert(`Nome: ${this.nomeUsuario}`);
+              this.nomeSelecionado = this.nomeUsuario;
+            }
+    
+            // Preenche o campo 'nome' do formulário
+            this.formulario.get('nome')?.setValue(this.nomeUsuario);
+          }
+        }
+      });
+    }
+    
      
     
  // Gera um identificador único para cada aba

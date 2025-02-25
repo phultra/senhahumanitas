@@ -19,6 +19,26 @@ html, body {
   flex-direction: column; /* Para alinhar o conteúdo de forma vertical dentro da área */
 }
 
+.relatorio-container table {
+  width: 100%;          /* A tabela vai ocupar toda a largura do container */
+  table-layout: fixed;  /* Impede que a tabela se expanda além do necessário */
+  border-collapse: collapse; /* Para eliminar bordas duplicadas */
+}
+
+.relatorio-container th,
+.relatorio-container td {
+  padding: 8px;         /* Adiciona espaçamento nas células */
+  border: 1px solid #ccc;  /* Borda para as células */
+  text-align: left;
+}
+
+.relatorio-container th {
+  position: sticky;       /* Fixar o cabeçalho */
+  top: 0;                 /* Fixa o cabeçalho no topo da área de rolagem */
+  background-color: #fff; /* Garantir que o fundo seja branco (ou qualquer outra cor de fundo) */
+  z-index: 1;             /* Garante que o cabeçalho fique acima do conteúdo da tabela */
+}
+
 /* Estilos para os filtros */
 .filters {
   display: flex;
@@ -42,7 +62,7 @@ html, body {
 
 .filter label {
   font-weight: bold;
-  color: #0264d6;
+  color: #dfdfdf;
   margin-bottom: 5px;
   text-align: center;
 }
@@ -81,7 +101,7 @@ html, body {
 .filter-container button {
   margin: 0 5px;
   background-color: #0264d6;
-  color: white;
+  color: rgb(228, 0, 0);
   padding: 10px 20px;
   border-radius: 4px;
   cursor: pointer;
@@ -104,7 +124,7 @@ html, body {
 .filtro-mes-semana select {
   padding: 8px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #000000;
   text-align-last: center;
   font-size: 1rem;
   width: 45%;
@@ -183,5 +203,5 @@ th {
 }
 
 td {
-  background-color: #f9f9f9;
+  background-color: #b92525;
 }

@@ -4,6 +4,8 @@ import { Database } from '@angular/fire/database';
 import { CommonModule } from '@angular/common';
 import { MenuComponent } from "../menu/menu/menu.component";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface RelatorioItem {
   operador: string;
@@ -60,40 +62,60 @@ export class RelatorioComponent {
 
   async exibirRelatorio() {
     try {
-      this.mostrarRelatorio = true;
+      this.mostrarRelatorio = true; // Exibe a área de relatório
       const dadosArray: RelatorioItem[] = [];
       const senhaRef = ref(this.db, `avelar/senhafinalizada`);
       const snapshot = await get(senhaRef);
-
+  
       if (snapshot.exists()) {
         const dados = snapshot.val() as Record<string, RelatorioItem>;
         console.log('Relatório de Senhas Finalizadas:', dados);
-
+  
         Object.entries(dados).forEach(([timestamp, item]) => {
           const data = new Date(Number(timestamp));
           const finalAtendimento = Number(item.finalatendimento);
           const horaChamada = Number(item.horachamada);
           const duracaoAtendimento = finalAtendimento - horaChamada;
-
+  
           dadosArray.push({
             ...item,
             dataCompleta: data,
             duracaoAtendimento,
           });
         });
-
+  
         if (dadosArray.length > 0) {
+          // Definir as listas de filtros únicos
           this.operadores = [...new Set(dadosArray.map((item) => item.operador))];
           this.guichesList = [...new Set(dadosArray.map((item) => item.guiche))];
           this.senhasList = [...new Set(dadosArray.map((item) => item.senha))];
           this.notasList = [...new Set(dadosArray.map((item) => Number(item.nota)))];
           this.setoresList = [...new Set(dadosArray.map((item) => item.setor))];
           this.preferencialList = ['Sim', 'Não'];
-
-          // Gerar lista de dias disponíveis
           this.diasList = [...new Set(dadosArray.map((item) => item.dataCompleta.toLocaleDateString()))];
-
-          this.relatorio = this.formatarRelatorioEmTabela(dadosArray);
+  
+          // Aplicar filtros
+          const dadosFiltrados = dadosArray.filter((valor) => {
+            return (
+              (this.filtroDia ? valor.dataCompleta.toLocaleDateString() === this.filtroDia : true) &&
+              (this.filtroMes ? valor.dataCompleta.getMonth() + 1 === Number(this.filtroMes) : true) &&
+              (this.filtroSemana ? this.getSemanaDoMes(valor.dataCompleta) === Number(this.filtroSemana) : true) &&
+              (this.filtroOperador ? valor.operador === this.filtroOperador : true) &&
+              (this.filtroGuiche ? valor.guiche === this.filtroGuiche : true) &&
+              (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
+              (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) &&
+              (this.filtroSetor ? valor.setor === this.filtroSetor : true) &&
+              (this.filtroPreferencial ? valor.preferencial === (this.filtroPreferencial === 'Sim') : true)
+            );
+          });
+  
+          // Formatar os dados filtrados em uma tabela HTML
+          if (dadosFiltrados.length > 0) {
+            this.relatorio = this.formatarRelatorioEmTabela(dadosFiltrados);
+          } else {
+            console.log('Nenhum dado encontrado com os filtros aplicados.');
+            this.relatorio = '<p>Nenhum dado encontrado.</p>';
+          }
         } else {
           console.log('Nenhum dado encontrado.');
           this.relatorio = '<p>Nenhum dado encontrado.</p>';
@@ -107,6 +129,11 @@ export class RelatorioComponent {
       this.relatorio = '<p>Erro ao recuperar os dados do relatório.</p>';
     }
   }
+
+
+ 
+  
+ 
 
   formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
     let tabelaHTML = `
@@ -125,22 +152,10 @@ export class RelatorioComponent {
             </tr>
           </thead>
           <tbody>`;
-
+  
     for (let i = 0; i < dados.length; i++) {
       const valor = dados[i];
-
-      if (
-        (this.filtroDia ? valor.dataCompleta.toLocaleDateString() === this.filtroDia : true) &&
-        (this.filtroMes ? valor.dataCompleta.getMonth() + 1 === Number(this.filtroMes) : true) &&
-        (this.filtroSemana ? this.getSemanaDoMes(valor.dataCompleta) === Number(this.filtroSemana) : true) &&
-        (this.filtroOperador ? valor.operador === this.filtroOperador : true) &&
-        (this.filtroGuiche ? valor.guiche === this.filtroGuiche : true) &&
-        (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
-        (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) &&
-        (this.filtroSetor ? valor.setor === this.filtroSetor : true) &&
-        (this.filtroPreferencial ? valor.preferencial === (this.filtroPreferencial === 'Sim') : true)
-      ) {
-        tabelaHTML += `<tr>
+      tabelaHTML += `<tr>
                         <td>${valor.setor || 'Não informado'}</td>
                         <td>${valor.dataCompleta.toLocaleDateString() || 'Não informado'}</td>
                         <td>${valor.operador || 'Não informado'}</td>
@@ -150,12 +165,13 @@ export class RelatorioComponent {
                         <td>${valor.nota || 'Não informado'}</td>
                         <td>${valor.preferencial ? 'Sim' : 'Não'}</td>
                       </tr>`;
-      }
     }
-
+  
     tabelaHTML += `</tbody></table></div>`;
     return tabelaHTML;
   }
+
+  
 
   getSemanaDoMes(data: Date): number {
     const dia = data.getDate();
@@ -188,4 +204,107 @@ export class RelatorioComponent {
     }
     this.exibirRelatorio();
   }
+
+  
+
+  async relatorioParaBaixar() {
+    
+    try {
+      const setoresRef = ref(this.db, 'avelar/senhafinalizada');
+      const snapshot = await get(setoresRef);
+  
+      if (snapshot.exists()) {
+        const dados = snapshot.val();
+        const dadosArray: RelatorioItem[] = Object.values(dados);
+  
+        if (dadosArray.length === 0) {
+          alert('Nenhum dado encontrado para exportação.');
+          return;
+        }
+  
+        // Criar o documento PDF
+        const doc = new jsPDF();
+        doc.text('Relatório de Senhas Finalizadas', 14, 10);
+   
+        
+        autoTable(doc, {
+          startY: 20,
+          head: [['Setor', 'Data', 'Operador', 'Guichê', 'Senha', 'Duração', 'Nota', 'Preferencial']],
+          body: dadosArray.map(item => {
+            // Verificando o valor de finalatendimento antes de tentar criar a data
+            console.log("Valor de finalatendimento:", item.finalatendimento); 
+            
+            let dataFormatada = 'N/D'; // Valor padrão em caso de erro
+            
+            // Convertendo explicitamente para número (caso seja uma string numérica)
+            let timestamp = Number(item.finalatendimento); 
+            
+            // Verificar se o valor é um número válido (timestamp)
+            if (timestamp && !isNaN(timestamp)) {
+              const data = new Date(timestamp);
+              
+              // Verificar se a data é válida
+              if (!isNaN(data.getTime())) {
+                dataFormatada = data.toLocaleDateString();
+              }
+            }
+            
+           
+            
+            let duracaoFormatada = 'N/D'; // Valor padrão em caso de erro
+        
+            // Verificar se finalAtendimento e horaChamada estão definidos e são números válidos
+            let finalAtendimento = item.finalatendimento;
+            let horaChamada = item.horachamada;
+        
+            if (finalAtendimento && horaChamada) {
+              // Calcular a duração (em milissegundos)
+              let duracao = finalAtendimento - horaChamada;
+        
+              // Verificar se a duração é válida
+              if (!isNaN(duracao) && duracao > 0) {
+                duracaoFormatada = duracao + 'ms';
+              } else {
+                console.log("Duração inválida (finalAtendimento ou horaChamada):", finalAtendimento, horaChamada);
+              }
+            } else {
+              console.log("Valores inválidos para finalAtendimento ou horaChamada:", finalAtendimento, horaChamada);
+            }
+        
+            return [
+              item.setor || 'N/D',
+              dataFormatada,
+              item.operador || 'N/D',
+              item.guiche || 'N/D',
+              item.senha || 'N/D',
+              duracaoFormatada,
+              item.nota || 'N/D',
+              item.preferencial ? 'Sim' : 'Não'
+            ];
+          }),
+          theme: 'grid'
+        });
+        
+        
+        
+        
+  
+        // Baixar o PDF
+        doc.save(`relatorio_${new Date().toISOString().slice(0, 10)}.pdf`);
+      } else {
+        alert('Nenhum dado encontrado.');
+      }
+    } catch (error) {
+      console.error('Erro ao gerar PDF:', error);
+      alert('Erro ao gerar o relatório em PDF.');
+    }
+  }
+  
+
+
 }
+
+
+
+
+
