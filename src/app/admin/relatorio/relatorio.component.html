@@ -91,11 +91,13 @@
         <button *ngIf="filtroSemana" (click)="removerFiltro('semana')" class="btn btn-sm btn-danger mt-2">Remover</button>
       </select>
     </div>
-    <div *ngIf="mostrarRelatorio">
+
+    <div *ngIf="mostrarRelatorio" class="relatorio-container">
       
-      <div class="relatorio-container; relatorio-container" [innerHTML]="relatorio"></div>
-      <button (click)="relatorioParaBaixar()">Baixar Relatório</button>
+      <div class="table-responsive" [innerHTML]="relatorio"></div>
+      <button (click)="relatorioParaBaixar()"  style="margin-top: 20px;">Baixar Relatório</button>
       <!--<button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>-->
     </div>
+    
   </div>
 </section>

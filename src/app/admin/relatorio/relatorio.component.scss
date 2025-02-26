@@ -5,12 +5,12 @@ html, body {
 }
 
 .relatorio-container {
-  max-height: 400px;   /* Ajuste a altura máxima conforme necessário */
+  max-height: 520px;   /* Ajuste a altura máxima conforme necessário */
   overflow-y: auto;    /* Habilita a rolagem vertical */
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ddd;  /* Adiciona uma borda para definir a área do conteúdo */
-  max-width: 90vw;     /* Largura máxima */
+  margin: 20px 0;
+  padding: 20px;
+ // border: 1px solid #ddd;  /* Adiciona uma borda para definir a área do conteúdo */
+  max-width: 200vw;     /* Largura máxima */
   
   display: flex;
   justify-content: center;
@@ -19,25 +19,6 @@ html, body {
   flex-direction: column; /* Para alinhar o conteúdo de forma vertical dentro da área */
 }
 
-.relatorio-container table {
-  width: 100%;          /* A tabela vai ocupar toda a largura do container */
-  table-layout: fixed;  /* Impede que a tabela se expanda além do necessário */
-  border-collapse: collapse; /* Para eliminar bordas duplicadas */
-}
-
-.relatorio-container th,
-.relatorio-container td {
-  padding: 8px;         /* Adiciona espaçamento nas células */
-  border: 1px solid #ccc;  /* Borda para as células */
-  text-align: left;
-}
-
-.relatorio-container th {
-  position: sticky;       /* Fixar o cabeçalho */
-  top: 0;                 /* Fixa o cabeçalho no topo da área de rolagem */
-  background-color: #fff; /* Garantir que o fundo seja branco (ou qualquer outra cor de fundo) */
-  z-index: 1;             /* Garante que o cabeçalho fique acima do conteúdo da tabela */
-}
 
 /* Estilos para os filtros */
 .filters {
