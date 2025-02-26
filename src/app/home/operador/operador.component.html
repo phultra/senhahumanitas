@@ -121,44 +121,55 @@ type="ball-scale-multiple"
          <!-- Formulário para selecionar guichê e nome do operador -->
         <form action="javascript:void(0);" [formGroup]="formulario"  (ngSubmit)="cadastrarConvencional()">
           <fieldset class="clearfix">
-            <!-- Seleção de guichê -->
-            <div class="mb-4">
-              <label style=" color: aliceblue;" for="selectedOption" class="m-1">Informe seu Guichê:</label>
-              <select id="selectedOption" formControlName="guiche">
-                
-                <option value="01">01 </option>
-                <option value="02">02 </option>
-                <option value="03">03</option>
-                <option value="04">04</option>
-                <option value="05">05</option>
-                <option value="06">06 </option>
-                <option value="07">07 </option>
-                <option value="08">08 </option>
-                <option value="09">09 </option>
-                <option value="10">10</option>
-                
-              </select>
-            </div>
-            
-            <!-- Campo para inserir o nome do operador -->
-            <div class="mb-4" >
-              <label style=" color: aliceblue;" for="selectedOption">Informe seu nome:</label>
-              <input class="fa fa-user" name="nome" type="text" formControlName="nome"   Placeholder="Nome do Operador" required> 
+           <!-- Seleção de guichê -->
+<div class="mb-4" style="text-align: center;">
+  <label style="color: aliceblue;" for="selectedOption" class="m-1">Informe seu Guichê:</label>
+  <select id="selectedOption" formControlName="guiche" 
+    style="font-size: 1.5rem; width: 80%; margin-top: 10px; text-align: center;  box-shadow: none;">
+    <option value="01">01</option>
+    <option value="02">02</option>
+    <option value="03">03</option>
+    <option value="04">04</option>
+    <option value="05">05</option>
+    <option value="06">06</option>
+    <option value="07">07</option>
+    <option value="08">08</option>
+    <option value="09">09</option>
+    <option value="10">10</option>
+  </select>
+</div>
 
-            </div>
-           <!-- Seleção de setor -->
- 
-           <div class="mb-4">
-            <label style="color: aliceblue;" for="setor" class="m-1">Setor:</label>
-            <input 
-              type="text" 
-              [value]="setorUsuario" 
-              class="form-control" 
-              disabled 
-              aria-label="Setor do usuário"
-              style="border: none; background: transparent; box-shadow: none; font-size: 1.5rem; display: inline-block; width: auto; margin-left: 10px;" 
-            />
-          </div>
+            
+<!-- Campo para inserir o nome do operador -->
+<div class="mb-4" style="text-align: center;">
+  <label style="color: aliceblue;" for="selectedOption" class="m-1">Nome:</label>
+  <input 
+    class="fa fa-user" 
+    name="nome" 
+    type="text" 
+    formControlName="nome" 
+    placeholder="" 
+    required
+    [value]="nomeUsuario"   
+    readonly  
+    style="border: none; background: transparent; box-shadow: none; font-size: 1.5rem; width: 80%; margin-top: 10px; text-align: center;" 
+  />
+</div>
+
+<!-- Seleção de setor -->
+<div class="mb-4" style="text-align: center;">
+  <label style="color: aliceblue;" for="setor" class="m-1">Setor:</label>
+  <input 
+    type="text" 
+    [value]="setorUsuario" 
+    class="form-control" 
+    disabled 
+    aria-label="Setor do usuário"
+    style="border: none; background: transparent; box-shadow: none; font-size: 1.5rem; margin-top: 10px; width: 80%; text-align: center;" 
+  />
+</div>
+
+
 
 
 

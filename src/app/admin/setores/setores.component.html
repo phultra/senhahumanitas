@@ -1,16 +1,16 @@
-<section>
+<section style="background-color: #003366; color: rgb(240, 0, 0); height: 0vh;">
   <app-menu></app-menu>
 </section>
 
-<section  style="background-color: #003366; color: white; height: 100vh;">
-  <div style="text-align: center; margin-bottom: 20px;">
-    <strong>Cadastrar novo setor</strong>
-  </div>
-  
-  <div class="col-md-12" style="display: flex; justify-content: center; align-items: center; flex-direction: column;">
+<section style="background-color: #003366; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center;">
+ 
 
-    <form [formGroup]="formulario" (ngSubmit)="cadastrar()">
-      <div formArrayName="setores" style="width: 100%; max-width: 600px;">
+  <div class="d-flex justify-content-center align-items-center" style="flex-direction: column; flex-grow: 1;">
+    <div style="text-align: center; margin-bottom: 20px;">
+      <strong>Cadastrar novo setor</strong>
+    </div>
+    <form [formGroup]="formulario" (ngSubmit)="cadastrar()" style="width: 100%; max-width: 600px;">
+      <div formArrayName="setores">
         <div *ngFor="let setor of setores.controls; let i = index" [formGroupName]="i" class="form-group">
           <label for="setor-{{i}}">Setor:</label>
           <input id="setor-{{i}}" class="form-control" formControlName="nomeSetor" style="width: 100%;" />
@@ -31,10 +31,8 @@
       </div>
 
       <div class="form-group" style="width: 100%; max-width: 600px; text-align: center;">
-        <button type="submit" class="btn btn-success" style="width: 100%;">Cadastrar</button>
+        <button type="submit" class="btn btn-success" style="width: 100%; margin-top: 10px;">Cadastrar</button>
       </div>
     </form>
   </div>
-
-  <div style="margin-bottom: 40px;"></div>
 </section>

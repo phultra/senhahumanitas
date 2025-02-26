@@ -7,7 +7,7 @@
           <div class="mt-4 text-center" style="background-color: #003366;">
             <h3 class="text-white">Dados da Empresa</h3>
           </div>
-        
+         
 
           <!-- Tabela de usuários -->
           <div *ngIf="mostrarUsuarios" class="usuarios-container" style="background-color: #003366;">
@@ -15,14 +15,17 @@
             <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
               <thead>
                 <tr>
+                  <th>Nome</th>
                   <th>Email</th>
                   <th>Setor</th>
                   <th>Função</th>
                   <th>Alterar Setor</th>
+                  <th>Excluir Usuário</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let usuario of usuariosSalvos">
+                  <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
                   <td>{{ usuario.setor }}</td>
                   <td>{{ usuario.funcao }}</td>
@@ -34,9 +37,15 @@
                       </option>
                     </select>
                   </td>
-                </tr>
-              </tbody>
-            </table>
+                   <!-- Botão para excluir o usuario -->
+                    <td> 
+                      <button *ngIf="usuario.setor" (click)="excluirUsuario(usuario)" class="btn-danger">
+                        Excluir Usuário
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+               </table>
 
             <h3 class="text-white">Setores Cadastrados</h3>
             <div *ngIf="mostrarSetores">
@@ -46,6 +55,7 @@
                     <th>Nome do Setor</th>
                     <th>Sigla</th>
                     <th>Status</th>
+                    <th>Excluir Setor</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -53,6 +63,12 @@
                     <td>{{ setor.nomeSetor }}</td>
                     <td>{{ setor.sigla }}</td>
                     <td>{{ setor.status }}</td>
+                    <td>
+                      <!-- Botão para excluir o setor -->
+                      <button (click)="excluirSetor(setor.nomeSetor)" class="btn btn-danger">
+                        Excluir Setor
+                      </button>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -60,6 +76,7 @@
           </div>
 
           <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
+          <button (click)="confirmarApagarNos()" class="btn btn-danger ml-3" style="margin-left: 10px;">Reiniciar Senhas</button>
         </div>
       </div>
     </div>

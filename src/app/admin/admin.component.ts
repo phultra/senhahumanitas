@@ -4,7 +4,7 @@ import { get, ref, remove, set, update } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import{ jsPDF} from 'jspdf';
+
 import { AuthService } from '../service/auth/auth.service';
 import { createUserWithEmailAndPassword, getAuth } from '@angular/fire/auth';
 import { MenuComponent } from "./menu/menu/menu.component";
@@ -59,7 +59,7 @@ export class AdminComponent implements OnInit {
    diasList: number[] = [];
    setoresList:string[] = [];
    preferencialList: string[] = [];*/
-   usuariosSalvos: { email: string; setor: string; funcao: string }[] = []; // Lista de usuários
+   usuariosSalvos: { email: string; setor: string; funcao: string; nome: string }[] = []; // Lista de usuários
    //exibirUsuarios: boolean = false; // Controla a exibição da tabela
 
    mostrarUsuarios: boolean = false;
@@ -142,6 +142,7 @@ mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
         if (snapshot.exists()) {
           const dadosUsuarios = snapshot.val();
           this.usuariosSalvos = Object.values(dadosUsuarios).map((user: any) => ({
+            nome: user.nome,
             email: user.email,
             setor: user.setor || 'Não informado',
             funcao: user.funcao,
@@ -160,7 +161,7 @@ mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
 
     async exibirSetores() {
       try {
-        const setoresRef = ref(this.db, 'avelar/setor'); // Ajuste para o caminho correto dos setores no Firebase
+        const setoresRef = ref(this.db, 'avelar/setor'); 
         const snapshot = await get(setoresRef);
     
         if (snapshot.exists()) {
@@ -182,20 +183,85 @@ mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
     }
 
     async alterarSetor(usuario: any) {
+      
       try {
+        // Verifica se o usuário tem a função "Operador" e se o setor dele é alterável
+        if (usuario.funcao !== 'operador') {
+          alert('Somente usuários com a função "Operador" podem ter seu setor alterado.');
+          this.exibirUsuarios();
+          return;
+          
+        }
+        
         const usuarioRef = ref(this.db, `usuarios/${usuario.uid}`);
-    
+        
         // Usando 'update()' para atualizar apenas o setor, sem sobrescrever os outros dados
         await update(usuarioRef, {
           setor: usuario.setor  // Atualiza apenas o setor
+          
         });
     
         alert('Setor alterado com sucesso!');
+        this.exibirUsuarios();
       } catch (error) {
         console.error('Erro ao atualizar o setor:', error);
         alert('Erro ao atualizar o setor. Tente novamente.');
       }
     }
+    
+
+    async excluirSetor(setorNome: string) {
+      const confirmacao = window.confirm('Tem certeza que deseja excluir este Setor? Esta ação não pode ser desfeita.');
+     if(confirmacao) try {
+        // Referência ao caminho dos setores
+        const setoresRef = ref(this.db, `avelar/setor`);
+    
+        // Obtém todos os setores salvos
+        const snapshot = await get(setoresRef);
+        if (snapshot.exists()) {
+          const setoresExistentes = snapshot.val() as Record<string, any>;
+    
+          // Encontra o setor pelo nome
+          const setorParaExcluir = Object.keys(setoresExistentes).find(key => 
+            setoresExistentes[key].setor.toLowerCase() === setorNome.toLowerCase()
+          );
+    
+          if (setorParaExcluir) {
+            // Remove o setor encontrado
+            await remove(ref(this.db, `avelar/setor/${setorParaExcluir}`));
+            this.exibirSetores();
+    
+            alert('Setor excluído com sucesso!');
+          } else {
+            alert('Setor não encontrado.');
+          }
+        } else {
+          alert('Nenhum setor encontrado.');
+        }
+      } catch (error) {
+        console.error('Erro ao excluir o setor:', error);
+        alert('Erro ao excluir o setor. Tente novamente.');
+      }
+    }
+    
+
+    async excluirUsuario(usuario: any) {
+      const confirmacao = window.confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.');
+
+      if (confirmacao) try {
+        const usuarioRef = ref(this.db, `usuarios/${usuario.uid}`);
+    
+        // Excluindo o usuário completo
+        await remove(usuarioRef); // 'remove()' exclui o nó inteiro no Firebase
+        this.exibirUsuarios();
+    
+        alert('Usuário excluído com sucesso!');
+      } catch (error) {
+        console.error('Erro ao excluir o usuário:', error);
+        alert('Erro ao excluir o usuário. Tente novamente.');
+      }
+    }
+    
     
     // Método para ocultar a exibição dos usuários
     /*fecharUsuarios() {
@@ -551,4 +617,42 @@ async confirmarApagarBanco(): Promise<void> {
     await this.apagarBanco();
   }
 }
+
+
+
+async apagarNos(): Promise<void> {
+  try {
+    const avelarRef = ref(this.db, 'avelar');  // Referência ao nó 'avelar'
+    const snapshot = await get(avelarRef);
+
+    if (snapshot.exists()) {
+      const dados = snapshot.val();
+
+      // Lista de chaves a serem apagadas
+      const chavesParaApagar = ['senhagerada', 'senhacontador'];
+
+      // Apaga cada nó especificado
+      for (const chave of chavesParaApagar) {
+        const caminho = `avelar/${chave}`;
+        await remove(ref(this.db, caminho));
+        console.log(`Nó '${caminho}' apagado com sucesso.`);
+      }
+
+      this.relatorio = '<p>Os nós "senhagerada" e "senhacontador" foram apagados com sucesso.</p>';
+    } else {
+      console.log('Nenhum dado encontrado em "avelar".');
+      this.relatorio = '<p>Nenhum dado encontrado para apagar.</p>';
+    }
+  } catch (error) {
+    console.error('Erro ao apagar os nós:', error);
+    this.relatorio = '<p>Erro ao apagar os nós.</p>';
+  }
+}
+async confirmarApagarNos(): Promise<void> {
+  const confirmar = window.confirm('Tem certeza que deseja apagar todos os dados do banco? Esta ação não pode ser desfeita.');
+  if (confirmar) {
+    await this.apagarNos();
+  }
+}
+
 }

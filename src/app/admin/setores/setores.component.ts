@@ -4,7 +4,7 @@ import { get, ref, remove, set } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import{ jsPDF} from 'jspdf';
+
 import { MenuComponent } from "../menu/menu/menu.component";
 //import { AuthService } from '../service/auth/auth.service';
 //import { createUserWithEmailAndPassword, getAuth } from '@angular/fire/auth';
