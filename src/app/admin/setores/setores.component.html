@@ -8,7 +8,7 @@
   <div class="d-flex justify-content-center align-items-center" style="flex-direction: column; flex-grow: 1;">
     <div style="text-align: center; margin-bottom: 20px;">
       <strong>Cadastrar novo setor</strong>
-      <h1>teste</h1>
+      
     </div>
     <form [formGroup]="formulario" (ngSubmit)="cadastrar()" style="width: 100%; max-width: 600px;">
       <div formArrayName="setores">
@@ -18,7 +18,13 @@
         
           <div class="form-group">
             <label for="sigla">Sigla do Setor:</label>
-            <input id="sigla" class="form-control" formControlName="sigla" style="width: 100%;" />
+            <input 
+              id="sigla" 
+              class="form-control" 
+              formControlName="sigla" 
+              style="width: 100%;" 
+              maxlength="3" 
+            />
           </div>
         </div>
       </div>

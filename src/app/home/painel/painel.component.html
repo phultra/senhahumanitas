@@ -20,13 +20,17 @@
                     <!-- Exibe a senha atual em destaque -->
                     <td>
                       <h3>SENHA</h3>
-                      <h1 class="display-1" style="color: blue;">
+                      <h1 class="display-1"  style="color: blue;">
                         <b><strong>{{psenha}}</strong></b>
                       </h1>
                       <!-- Exibe o guichê abaixo da senha -->
                       <h3>GUICHÊ</h3>
                       <h1 class="display-1" style="color: blue;">
                         <b><strong>{{pguiche}}</strong></b>
+                      </h1>
+                      <h3>TIPO</h3>
+                      <h1 class="display-1" style="color: blue;">
+                        <b><strong>{{ppreferencial ? 'preferencial' : 'Não Preferencial'}}</strong></b>
                       </h1>
                     </td>
                   </tr>
@@ -57,7 +61,7 @@
                 <div class="table table-hover table-striped">
                   <div class="header text-center">
                     <a>
-                      <h5 class="nomecliente">{{ senha.cliente }}</h5>
+                     
                       <h4 class="card-title" style="color: blue;">
                         <b>SENHA: {{ senha.senha }}</b>
                       </h4>

@@ -66,6 +66,10 @@
     </div>
   </div>
 
+
+  
+ 
+
   <div class="filters row justify-content-center">
     <div class="filter col-md-3 text-center">
       <label>Dia:</label>
@@ -91,7 +95,13 @@
         <button *ngIf="filtroSemana" (click)="removerFiltro('semana')" class="btn btn-sm btn-danger mt-2">Remover</button>
       </select>
     </div>
-
+    <div class="filter col-md-3 text-center">
+      <label>Data Início:</label>
+      <input type="date" [(ngModel)]="filtroDataInicio" (change)="filtrarRelatorio()">
+    
+      <label>Data Fim:</label>
+      <input type="date" [(ngModel)]="filtroDataFim" (change)="filtrarRelatorio()">
+    </div>
     <div *ngIf="mostrarRelatorio" class="relatorio-container">
       
       <div class="table-responsive" [innerHTML]="relatorio"></div>
@@ -99,5 +109,26 @@
       <!--<button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>-->
     </div>
     
+    <button class="filter col-md-3 text-center" (click)="calcularMediaNotas()">Calcular Média</button>
+
+    <table *ngIf="mediaNotas.length > 0" style="background-color: #003366;">
+      <thead>
+        <tr>
+          <th>Operador</th>
+          <th>Média da Nota</th>
+          <th>Total de Atendimentos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of mediaNotas">
+          <td>{{ item.operador }}</td>
+          <td>{{ item.mediaNota | number:'1.2-2' }}</td>
+          <td>{{ item.totalAtendimentos }}</td>
+        </tr>
+      </tbody>
+    </table>
+    
+    
+    <button class="filter col-md-3 text-center"   (click)="gerarPDFmedia()">Baixar Média dos Operadores</button>
   </div>
 </section>
