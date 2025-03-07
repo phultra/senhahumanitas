@@ -1,4 +1,4 @@
-import { Routes, RouterModule } from '@angular/router';
+import { Routes } from '@angular/router';
 import { GeradorsenhaComponent } from './home/geradorsenha/geradorsenha.component';
 import { OperadorComponent } from './home/operador/operador.component';
 import { PainelComponent } from './home/painel/painel.component';
@@ -8,8 +8,6 @@ import { AvaliarComponent } from './avaliar/avaliar.component';
 import { SetoresComponent } from './admin/setores/setores.component';
 import { UsuariosComponent } from './admin/usuarios/usuarios.component';
 import { RelatorioComponent } from './admin/relatorio/relatorio.component';
-import { NgModule } from '@angular/core';
-
 
 export const routes: Routes = [
 
@@ -20,16 +18,8 @@ export const routes: Routes = [
     {'path': 'admin', component: AdminComponent},
     {'path': 'login', component: LoginComponent},
     {'path': 'avaliar', component: AvaliarComponent},
-    {
-        path: 'admin', 
-        component: AdminComponent,
-        children: [
-          { path: 'setores', component: SetoresComponent },
-          { path: 'usuarios', component: UsuariosComponent },
-          { path: 'relatorio', component: RelatorioComponent },
-        ]
-      },
-      { path: '', redirectTo: '/admin', pathMatch: 'full' },
-  
+    {'path': 'setores', component: SetoresComponent},
+    {'path': 'usuarios', component: UsuariosComponent},
+    {'path': 'relatorio', component: RelatorioComponent},
 ];
 

@@ -7,6 +7,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+
+
 interface RelatorioItem {
   operador: string;
   guiche: string;
@@ -32,6 +34,7 @@ export class RelatorioComponent {
   mostrarRelatorio: boolean = false;
   dadosArray: RelatorioItem[] = [];
 
+ 
   filtroDia: string = '';
   filtroMes: string = '';
   filtroSemana: string = '';
@@ -42,6 +45,9 @@ export class RelatorioComponent {
   filtroSetor: string = '';
   filtroPreferencial: string = '';
 
+  filtroDataInicio: string = '';
+filtroDataFim: string = '';
+
   diasList: string[] = [];
   operadores: string[] = [];
   guichesList: string[] = [];
@@ -50,10 +56,13 @@ export class RelatorioComponent {
   setoresList: string[] = [];
   preferencialList: string[] = [];
 
+  mediaNotas: { operador: string, mediaNota: number, totalAtendimentos: number }[] = [];
+
   constructor(private db: Database) {}
 
   ngOnInit() {
     this.exibirRelatorio();
+    console.log('Dados disponíveis:', this.relatorio);
   }
 
   fecharRelatorio() {
@@ -96,7 +105,15 @@ export class RelatorioComponent {
   
           // Aplicar filtros
           const dadosFiltrados = dadosArray.filter((valor) => {
+
+            const dataAtendimento = valor.dataCompleta;
+
+            const dataInicioValida = this.filtroDataInicio ? new Date(this.filtroDataInicio) : null;
+            const dataFimValida = this.filtroDataFim ? new Date(this.filtroDataFim) : null;
+
             return (
+              (!dataInicioValida || dataAtendimento >= dataInicioValida) &&
+              (!dataFimValida || dataAtendimento <= dataFimValida) &&
               (this.filtroDia ? valor.dataCompleta.toLocaleDateString() === this.filtroDia : true) &&
               (this.filtroMes ? valor.dataCompleta.getMonth() + 1 === Number(this.filtroMes) : true) &&
               (this.filtroSemana ? this.getSemanaDoMes(valor.dataCompleta) === Number(this.filtroSemana) : true) &&
@@ -132,6 +149,54 @@ export class RelatorioComponent {
 
 
  
+  calcularMediaNotas() {
+    try {
+      // Verificar se o relatório está disponível
+      if (!this.relatorio) {
+        console.error('Relatório não disponível');
+        return;
+      }
+  
+      // Criar uma array de objetos com os dados extraídos do relatório
+      const div = document.createElement('div');
+      div.innerHTML = this.relatorio; // Usando o HTML armazenado
+  
+      // Selecionar todas as linhas da tabela
+      const rows = div.querySelectorAll('table tbody tr');
+      const operadoresNotas = new Map<string, { totalNotas: number, totalAtendimentos: number }>();
+  
+      rows.forEach(row => {
+        const cols = row.querySelectorAll('td');
+        const operador = cols[2]?.textContent?.trim();
+        const nota = Number(cols[6]?.textContent?.trim());
+        
+        if (operador && !isNaN(nota)) {
+          if (!operadoresNotas.has(operador)) {
+            operadoresNotas.set(operador, { totalNotas: 0, totalAtendimentos: 0 });
+          }
+          
+          const operadorData = operadoresNotas.get(operador)!;
+          operadorData.totalNotas += nota;
+          operadorData.totalAtendimentos++;
+        }
+      });
+  
+      // Calcular a média e preparar o resultado
+      this.mediaNotas = Array.from(operadoresNotas.entries()).map(([operador, { totalNotas, totalAtendimentos }]) => {
+        const media = totalNotas / totalAtendimentos;
+        return {
+          operador,
+          mediaNota: media,  // Garantir que mediaNota seja um número
+          totalAtendimentos
+        };
+      });
+  
+      console.log('Média de notas por operador:', this.mediaNotas);
+    } catch (error) {
+      console.error('Erro ao calcular a média de notas:', error);
+    }
+  }
+  
   
  
 
@@ -181,6 +246,8 @@ export class RelatorioComponent {
   filtrarRelatorio() {
     this.exibirRelatorio();
   }
+
+
 
   removerFiltro(filtro: string) {
     if (filtro === 'dia') {
@@ -302,7 +369,48 @@ export class RelatorioComponent {
   
 
 
+ // Função para gerar e baixar o PDF
+ gerarPDFmedia() {
+  // Verificar se temos dados para gerar o PDF
+  if (this.mediaNotas.length === 0) {
+    alert('Nenhuma média de nota disponível para gerar o PDF');
+    return;
+  }
+
+  // Criar uma instância do jsPDF
+  const doc = new jsPDF();
+
+  // Adicionar título ao PDF
+  doc.setFontSize(18);
+  doc.text('Média de Notas por Operador', 20, 20);
+
+  // Usar autoTable para gerar a tabela
+  const tableData = this.mediaNotas.map(item => [
+    item.operador,
+    item.mediaNota.toFixed(2),  // Exibir média com 2 casas decimais
+    item.totalAtendimentos.toString()
+  ]);
+
+  // Configurações para a tabela
+  autoTable(doc,{
+    startY: 30, // A posição Y inicial para a tabela
+    head: [['Operador', 'Média de Nota', 'Total de Atendimentos']],  // Cabeçalho da tabela
+    body: tableData,  // Dados da tabela
+    theme: 'grid',  // Estilo da tabela
+    headStyles: { fillColor: [41, 128, 185], textColor: [255, 255, 255], fontSize: 12 },  // Cabeçalho estilizado
+    bodyStyles: { fontSize: 10 },  // Estilo das células
+    margin: { top: 20, left: 10, right: 10 },
+  });
+
+  // Gerar o PDF e iniciar o download
+  doc.save('media_notas_operadores.pdf');
 }
+}
+  
+  
+  
+
+
 
 
 

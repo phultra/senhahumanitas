@@ -44,7 +44,7 @@ export class SetoresComponent {
         setores: this.formBuilder.array([]),
         //iches: this.formBuilder.array([]),
         status: ['', [Validators.required]],
-        sigla: ['', [Validators.required]]   
+        sigla: ['', [Validators.required, Validators.maxLength(3)]]   
       });
     }
  

@@ -38,7 +38,7 @@ export class PainelComponent implements OnInit {
   ni: number = 0;
   private setorUsuarioDefinido = false; // Impede que o setor seja alterado mais de uma vez
 
-
+  private chamadaMap = new Map<string, number>();
 
   constructor(
     private adminService: AdminService,
@@ -156,38 +156,68 @@ private gerarIdentificadorAba(): string {
 
     this.pegavalor(this.senhasChamadas.length);
     this.audio.src = "../assets/audio/SOM.wav";
-    this.audio.load();
+    //this.audio.load();
   }
 
   atualizarSenhasChamadas(senha: DadosSenha) {
     const senhas = this.senhasChamadasSubject.value;
-    if (senhas.length >= 4) {
-      senhas.shift();
+    
+    // Verifica se a senha já está na lista
+    const senhaExistente = senhas.some(s => s.senha === senha.senha);
+    
+    // Se a senha já existir, não adiciona de novo
+    if (!senhaExistente) {
+      if (senhas.length >= 4) {
+        senhas.shift(); // Remove a primeira senha se a lista estiver cheia
+      }
+      senhas.push(senha); // Adiciona a nova senha
+      this.senhasChamadasSubject.next(senhas);
     }
-    senhas.push(senha);
-    this.senhasChamadasSubject.next(senhas);
   }
-
   pegavalor(valor: number) {
     this.ni = valor;
   }
 
   async playAudio(senha: DadosSenha) {
-    this.senha[0].status = '2';
-    this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
-
-    await delay(3000).then(async () => {
-      this.psenha = senha.senha;
-      this.pguiche = senha.guiche;
-      this.pnome = senha.cliente;
-      this.atualizarSenhasChamadas(senha);
-
-      await this.falarSenha(senha).then(() => {
-        this.audio.play();
+    // Defina a fonte do áudio apenas uma vez, se ainda não estiver configurada
+    if (!this.audio.src) {
+      this.audio.src = "../assets/audio/SOM.wav";
+      this.audio.load();
+    }
+  
+    // Verifique se o áudio foi carregado e só toque após estar pronto
+    if (this.audio.readyState >= 3) { // 3 significa que o áudio foi carregado parcialmente (ou mais)
+      await this.audio.play();
+    } else {
+      // Caso o áudio não tenha carregado completamente, aguarde um momento
+      await new Promise(resolve => {
+        this.audio.oncanplaythrough = () => {
+          resolve(this.audio.play());
+        };
       });
-    });
+    }
+  
+    // Aguarde 2 segundos após o áudio começar a tocar
+    await delay(2000);  // 2000 ms = 2 segundos
+    
+    // Depois que o áudio terminar, atualize os dados da senha e faça a fala
+    this.senha[0].status = '2'; // Marque como chamada
+    this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
+  
+    // Atualize as variáveis relacionadas à senha e guichê
+    this.psenha = senha.senha;
+    this.pguiche = senha.guiche;
+    this.pnome = senha.cliente;
+    this.ppreferencial = senha.preferencial;
+  
+    // Atualize a lista de senhas chamadas
+    this.atualizarSenhasChamadas(senha);
+  
+    // Agora, fale a senha
+    await this.falarSenha(senha);
   }
-
+  
+  
   private async falarSenha(senha: DadosSenha) {
     return new Promise<void>((resolve, reject) => {
       const checkSpeaking = setInterval(() => {
