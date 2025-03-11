@@ -11,6 +11,8 @@
   <section>
     <app-menu></app-menu>
   </section>
+  
+  
   <div class="filters row justify-content-center">
     <div class="filter col-md-3 text-center">
       <label>Operador:</label>
@@ -20,6 +22,8 @@
       </select>
       <button *ngIf="filtroOperador" (click)="removerFiltro('operador')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
+    
+    
     <div class="filter col-md-3 text-center">
       <label>Guiche:</label>
       <select [(ngModel)]="filtroGuiche" (ngModelChange)="filtrarRelatorio()">
@@ -28,6 +32,8 @@
       </select>
       <button *ngIf="filtroGuiche" (click)="removerFiltro('guiche')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
+    
+    
     <div class="filter col-md-3 text-center">
       <label>Senha:</label>
       <select [(ngModel)]="filtroSenha" (ngModelChange)="filtrarRelatorio()">
@@ -36,6 +42,8 @@
       </select>
       <button *ngIf="filtroSenha" (click)="removerFiltro('senha')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
+   
+   
     <div class="filter col-md-3 text-center">
       <label>Nota:</label>
       <select [(ngModel)]="filtroNota" (ngModelChange)="filtrarRelatorio()">
@@ -44,6 +52,8 @@
       </select>
       <button *ngIf="filtroNota" (click)="removerFiltro('nota')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
+   
+   
     <div class="filter col-md-3 text-center">
       <label>Setor:</label>
       <select [(ngModel)]="filtroSetor" (ngModelChange)="filtrarRelatorio()">
@@ -70,7 +80,7 @@
   
  
 
-  <div class="filters row justify-content-center">
+  <div class="filters row justify-content-center" style="background-color: #003366;">
     <div class="filter col-md-3 text-center">
       <label>Dia:</label>
       <select [(ngModel)]="filtroDia" (ngModelChange)="filtrarRelatorio()">
@@ -79,6 +89,8 @@
       </select>
       <button *ngIf="filtroDia" (click)="removerFiltro('dia')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
+    
+    
     <div class="filter col-md-3 text-center">
       <label for="mes">Mês:</label>
       <select [(ngModel)]="filtroMes" (change)="filtrarRelatorio()">
@@ -87,6 +99,8 @@
       </select>
       <button *ngIf="filtroMes" (click)="removerFiltro('mes')" class="btn btn-sm btn-danger mt-2">Remover</button>
     </div>
+   
+   
     <div class="filter col-md-3 text-center">
       <label for="semana">Semana:</label>
       <select [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
@@ -95,6 +109,8 @@
         <button *ngIf="filtroSemana" (click)="removerFiltro('semana')" class="btn btn-sm btn-danger mt-2">Remover</button>
       </select>
     </div>
+    
+    
     <div class="filter col-md-3 text-center">
       <label>Data Início:</label>
       <input type="date" [(ngModel)]="filtroDataInicio" (change)="filtrarRelatorio()">
@@ -102,13 +118,21 @@
       <label>Data Fim:</label>
       <input type="date" [(ngModel)]="filtroDataFim" (change)="filtrarRelatorio()">
     </div>
+    
+    
+    
+    
+    
     <div *ngIf="mostrarRelatorio" class="relatorio-container">
       
       <div class="table-responsive" [innerHTML]="relatorio"></div>
-      <button (click)="relatorioParaBaixar()"  style="margin-top: 20px;">Baixar Relatório</button>
+      <button (click)="relatorioParaBaixar()"  style="margin-top: 20px;">Baixar Relatório Completo</button>
       <!--<button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>-->
     </div>
     
+   
+   
+   
     <button class="filter col-md-3 text-center" (click)="calcularMediaNotas()">Calcular Média</button>
 
     <table *ngIf="mediaNotas.length > 0" style="background-color: #003366;">
