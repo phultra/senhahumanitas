@@ -7,6 +7,9 @@ import { AuthService } from '../../service/auth/auth.service';
 import { Router } from '@angular/router';
 import { Database, ref, get } from '@angular/fire/database';
 
+
+import { ChangeDetectorRef } from '@angular/core';
+
 function delay(ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
@@ -39,8 +42,10 @@ export class PainelComponent implements OnInit {
   private setorUsuarioDefinido = false; // Impede que o setor seja alterado mais de uma vez
 
   private chamadaMap = new Map<string, number>();
+  isProcessing: any;
 
   constructor(
+    private cdRef: ChangeDetectorRef,
     private adminService: AdminService,
     private authService: AuthService,
     private router: Router,
@@ -179,73 +184,78 @@ private gerarIdentificadorAba(): string {
   }
 
   async playAudio(senha: DadosSenha) {
-    // Defina a fonte do áudio apenas uma vez, se ainda não estiver configurada
-    if (!this.audio.src) {
+    if (this.isProcessing) {
+      console.warn("Aguarde a finalização da senha atual antes de chamar outra.");
+      return;
+    }
+  
+    try {
+      this.isProcessing = true;
+  
+      // Atualizar as variáveis que aparecem no painel
+      this.psenha = senha.senha;
+      this.pguiche = senha.guiche;
+      this.pnome = senha.cliente;
+      this.ppreferencial = senha.preferencial;
+  
+      // Forçar a atualização da interface
+      this.cdRef.detectChanges();
+  
+      // Configurar e tocar o áudio
       this.audio.src = "../assets/audio/SOM.wav";
       this.audio.load();
-    }
   
-    // Verifique se o áudio foi carregado e só toque após estar pronto
-    if (this.audio.readyState >= 3) { // 3 significa que o áudio foi carregado parcialmente (ou mais)
-      await this.audio.play();
-    } else {
-      // Caso o áudio não tenha carregado completamente, aguarde um momento
-      await new Promise(resolve => {
-        this.audio.oncanplaythrough = () => {
-          resolve(this.audio.play());
-        };
+      await new Promise<void>((resolve, reject) => {
+        this.audio.oncanplaythrough = () => resolve();
+        this.audio.onerror = () => reject("Erro ao carregar o áudio");
       });
+  
+      await this.audio.play();
+      await new Promise<void>(resolve => {
+        this.audio.onended = () => resolve();
+      });
+  
+      // Agora, chamar a fala da senha
+      await this.falarSenha(senha);
+  
+      // Atualizar status da senha
+      this.senha[0] = { ...senha, status: '2' };
+      this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
+  
+      // Atualizar lista de senhas chamadas
+      this.atualizarSenhasChamadas(senha);
+  
+      // Forçar nova atualização da interface após a senha ser chamada
+      this.cdRef.detectChanges();
+  
+    } catch (error) {
+      console.error("Erro ao processar a senha: ", error);
+    } finally {
+      this.isProcessing = false;
     }
-  
-    // Aguarde 2 segundos após o áudio começar a tocar
-    await delay(2000);  // 2000 ms = 2 segundos
-    
-    // Depois que o áudio terminar, atualize os dados da senha e faça a fala
-    this.senha[0].status = '2'; // Marque como chamada
-    this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
-  
-    // Atualize as variáveis relacionadas à senha e guichê
-    this.psenha = senha.senha;
-    this.pguiche = senha.guiche;
-    this.pnome = senha.cliente;
-    this.ppreferencial = senha.preferencial;
-  
-    // Atualize a lista de senhas chamadas
-    this.atualizarSenhasChamadas(senha);
-  
-    // Agora, fale a senha
-    await this.falarSenha(senha);
   }
-  
   
   private async falarSenha(senha: DadosSenha) {
     return new Promise<void>((resolve, reject) => {
-      const checkSpeaking = setInterval(() => {
-        if (!this.synth.speaking) {
-          clearInterval(checkSpeaking);
-
-          const utterThis = new SpeechSynthesisUtterance(`${senha.cliente} Senha ${senha.senha} Guichê ${senha.guiche}`);
-          utterThis.rate = 0.9;
-
-          utterThis.onend = () => {
-            this.isSpeaking = false;
-            this.processQueue();
-            resolve();
-          };
-
-          utterThis.onerror = event => {
-            console.error('Erro ao falar: ', event.error);
-            this.isSpeaking = false;
-            this.processQueue();
-            reject(event.error);
-          };
-
-          this.synth.speak(utterThis);
-          this.isSpeaking = true;
-        }
-      }, 100);
+      // Criar a fala da senha
+      const utterThis = new SpeechSynthesisUtterance(`${senha.cliente} Senha ${senha.senha} Guichê ${senha.guiche}`);
+      utterThis.rate = 0.9;
+  
+      // Quando a fala terminar, liberar para chamar a próxima senha
+      utterThis.onend = () => {
+        resolve();
+      };
+  
+      utterThis.onerror = event => {
+        console.error('Erro ao falar: ', event.error);
+        reject(event.error);
+      };
+  
+      // Falar a senha
+      this.synth.speak(utterThis);
     });
   }
+  
 
   private processQueue() {
     if (!this.isSpeaking && this.queue.length > 0) {

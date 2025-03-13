@@ -623,7 +623,7 @@ mostrarSenhasNaoAtendidas() {
         console.error('Erro ao buscar senhas:', error);
       }
     );
-  }, 5000); // 5000 milissegundos = 5 segundos
+  }, 500); // 500 milissegundos = 0,5 segundo
 }
 
 
