@@ -57,7 +57,8 @@ export class PainelComponent implements OnInit {
       this.router.navigate(['/login']);
     } else {
       this.carregarSetores(); // Carrega os setores disponíveis
-      this.verificarSetorUsuario(); // Garante que o usuário selecione o setor correto
+      this.carregarTodasAsSenhas();
+      // this.verificarSetorUsuario(); // Garante que o usuário selecione o setor correto
     }
   }
 
@@ -76,7 +77,7 @@ export class PainelComponent implements OnInit {
   }
 
   // Verifica se o usuário logado pertence ao setor selecionado
-  async verificarSetorUsuario() {
+  /* async verificarSetorUsuario() {
     // Criamos um identificador único para cada aba
     const abaId = this.gerarIdentificadorAba();
   
@@ -86,7 +87,7 @@ export class PainelComponent implements OnInit {
       this.setorUsuario = setorSalvo;
       this.setorUsuarioDefinido = true;
       console.log(`Setor carregado para a aba ${abaId}:`, this.setorUsuario);
-      this.carregarSenhasDoSetor();
+      // this.carregarSenhasDoSetor();
       return;
     }
   
@@ -111,58 +112,58 @@ export class PainelComponent implements OnInit {
             this.setorSelecionado = this.setorUsuario;
           }
   
-          this.carregarSenhasDoSetor();
+          // this.carregarSenhasDoSetor();
         }
       }
     });
-  }
+   }*/
   
-  // Gera um identificador único para cada aba
-private gerarIdentificadorAba(): string {
+  
+  
+    // Gera um identificador único para cada aba
+/*private gerarIdentificadorAba(): string {
   // Sempre gera um novo ID quando a aba é recarregada
   const abaId = Math.random().toString(36).substring(2, 15); // Gera um ID aleatório
   sessionStorage.setItem('abaId', abaId); // Salva o novo ID no sessionStorage
   return abaId;
-}
+ }*/
 
-  // Carrega apenas as senhas do setor correspondente
-  private carregarSenhasDoSetor() {
+  // Carrega as senhas
+  private carregarTodasAsSenhas() {
     this.adminService.getSenhaPainelConvencional().subscribe(async d => {
       this.senha = [];
       this.senhasChamadas = [];
-
+  
       for (let index = 0; index < d.length; index++) {
         const senhaRef = ref(this.db, `avelar/senhachamada/${d[index].horachamada}`);
         const snapshot = await get(senhaRef);
-
+  
         if (snapshot.exists()) {
           const senhaData = snapshot.val();
-
-          // Filtra apenas senhas do setor do usuário logado
-          if (senhaData.setor && senhaData.setor.trim().toLowerCase() === this.setorUsuario.trim().toLowerCase()) {
-            if (d[index].status === '1') {
-              this.senha.push(d[index]);
-            } else if (d[index].status === '2') {
-              this.senhasChamadas.push(d[index]);
-            }
+  
+          // Agora, independentemente do setor
+          if (d[index].status === '1') {
+            this.senha.push(d[index]);
+          } else if (d[index].status === '2') {
+            this.senhasChamadas.push(d[index]);
           }
         }
       }
-
-      console.log('Senhas filtradas:', this.senha);
-      console.log('Senhas chamadas filtradas:', this.senhasChamadas);
-
+  
+      console.log('Todas as senhas aguardando:', this.senha);
+      console.log('Todas as senhas chamadas:', this.senhasChamadas);
+  
       const interval = setInterval(async () => {
-        if (this.senha[0] != undefined) {
+        if (this.senha[0] !== undefined) {
           await this.playAudio(this.senha[0]);
         }
       }, 3000);
     });
-
+  
     this.pegavalor(this.senhasChamadas.length);
     this.audio.src = "../assets/audio/SOM.wav";
-    //this.audio.load();
   }
+  
 
   atualizarSenhasChamadas(senha: DadosSenha) {
     const senhas = this.senhasChamadasSubject.value;
@@ -172,7 +173,7 @@ private gerarIdentificadorAba(): string {
     
     // Se a senha já existir, não adiciona de novo
     if (!senhaExistente) {
-      if (senhas.length >= 4) {
+      if (senhas.length >= 6) {
         senhas.shift(); // Remove a primeira senha se a lista estiver cheia
       }
       senhas.push(senha); // Adiciona a nova senha
@@ -196,7 +197,7 @@ private gerarIdentificadorAba(): string {
       this.psenha = senha.senha;
       this.pguiche = senha.guiche;
       this.pnome = senha.cliente;
-      this.ppreferencial = senha.preferencial;
+      // this.ppreferencial = senha.preferencial;
   
       // Forçar a atualização da interface
       this.cdRef.detectChanges();

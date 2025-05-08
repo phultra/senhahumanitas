@@ -40,6 +40,13 @@ export class OperadorComponent implements OnInit, OnDestroy {
   telaoperador:boolean = false;
   telalogin:boolean = true;
   mostrarSenhas: boolean = false; // Controla a exibição das senhas não atendidas
+  mostrarFormularioPaciente: boolean = false;
+  dadosPaciente = {
+    nome: '',
+    medico: '',
+    consultorio: '',
+    senhaid: ''
+  };
  
   private keyPressHandler!: (event: KeyboardEvent) => void;
   private setorUsuarioDefinido = false;
@@ -65,9 +72,8 @@ export class OperadorComponent implements OnInit, OnDestroy {
 
 
   // Array para armazenar as senhas geradas
-  senhasPreferenciais: DadosSenha[] = [];
-  senhasNaoPreferenciais: DadosSenha[] = [];
-  
+  senhasDisponiveis: DadosSenha[] = [];
+
   //VARIÁVEL QUE CRIA FORMULARIO
 
    formulario!: FormGroup;
@@ -97,7 +103,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
      // Carrega os setores disponíveis
   this.carregarSetores();}
   
-  this.verificarSetorUsuario();
+    // this.verificarSetorUsuario();
 
   this.mostrarSenhasNaoAtendidas();
 
@@ -117,81 +123,26 @@ export class OperadorComponent implements OnInit, OnDestroy {
     //document.addEventListener('keydown', this.onKeyPress.bind(this));
     
     
-     // Obtém senhas convencionais e organiza em preferencial e normal
-    this.adminService.getSenhaGeradaConvencional().subscribe(d =>{
-      console.log(d.length);
-      this.repetirSenha = d;
-      this.filtrarSenhasPorSetor();
-      this.senhaNormalNova = [];
-      this.senhaPreferencial = [];
-        for (let index = 0; index < d.length; index++) {
-        
-          if (d[index].preferencial == true && d[index].status == '0'){
-            this.senhaPreferencial.push(d[index]);
-           
-          }else if(d[index].status == '0') {
-            this.senhaNormalNova.push(d[index]);
-           
-          }
-        
-        }
-        console.log(this.senhaNormalNova);
-        console.log(this.senhaPreferencial);
-    })
+     // Aqui unifica todas as senhas com status "0"
+  this.adminService.getSenhaGeradaConvencional().subscribe(d => {
+    this.repetirSenha = d;
+    this.senhasDisponiveis = d.filter(s => s.status === '0');
+  });
 
-    // Obtém senhas do painel convencional
-    this.adminService.getSenhaPainelConvencional().subscribe(async d =>{
-       this.senhaPainel = d
-    })
-  
-    
-    this.keyPressHandler = this.onKeyPress.bind(this);
-  }
+  // Painel
+  this.adminService.getSenhaPainelConvencional().subscribe(d => {
+    this.senhaPainel = d;
+  });
+
+  this.keyPressHandler = this.onKeyPress.bind(this);
+}
+ 
+ 
   ngOnDestroy() {
     document.removeEventListener('keydown', this.keyPressHandler);
   }
 
-  // Verifica se o usuário logado pertence ao setor selecionado
-    async verificarSetorUsuario() {
-      // Criamos um identificador único para cada aba
-      const abaId = this.gerarIdentificadorAba();
-    
-      // Verifica se já há um setor salvo para esta aba
-      const setorSalvo = localStorage.getItem(`setorUsuario_${abaId}`);
-      if (setorSalvo) {
-        this.setorUsuario = setorSalvo;
-        this.setorUsuarioDefinido = true;
-        console.log(`Setor carregado para a aba ${abaId}:`, this.setorUsuario);
-        //this.carregarSenhasDoSetor();
-        return;
-      }
-    
-      // Se ainda não foi definido, busca do banco
-      this.authService.getUser().subscribe(async user => {
-        if (user && !this.setorUsuarioDefinido) {
-          const userRef = ref(this.db, `usuarios/${user.uid}`);
-          const snapshot = await get(userRef);
-    
-          if (snapshot.exists()) {
-            this.setorUsuario = snapshot.val().setor.trim().toLowerCase();
-    
-            // Salva no localStorage com o ID da aba
-            localStorage.setItem(`setorUsuario_${abaId}`, this.setorUsuario);
-            this.setorUsuarioDefinido = true;
-            
-            console.log(`Setor do usuário logado (Aba ${abaId}):`, this.setorUsuario);
-    
-            // Se o setor selecionado for diferente, corrige
-            if (this.setorSelecionado.trim().toLowerCase() !== this.setorUsuario) {
-              alert(`Setor: ${this.setorUsuario}`);
-              this.setorSelecionado == this.setorUsuario;
-            }
-            this.formulario.get('setor')?.setValue(this.setorUsuario);
-           // this.carregarSenhasDoSetor();
-          }
-        }
-      });
-    }
+ 
 
     async verificarNomeUsuario() {
       // Criamos um identificador único para cada aba
@@ -253,27 +204,8 @@ private gerarIdentificadorAba(): string {
     })      
   }
 
-  // Filtra as senhas com base no setor selecionado
-filtrarSenhasPorSetor() {
-  if (!this.setorUsuarioDefinido) {
-    console.warn('Nenhum setor selecionado.');
-    return;
-  }
-
-  // Filtra as senhas geradas convencionalmente pelo setor
-  this.senhaNormalNova = this.repetirSenha.filter(
-    (senha) => senha.setor === this.setorUsuario && senha.status === '0' && !senha.preferencial
-  );
-
-  this.senhaPreferencial = this.repetirSenha.filter(
-    (senha) => senha.setor === this.setorUsuario && senha.status === '0' && senha.preferencial
-  );
-
-  console.log('Senhas normais no setor:', this.senhaNormalNova);
-  console.log('Senhas preferenciais no setor:', this.senhaPreferencial);
-}
-  // Função para gerar uma nova senha
-  novasenha() {}
+ 
+  
   
    // Repete a chamada de uma senha no painel
   async repetirsenha(senha:DadosSenha) {
@@ -303,13 +235,7 @@ filtrarSenhasPorSetor() {
   this.senhaPainel = this.senhaPainel.filter(s => s.senhaid !== senha.senhaid);
 
   try {
-    if (senha.preferencial) {
-      console.log("Repetindo senha preferencial...");
-      await this.chamarsenhapreferencial(senha);
-    } else {
-      console.log("Repetindo senha normal...");
-      await this.chamarSenhaNormalConvencional(senha);
-    }
+   
   } catch (error) {
     console.error("Erro ao repetir senha:", error);
   } finally {
@@ -329,7 +255,7 @@ filtrarSenhasPorSetor() {
     await this.adminService.salvaSenhaChamada(senha)
     await this.adminService.updateSenha(senha.senhaid, senha).then( d=> {
        this.spinner.hide();
-       this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
+      //  this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
     })
      // Registra o momento da chamada da senha
   this.senhaOperadorPainel = senha;  // Armazena a senha chamada
@@ -351,14 +277,7 @@ buscarSenhasDoSetor(): Promise<DadosSenha[]> {
               const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
                   .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
 
-              // Normaliza os setores
-              const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
-
-              // Filtra as senhas do setor do usuário
-              const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
-              console.log('Senhas do setor para chamada:', senhasDoSetor);
-
-              resolve(senhasDoSetor);
+             
           },
           (error) => {
               console.error('Erro ao buscar senhas para chamada:', error);
@@ -369,83 +288,72 @@ buscarSenhasDoSetor(): Promise<DadosSenha[]> {
 }
 
 // Método que só chama a senha quando o botão for clicado
-async chamarSenhaNormalConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
+chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
   this.spinner.show();
   const time = Date.now().toString();
 
-  try {
-    const senha = senhaSelecionada || (await this.buscarSenhasDoSetor()).find((s) => !s.preferencial);
+  const senha = senhaSelecionada || this.senhasDisponiveis.sort((a, b) => +a.horaGeracao - +b.horaGeracao)[0];
 
-    if (!senha) {
-      console.warn('Nenhuma senha normal disponível para chamada.');
-      this.spinner.hide();
-      return;
-    }
-
-    senha.operador = this.operador;
-    senha.guiche = this.guiche;
-    senha.status = '1';
-    senha.horachamada = time;
-    this.senhaOperadorPainel = senha;
-
-    const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
-
-    await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
-    await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
-
-    // Se não for repetição, remove do banco
-    if (!repeticao) {
-      await update(ref(this.db), { [senhageradaPath]: null });
-    }
-
-    console.log("Senha chamada:", senha);
-  } catch (error) {
-    console.error("Erro ao chamar senha normal:", error);
-  } finally {
+  if (!senha) {
+    console.warn('Nenhuma senha disponível para chamada.');
     this.spinner.hide();
-    this.filtrarSenhasPorSetor();
+    return;
+  }
+
+  senha.operador = this.operador;
+  senha.guiche = this.guiche;
+  senha.status = '1';
+  senha.horachamada = time;
+  this.senhaOperadorPainel = senha;
+
+  // Oculta o formulário por padrão ao chamar nova senha
+  this.mostrarFormularioPaciente = false;
+
+  const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
+
+  this.adminService.salvaSenhaConvencionalChamadaRealTime(senha).then(() => {
+    this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha).then(() => {
+      if (!repeticao) {
+        update(ref(this.db), { [senhageradaPath]: null });
+      }
+      this.spinner.hide();
+      console.log("Senha chamada:", senha);
+    });
+  }).catch(error => {
+    console.error("Erro ao chamar senha:", error);
+    this.spinner.hide();
+  });
+
+  // 👉 Reexibe o formulário se a nova senha for do setor certo
+  if (senha.setor === 'CONSULTA' || senha.setor === 'REALIZAR AGENDAMENTO') {
+    this.mostrarFormularioPaciente = true;
+    this.dadosPaciente.senhaid = senha.senhaid;
   }
 }
 
- 
-  // Chama uma senha preferencial convencional
-  async chamarsenhapreferencial(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
-    this.spinner.show();
-    const time = Date.now().toString();
-  
-    try {
-      const senha = senhaSelecionada || (await this.buscarSenhasDoSetor()).find((s) => s.preferencial);
-  
-      if (!senha) {
-        console.warn('Nenhuma senha preferencial disponível para chamada.');
-        this.spinner.hide();
-        return;
-      }
-  
-      senha.operador = this.operador;
-      senha.guiche = this.guiche;
-      senha.status = '1';
-      senha.horachamada = time;
-      this.senhaOperadorPainel = senha;
-  
-      const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
-  
-      await this.adminService.salvaSenhaConvencionalChamadaRealTime(senha);
-      await this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha);
-  
-      // Se não for repetição, remove do banco
-      if (!repeticao) {
-        await update(ref(this.db), { [senhageradaPath]: null });
-      }
-  
-      console.log("Senha chamada:", senha);
-    } catch (error) {
-      console.error("Erro ao chamar senha preferencial:", error);
-    } finally {
-      this.spinner.hide();
-      this.filtrarSenhasPorSetor();
-    }
-  }
+salvarDadosPaciente() {
+  const path = `avelar/pacientes/${this.dadosPaciente.senhaid}`;
+
+  set(ref(this.db, path), this.dadosPaciente)
+    .then(() => {
+      console.log('Dados do paciente salvos com sucesso!');
+      this.mostrarFormularioPaciente = false;
+
+      // Limpa o form
+      this.dadosPaciente = {
+        nome: '',
+        medico: '',
+        consultorio: '',
+        senhaid: ''
+      };
+    })
+    .catch((error) => {
+      console.error('Erro ao salvar dados do paciente:', error);
+    });
+}
+
+
+
 // Carrega os setores do Firebase
 async carregarSetores() {
   const setoresRef = ref(this.db, `avelar/setor`);
@@ -458,31 +366,9 @@ async carregarSetores() {
   } else {
     console.log('Nenhum setor encontrado no banco de dados.');
   }
-}
-  // Registra operador no sistema
-  /*cadastrar(){
-    console.log(this.formulario.value);
-    if(this.formulario.value){
-      this.operador = this.formulario.value.corretor;
-      this.setorSelecionado = this.formulario.value.setor;
-      this.telaoperador = true;
-      this.filtrarSenhasPorSetor(); // Atualiza senhas após cadastro
-      console.log(this.operador);   
-    } else {
-      alert('você precisa informar nome e número do local de atendimento');
-    }
-    this.senhaVerificar = [];
- 
   
-    for (let index = 0; index < this.senha.length; index++) {
-       
-      if (this.senha[index].operador == this.formulario.value.corretor){
-         this.senhaVerificar.push(this.senha[index]);
-      }
-      
-    }
+}
 
-  }*/
 
   
   // Registra operador convencional no sistema
@@ -490,10 +376,7 @@ async carregarSetores() {
     console.log(this.formulario.value);
     
      // Verifica se o setor foi selecionado
-  if (!this.formulario.value.setor) {
-    alert('Por favor, selecione um setor!');
-    return; // Sai do método se o setor não foi selecionado
-  }
+ 
   if (!this.formulario.value.guiche) {
     alert('Por favor, selecione um guichê!');
     return; // Sai do método se o guiche não foi selecionado
@@ -507,10 +390,10 @@ async carregarSetores() {
     if(this.formulario.value){
       this.operador = this.formulario.value.nome;
       //this.setorUsuario = this.formulario.value.setorUsuario; 
-      this.setor = this.formulario.value.setor; 
+      // this.setor = this.formulario.value.setor; 
       this.guiche = this.formulario.value.guiche;
       this.telaoperador = true;
-      this.filtrarSenhasPorSetor();
+      // this.filtrarSenhasPorSetor();
       console.log(this.operador);
     } else {
       alert('você precisa informar nome e número do local de atendimento');
@@ -579,8 +462,8 @@ mostrarSenhasNaoAtendidas() {
   setInterval(() => {
     // Resetando os dados antes de fazer a nova chamada
     this.senha = [];  // Resetar a lista de senhas
-    this.senhasPreferenciais = [];  // Resetar a lista de senhas preferenciais
-    this.senhasNaoPreferenciais = [];  // Resetar a lista de senhas não preferenciais
+    // this.senhasPreferenciais = [];  // Resetar a lista de senhas preferenciais
+    // this.senhasNaoPreferenciais = [];  // Resetar a lista de senhas não preferenciais
     this.mostrarSenhas = false;  // Resetar a flag de exibição das senhas
 
     // Repetir o processo de busca e filtragem como na primeira execução
@@ -597,16 +480,16 @@ mostrarSenhasNaoAtendidas() {
           .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
 
         // Normaliza os setores (converte para minúsculas e remove espaços extras)
-        const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
+        // const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
 
         // Filtra as senhas de acordo com o setor (guiche)
-        const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
-        console.log('Senhas do setor:', senhasDoSetor);
+        // const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
+        // console.log('Senhas do setor:', senhasDoSetor);
 
         // Atribui a lista de senhas filtradas
-        this.senha = senhasDoSetor; // Lista de senhas do setor
-        this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
-        this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
+        // this.senha = senhasDoSetor; // Lista de senhas do setor
+        // this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
+        // this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
 
         // Para cada senha, calcular a hora com base no 'senhaid' (timestamp)
         this.senha.forEach(s => {
@@ -629,13 +512,6 @@ mostrarSenhasNaoAtendidas() {
 
 
 
-
-
-
-/*selecionarNota(nota: number) {
-  this.notaSelecionada = nota;
-
-}*/
 
   // Função chamada quando o valor de ngModel muda (captura a tecla pressionada)
   onKeyPress(event: KeyboardEvent): void {
@@ -691,25 +567,15 @@ mostrarSenhasNaoAtendidas() {
 
     // Remove a senha finalizada das listas de senhas
     this.senha = this.senha.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
-    this.senhasPreferenciais = this.senhasPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
-    this.senhasNaoPreferenciais = this.senhasNaoPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
+    // this.senhasPreferenciais = this.senhasPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
+    // this.senhasNaoPreferenciais = this.senhasNaoPreferenciais.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
+    this.senhasDisponiveis = this.senhasDisponiveis.filter(s => s.senhaid !== this.senhaFinalizar.senhaid);
 
   } catch (error) {
     console.error('Erro ao finalizar a senha:', error);
   }
 }
 
-// Função chamada quando o modal é aberto
-/*onModalOpen(modal: any): void {
-  // Adiciona um evento de captura de tecla para o modal
-  document.addEventListener('keydown', this.onKeyPress.bind(this));
-}
-
-// Função chamada quando o modal é fechado
-onModalClose(modal: any): void {
-  // Remove o evento de captura de tecla quando o modal é fechado
-  document.removeEventListener('keydown', this.onKeyPress.bind(this));
-}*/
 
 }
 

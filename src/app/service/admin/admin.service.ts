@@ -187,42 +187,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
   }
 
 
-  // Salva uma senha em um caminho genérico no Realtime Database
-/* async salvaSenhaRealTime(senha: DadosSenha){
-   
-    const millisec = Number(Date.now());
-    const dat = new Date(millisec);
-    let dia = dat.getDate();
-     
-    const itemsRef = ref(this.database, `algo/${senha.operador}/${dia}/${senha.senhaid}` );
-   // const newItemRef = push(itemsRef);
-    return set(itemsRef, senha).then(async d => {
-      //console.log(d);
-      console.log('Senha salva com SUCESSO'+ d);
-   })
-    .catch(e =>{
-      console.log(e);
-   
-   })
-  }*/
 
-
-  // Salva os contadores de senhas (normal e preferencial) no Firestore
-/*async salvaContador(normal:number, preferencial:number){
-  let salvaSenhaChamada = doc(this.firestore,'senhacontador'+'/'+ '0000000000000');
-  await setDoc(salvaSenhaChamada, {
-    senhanormal: normal,
-    senhapreferencial: preferencial
-    
-  }).then(async d => {
-     //console.log(d);
-     console.log('Senha salva com SUCESSO'+ d);
-  })
-   .catch(e =>{
-     console.log(e);
-  
-  })
-}*/
   
 
 // Atualiza os contadores de senhas (normal e preferencial) no Firestore
@@ -308,25 +273,6 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
 }
 
 
-
- /* const senhasCollection = collection(this.firestore, 'senhagerada'); // Referência para a coleção 'senhagerada'
-  
-  // Se o parâmetro 'atendida' for fornecido, filtramos a coleção com base nesse valor.
-  const queryRef = atendida !== undefined 
-    ? query(senhasCollection, where('atendida', '==', false)) 
-    : senhasCollection;
-
-  return collectionData(queryRef, { idField: 'id' }) as Observable<DadosSenha[]>; // Retorna os dados da coleção com o campo 'id' mapeado
-*/
-
-
-
-
-  //Retorna um Observable que emite os dados da coleção senhapainel do Firestore.
-  /*getSenhaPainel(): Observable<DadosSenha[]> {
-    const senhasCollection = collection(this.firestore, 'senhapainel');
-    return collectionData<DadosSenha>(senhasCollection, { idField: 'id' }) as Observable<DadosSenha[]>;
-  }*/
 
 
   //Retorna um Observable com os dados da referência avelar/senhachamada no Realtime Database.
@@ -473,74 +419,5 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
   }
 
  
-  //Remove uma senha das referências avelar/senhagerada e avelar/senhachamada no Realtime Database, e a salva como finalizada em avelar/senhafinalizada.
- /* async finalizarSenhaChamadaConvencional(
-    senhaFinalizada: DadosSenha,
-    
-  ) {
-    const dat = new Date();
-    let dia = dat.getDate();
-  
-  
-    
-   
-  
-    // Salva no banco de dados
-    await this.salvaSenhaFinalizadaConvencional(senhaFinalizada) ;
-  
-    
-   
-    // Salva senha finalizada
-    //updates[`avelar/senhafinalizada/${dia}/${senhaFinalizada.senhaid}`] = senhaFinalizada;
-  
-   
-  
-    console.log('Senha finalizada com nota e duração.');
-  }*/
-    // Método para atualizar o status de uma senha
-  /*async atualizarStatusSenha(senha: DadosSenha) {
-    const senhaDocRef = doc(this.firestore, 'senhagerada', senha.senhaid); // Referência para o documento da senha
-    await updateDoc(senhaDocRef, { status: senha.status }); // Atualiza o campo de status
-  }*/
-
-// Método para atualizar a senha para chamada
-/*async atualizarSenhaParaChamada(senha: DadosSenha) {
-  senha.atendida = true;  // Marca como atendida
-  senha.status = '1';     // Status de chamada
-
-  const senhaRef = doc(this.firestore, 'senhagerada', senha.senhaid);
-  
-  // Atualiza o campo atendida para 'true' na coleção 'senhagerada'
-  await updateDoc(senhaRef, { atendida: true });
-
-  // Agora mova para outra coleção, como 'senhaschamadas' ou outra coleção apropriada
-  const novaColecaoRef = doc(this.firestore, 'senhaschamadas', senha.senhaid);
-  await setDoc(novaColecaoRef, { ...senha });
-  
-  // Remova da coleção 'senhagerada'
-  await deleteDoc(senhaRef);
-
-  console.log('Senha atualizada e movida para chamada com sucesso!');
-}*/
-// Método para finalizar a senha
-/*async finalizarSenha(senha: DadosSenha) {
-  senha.atendida = true;  // Marca como atendida
-  senha.status = '3';     // Status de finalizada
-
-  const senhaRef = doc(this.firestore, 'senhaschamadas', senha.senhaid);
-
-  // Atualiza o campo atendida para 'true' e finaliza a senha
-  await updateDoc(senhaRef, { atendida: true, finalatendimento: Date.now().toString() });
-
-  // Agora mova para outra coleção de finalizadas, por exemplo
-  const novaColecaoRef = doc(this.firestore, 'senhasfinalizadas', senha.senhaid);
-  await setDoc(novaColecaoRef, { ...senha });
-
-  // Remova da coleção 'senhaschamadas'
-  await deleteDoc(senhaRef);
-
-  console.log('Senha finalizada e movida para a coleção finalizadas com sucesso!');
 }
-
-*/}
   

@@ -36,7 +36,15 @@ export class GeradorsenhaComponent implements OnInit{
   convencional: boolean = false;
 
 //SETORES 
-  setoresDisponiveis: string[] = [];
+setoresDisponiveis = ['CONSULTA', 'REALIZAR AGENDAMENTO', 'EXAME', 'RESULTADO DE EXAMES'];
+
+siglasSetores: Record<string, string> = {
+  'CONSULTA': 'CO',
+  'REALIZAR AGENDAMENTO': 'RA',
+  'EXAME': 'EX',
+  'RESULTADO DE EXAMES': 'RE'
+};
+
   setorSelecionado: string = ''; // Setor escolhido
  
   constructor(
@@ -72,24 +80,7 @@ export class GeradorsenhaComponent implements OnInit{
 }
   }
 
- // Método para inicializar o formulário de cadastro de senhas
-  /*formbuilder(){
-      
-    this.formulario = this.formBuilder.group({
-     
-      nome: ['',[Validators.required, Validators.minLength(6)]],
-      corretor:['',[Validators.required, Validators.minLength(8)]],
-      
-    })      
-  }*/
 
-  // Método para inicializar o formulário de busca de senhas
- /* formBusca() {
-    this.formularioBusca = this.formBuilder.group({
-      corretor:['',[Validators.required, Validators.minLength(8)]],
-    })
-  }*/
- 
 
 // Método para apagar o contador de senhas e limpar as senhas geradas
 
@@ -101,7 +92,8 @@ export class GeradorsenhaComponent implements OnInit{
     if (snapshot.exists()) {
       const setoresData = snapshot.val() as Record<string, { setor: string }>;
       this.setoresDisponiveis = Object.values(setoresData).map((item) => item.setor);
-      console.log('Setores carregados:', this.setoresDisponiveis);
+  
+     
     } else {
       console.log('Nenhum setor encontrado no banco de dados.');
     }
@@ -126,48 +118,6 @@ async novaSenhaPreferencial() {
   
 
 
-   // Cadastra uma nova senha a partir do formulário
- /* async cadastrar(){
-    this.spinner.show();
-    this.count = 0
-    console.log(this.formulario.value.corretor);
-    this.cadastrarSenha.cliente = this.formulario.value.nome
-    this.cadastrarSenha.operador = this.formulario.value.corretor;
-    this.cadastrarSenha.guiche = this.formulario.value.corretor.slice(0,2);
-    console.log(this.cadastrarSenha.guiche);
-
-    this.cadastrarSenha.setor = this.setorSelecionado || 'ATENDIMENTO'; // Usa o setor selecionado ou "ATENDIMENTO"
-    this.cadastrarSenha.senhaid = Date.now().toString();
-
-     this.buscaQuantidadeSenhasGeradas(this.cadastrarSenha);
-     //this.count++;
-    
-     this.formulario.reset()
-  }*/
-
-  
-  // Verifica as senhas cadastradas para o operador informado
- /* verificar() {
-    this.senhaVerificar = [];
-    console.log(this.formularioBusca.value);
-    this.operador = this.formularioBusca.value.corretor;
-    
-    
-    // Filtra senhas associadas ao operador
-    for (let index = 0; index < this.senha.length; index++) {
-       
-      if (this.senha[index].operador == this.formularioBusca.value.corretor){
-         this.senhaVerificar.push(this.senha[index]);
-      }
-      //console.log(this.senhaNormal);
-      //console.log(this.senhaPreferencial);
-    }
-     
-     // Exibe alerta se não houver senhas cadastradas
-    if (this.senhaVerificar.length ===0){
-      alert('Não exite senha cadastrada para esse corretor');
-     }
-  }*/
 
   
   // Busca a quantidade de senhas geradas no modo convencional
@@ -181,34 +131,24 @@ async novaSenhaPreferencial() {
       return;
     }
 
-    this.cadastrarSenha.preferencial = preferencial;
+   
     this.cadastrarSenha.setor = this.setorSelecionado;
 
-    // Buscar sigla do setor
-    const setorRef = ref(this.db, `avelar/setor`);
-    const snapshot = await get(setorRef);
-    let siglaSetor = 'GEN';
+      // Pega sigla do setor da lista fixa
+  const siglaSetor = this.siglasSetores[this.setorSelecionado] || 'GEN';
 
-    if (snapshot.exists()) {
-      const setoresData = snapshot.val() as Record<string, { setor: string; sigla: string }>;
-      const setorInfo = Object.values(setoresData).find(s => s.setor === this.setorSelecionado);
-      if (setorInfo) {
-        siglaSetor = setorInfo.sigla;
-      }
-    }
+     // Recuperar contador de senhas
+  const contadorRef = ref(this.db, `avelar/senhacontador/${siglaSetor}`);
+  const snapshotContador = await get(contadorRef);
+  let contador = snapshotContador.exists() ? snapshotContador.val() : 0;
 
-    // Recuperar contador de senhas
-    const contadorRef = ref(this.db, `avelar/senhacontador/${siglaSetor}`);
-    const snapshotContador = await get(contadorRef);
-    let contador = snapshotContador.exists() ? snapshotContador.val() : 0;
+  // Criar número da senha
+  let numeroSenha = contador + 1;
+  await set(contadorRef, numeroSenha);
 
-    // Criar número da senha
-    let numeroSenha = contador + 1;
-    await set(contadorRef, numeroSenha);
-
-    this.cadastrarSenha.senha = `${siglaSetor}${numeroSenha.toString().padStart(2, '0')}`;
-    this.cadastrarSenha.status = '0';
-    this.cadastrarSenha.senhaid = Date.now().toString();
+  this.cadastrarSenha.senha = `${siglaSetor}${numeroSenha.toString().padStart(2, '0')}`;
+  this.cadastrarSenha.status = '0';
+  this.cadastrarSenha.senhaid = Date.now().toString();
 
     console.log('Senha gerada:', this.cadastrarSenha.senha);
 

@@ -19,18 +19,29 @@ type="ball-scale-multiple"
       <h3 style="color:rgb(136, 157, 189)"> {{operador}}</h3>
     </div>
     
-    <!-- Botões para chamar diferentes tipos de senha -->
+    <!-- Botao para chamar senha -->
     <div class="col-md-6 mt-5">
-      <button class="btn  botao" (click)="chamarSenhaNormalConvencional()">SENHA NORMAL</button>
+      <button class="btn  botao" (click)="chamarSenhaConvencional()">CHAMAR SENHA</button>
     </div>
-    <div class=" col-md-6 mt-5 ">
-      <button class="btn  botao" (click)="chamarsenhapreferencial()">SENHA PREFERENCIAL</button>
-    </div>
-    <!--<div class="col-md-6 mt-5">
-      <button class="btn botao" (click)="mostrarSenhasNaoAtendidas()">Seleciona uma senha</button>
-    </div>-->
-    
    
+   
+    <!-- Formulário de informações adicionais -->
+<div *ngIf="mostrarFormularioPaciente" class="mt-4">
+  <h5>Informações do Paciente</h5>
+  <div class="form-group">
+    <label>Nome do Paciente</label>
+    <input class="form-control" [(ngModel)]="dadosPaciente.nome" placeholder="Digite o nome">
+  </div>
+  <div class="form-group mt-2">
+    <label>Nome do Médico</label>
+    <input class="form-control" [(ngModel)]="dadosPaciente.medico" placeholder="Digite o nome do médico">
+  </div>
+  <div class="form-group mt-2">
+    <label>Número do Consultório</label>
+    <input class="form-control" [(ngModel)]="dadosPaciente.consultorio" placeholder="Ex: 05">
+  </div>
+  <button class="btn btn-success mt-3" (click)="salvarDadosPaciente()">Salvar Informações</button>
+</div>
 </div>
 
    <!-- Linha separadora -->
@@ -66,37 +77,22 @@ type="ball-scale-multiple"
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirSenhaConvencional(senhaOperadorPainel)">REPETIR SENHA</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
             
-            <!-- Lista de Senhas Preferenciais -->
+          
             <td class = "align-top">
-              <div class="mt-3">
-                <h5>Senhas Preferenciais:</h5>
-                <ul>
-                  <li *ngFor="let senha of senhasPreferenciais">
-                    <button class="btn btn-primary m-1" (click)="chamarsenhapreferencial(senha)">
-                      Senha: {{ senha.senha }}
-                     | Hora: {{senha.horaGeracao}}
-                    </button>
-                  </li>
-                </ul>
-              </div>
+             
               
-              <!-- Lista de Senhas Não Preferenciais -->
-              <div class="mt-3">
-                <h5>Senhas Não Preferenciais:</h5>
-                <ul>
-                  <li *ngFor="let senha of senhasNaoPreferenciais">
-                    <button class="btn btn-secondary m-1" (click)="chamarSenhaNormalConvencional(senha)">
-                      Senha: {{ senha.senha }}
-                      | Hora: {{senha.horaGeracao}}
-                    </button>
-                  </li>
-                </ul>
-              </div>
-            </td>
- <!-- Exibição do setor selecionado no canto da tela -->
- <div *ngIf="setorUsuario" class="setor-info">
-  <p>Setor: {{ setorUsuario }}</p>
+             <!-- Lista de Senhas -->
+<div class="mt-3">
+  <h5>Senhas:</h5>
+  <ul>
+    <li *ngFor="let senha of senhasDisponiveis">
+      <button class="btn btn-secondary m-1" (click)="chamarSenhaConvencional(senha)">
+        Senha: {{ senha.senha }} 
+      </button>
+    </li>
+  </ul>
 </div>
+ 
 
             
           </tr>
@@ -156,18 +152,7 @@ type="ball-scale-multiple"
   />
 </div>
 
-<!-- Seleção de setor -->
-<div class="mb-4" style="text-align: center;">
-  <label style="color: aliceblue;" for="setor" class="m-1">Setor:</label>
-  <input 
-    type="text" 
-    [value]="setorUsuario" 
-    class="form-control" 
-    disabled 
-    aria-label="Setor do usuário"
-    style="border: none; background: transparent; box-shadow: none; font-size: 1.5rem; margin-top: 10px; width: 80%; text-align: center;" 
-  />
-</div>
+
 
 
 

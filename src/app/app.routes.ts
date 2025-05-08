@@ -8,6 +8,8 @@ import { AvaliarComponent } from './avaliar/avaliar.component';
 import { SetoresComponent } from './admin/setores/setores.component';
 import { UsuariosComponent } from './admin/usuarios/usuarios.component';
 import { RelatorioComponent } from './admin/relatorio/relatorio.component';
+import { PainelMedicoComponent } from './home/painel-medico/painel-medico.component'; 
+import { ChamarPacienteComponent } from './home/chamar-paciente/chamar-paciente.component';
 
 export const routes: Routes = [
 
@@ -21,5 +23,7 @@ export const routes: Routes = [
     {'path': 'setores', component: SetoresComponent},
     {'path': 'usuarios', component: UsuariosComponent},
     {'path': 'relatorio', component: RelatorioComponent},
+    {'path': 'painelMedico', component: PainelMedicoComponent},
+    {'path': 'chamarPaciente', component: ChamarPacienteComponent},
 ];
 
