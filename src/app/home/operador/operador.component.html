@@ -26,23 +26,26 @@ type="ball-scale-multiple"
    
    
     <!-- Formulário de informações adicionais -->
-<div *ngIf="mostrarFormularioPaciente" class="mt-4">
-  <h5>Informações do Paciente</h5>
-  <div class="form-group">
-    <label>Nome do Paciente</label>
-    <input class="form-control" [(ngModel)]="dadosPaciente.nome" placeholder="Digite o nome">
-  </div>
-  <div class="form-group mt-2">
-    <label>Nome do Médico</label>
-    <input class="form-control" [(ngModel)]="dadosPaciente.medico" placeholder="Digite o nome do médico">
-  </div>
-  <div class="form-group mt-2">
-    <label>Número do Consultório</label>
-    <input class="form-control" [(ngModel)]="dadosPaciente.consultorio" placeholder="Ex: 05">
-  </div>
-  <button class="btn btn-success mt-3" (click)="salvarDadosPaciente()">Salvar Informações</button>
-</div>
-</div>
+    <div *ngIf="senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO'" class="mt-4">
+      <h5>Informações do Paciente</h5>
+      <div class="form-group">
+        <label>Nome do Paciente</label>
+        <input class="form-control" [(ngModel)]="dadosPaciente.nome" placeholder="Digite o nome">
+      </div>
+      <div class="form-group mt-2">
+        <label>Nome do Médico</label>
+        <select class="form-control" [(ngModel)]="dadosPaciente.medico">
+          <option *ngFor="let medico of medicos" [value]="medico.nome">{{ medico.nome }}</option>
+        </select>
+      </div>
+      <div class="form-group mt-2">
+        <label>Número do Consultório</label>
+        <select class="form-control" [(ngModel)]="dadosPaciente.consultorio">
+          <option *ngFor="let consultorio of consultorios" [value]="consultorio.numero">{{ consultorio.numero }}</option>
+        </select>
+      </div>
+    </div>
+    </div>
 
    <!-- Linha separadora -->
   <hr class="my-4 mb-4">
@@ -81,18 +84,26 @@ type="ball-scale-multiple"
             <td class = "align-top">
              
               
-             <!-- Lista de Senhas -->
+      <!-- Lista de Senhas -->
 <div class="mt-3">
   <h5>Senhas:</h5>
   <ul>
     <li *ngFor="let senha of senhasDisponiveis">
-      <button class="btn btn-secondary m-1" (click)="chamarSenhaConvencional(senha)">
+      <button 
+        class="btn m-1" 
+        [ngClass]="{
+          'senha-consulta': senha.setor === 'CONSULTA',
+          'senha-agendamento': senha.setor === 'REALIZAR AGENDAMENTO',
+          'senha-exames': senha.setor === 'EXAMES',
+          'senha-resultado': senha.setor === 'RESULTADO'
+        }"
+        (click)="chamarSenhaConvencional(senha)"
+      >
         Senha: {{ senha.senha }} 
       </button>
     </li>
   </ul>
 </div>
- 
 
             
           </tr>
@@ -185,6 +196,7 @@ type="ball-scale-multiple"
 
 
 <!-- Modal para avaliação -->
+<!--
 <ng-template #modalTemplate let-modal>
   <div class="modal-header">
     <h5 class="modal-title">Atendimento Finalizado</h5>
@@ -194,7 +206,6 @@ type="ball-scale-multiple"
   </div>
   <div class="modal-body">
     <p>A nota será atribuída automaticamente e enviada ao sistema.</p>
-    <!-- Input invisível que captura as teclas pressionadas -->
     <input 
       type="number" 
       [(ngModel)]="notaDigitada" 
@@ -209,3 +220,4 @@ type="ball-scale-multiple"
     <button type="button" class="btn btn-primary" (click)="finalizarComNota(modal)">Finalizar</button>
   </div>
 </ng-template>
+-->

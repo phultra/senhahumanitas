@@ -47,7 +47,8 @@ export class OperadorComponent implements OnInit, OnDestroy {
     consultorio: '',
     senhaid: ''
   };
- 
+  medicos: any[] = []; // Lista de médicos
+  consultorios: any[] = []; // Lista de consultórios
   private keyPressHandler!: (event: KeyboardEvent) => void;
   private setorUsuarioDefinido = false;
   setorUsuario: string = '';
@@ -66,9 +67,6 @@ export class OperadorComponent implements OnInit, OnDestroy {
   // Captura de nota via teclado
   notaDigitada: string | null = null;
  //SETORES
- setoresDisponiveis: string[] = []; // Exemplo de setores
- setorSelecionado: string = '';
- senhasFiltradas: DadosSenha[] = []; // Senhas filtradas pelo setor
 
 
   // Array para armazenar as senhas geradas
@@ -100,8 +98,9 @@ export class OperadorComponent implements OnInit, OnDestroy {
     this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
   } else {
     this.formbuilder()
-     // Carrega os setores disponíveis
-  this.carregarSetores();}
+    this.carregarMedicos();
+    this.carregarConsultorios();
+ }
   
     // this.verificarSetorUsuario();
 
@@ -137,7 +136,34 @@ export class OperadorComponent implements OnInit, OnDestroy {
   this.keyPressHandler = this.onKeyPress.bind(this);
 }
  
- 
+  // Método para carregar os médicos do nó "medicos"
+  carregarMedicos() {
+    const medicosRef = ref(this.db, 'medicos');
+    get(medicosRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          this.medicos = Object.values(snapshot.val());
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao carregar médicos:', error);
+      });
+  }
+
+  // Método para carregar os consultórios do nó "consultorios"
+  carregarConsultorios() {
+    const consultoriosRef = ref(this.db, 'consultorios');
+    get(consultoriosRef)
+      .then((snapshot) => {
+        if (snapshot.exists()) {
+          this.consultorios = Object.values(snapshot.val());
+        }
+      })
+      .catch((error) => {
+        console.error('Erro ao carregar consultórios:', error);
+      });
+  }
+
   ngOnDestroy() {
     document.removeEventListener('keydown', this.keyPressHandler);
   }
@@ -299,47 +325,74 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
     this.spinner.hide();
     return;
   }
+ 
+  // Limpa os dados do paciente antes de chamar a próxima senha
+ this.dadosPaciente = {
+  nome: '',
+  medico: '',
+  consultorio: '',
+  senhaid: ''
+};
 
   senha.operador = this.operador;
   senha.guiche = this.guiche;
-  senha.status = '1';
+  senha.status = '1'; // Status "chamada"
   senha.horachamada = time;
+
   this.senhaOperadorPainel = senha;
 
-  // Oculta o formulário por padrão ao chamar nova senha
-  this.mostrarFormularioPaciente = false;
-
+  // Salvar a senha no nó `senhachamada`
+  const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
   const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
 
-  this.adminService.salvaSenhaConvencionalChamadaRealTime(senha).then(() => {
-    this.adminService.updateSenhaRealtimeConvencional(senha.senhaid, senha).then(() => {
-      if (!repeticao) {
-        update(ref(this.db), { [senhageradaPath]: null });
-      }
-      this.spinner.hide();
-      console.log("Senha chamada:", senha);
-    });
-  }).catch(error => {
-    console.error("Erro ao chamar senha:", error);
-    this.spinner.hide();
-  });
+  update(ref(this.db), {
+    [senhachamadaPath]: {
+      senhaid: senha.senhaid,
+      senha: senha.senha,
+      guiche: senha.guiche,
+      operador: senha.operador,
+      horachamada: senha.horachamada,
+      status: senha.status,
+      setor: senha.setor,
+      preferencial: senha.preferencial || false
+    }
+  })
+    .then(() => {
+      console.log(`Senha salva no nó senhachamada: ${senhachamadaPath}`);
 
-  // 👉 Reexibe o formulário se a nova senha for do setor certo
-  if (senha.setor === 'CONSULTA' || senha.setor === 'REALIZAR AGENDAMENTO') {
-    this.mostrarFormularioPaciente = true;
-    this.dadosPaciente.senhaid = senha.senhaid;
-  }
+      // Remover a senha do nó `senhagerada`
+      update(ref(this.db), {
+        [senhageradaPath]: null
+      })
+        .then(() => {
+          console.log(`Senha removida do nó senhagerada: ${senhageradaPath}`);
+        })
+        .catch((error) => {
+          console.error('Erro ao remover a senha do nó senhagerada:', error);
+        });
+    })
+    .catch((error) => {
+      console.error('Erro ao salvar a senha no nó senhachamada:', error);
+    })
+    .finally(() => {
+      this.spinner.hide();
+    });
 }
 
 salvarDadosPaciente() {
-  const path = `avelar/pacientes/${this.dadosPaciente.senhaid}`;
+  const path = `avelar/senhachamada/${this.dadosPaciente.senhaid}`;
 
-  set(ref(this.db, path), this.dadosPaciente)
+  // Atualiza apenas os campos especificados, mantendo os outros dados inalterados
+  update(ref(this.db, path), {
+    nome: this.dadosPaciente.nome,
+    medico: this.dadosPaciente.medico,
+    consultorio: this.dadosPaciente.consultorio
+  })
     .then(() => {
-      console.log('Dados do paciente salvos com sucesso!');
+      console.log('Dados do paciente atualizados com sucesso na coleção senhachamada!');
       this.mostrarFormularioPaciente = false;
 
-      // Limpa o form
+      // Limpa o formulário
       this.dadosPaciente = {
         nome: '',
         medico: '',
@@ -348,26 +401,14 @@ salvarDadosPaciente() {
       };
     })
     .catch((error) => {
-      console.error('Erro ao salvar dados do paciente:', error);
+      console.error('Erro ao atualizar dados do paciente na coleção senhachamada:', error);
     });
 }
 
 
 
 // Carrega os setores do Firebase
-async carregarSetores() {
-  const setoresRef = ref(this.db, `avelar/setor`);
-  const snapshot = await get(setoresRef);
 
-  if (snapshot.exists()) {
-    const setoresData = snapshot.val() as Record<string, { setor: string }>;
-    this.setoresDisponiveis = Object.values(setoresData).map((item) => item.setor);
-    console.log('Setores carregados:', this.setoresDisponiveis);
-  } else {
-    console.log('Nenhum setor encontrado no banco de dados.');
-  }
-  
-}
 
 
   
@@ -426,31 +467,56 @@ async carregarSetores() {
   
 
   
-  async finalizarConvencional(senha: DadosSenha) {
-    let time = Date.now().toString();
-    senha.finalatendimento = time;
-    senha.status = '3';
-    console.log(senha.finalatendimento);
-    this.senhaFinalizar = senha;
-    
-    this.notaDigitada = null;
- 
-    // Abre o modal para que o operador insira a nota
-  this.modalRef = this.modalService.show(this.modalTemplate);
- 
-  document.addEventListener('keydown', this.keyPressHandler);
-  
- 
-   }
-  
+   async finalizarConvencional(senha: DadosSenha) {
+  if (senha.setor === 'CONSULTA' || senha.setor === 'REALIZAR AGENDAMENTO') {
+    if (!this.dadosPaciente.nome || !this.dadosPaciente.medico || !this.dadosPaciente.consultorio) {
+      alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
+      return;
+    }
 
-  // Encerrar (Função ainda não implementada)
-  encerrar(senha:DadosSenha){
-
-    
-
+    senha.nome = this.dadosPaciente.nome;
+    senha.medico = this.dadosPaciente.medico;
+    senha.consultorio = this.dadosPaciente.consultorio;
   }
-      
+
+  const time = Date.now().toString();
+  senha.finalatendimento = time;
+  senha.status = '3'; // Status "finalizado"
+
+  try {
+    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    const senhafinalizadaPath = `avelar/senhafinalizada/${senha.senhaid}`;
+
+    if (senha.setor === 'EXAME' || senha.setor === 'RESULTADO DE EXAMES') {
+      // Mover para o nó `senhafinalizada`
+      await update(ref(this.db), {
+        [senhafinalizadaPath]: {
+          ...senha,
+          finalatendimento: senha.finalatendimento
+        },
+        [senhachamadaPath]: null // Remove do nó `senhachamada`
+      });
+      console.log('Senha movida para o nó senhafinalizada:', senha);
+    } else {
+      // Atualizar no nó `senhachamada`
+      await update(ref(this.db, senhachamadaPath), {
+        nome: senha.nome,
+        medico: senha.medico,
+        consultorio: senha.consultorio,
+        finalatendimento: senha.finalatendimento,
+        status: senha.status
+      });
+      console.log('Senha atualizada no nó senhachamada:', senha);
+    }
+
+    alert('Atendimento finalizado com sucesso!');
+  } catch (error) {
+    console.error('Erro ao finalizar a senha:', error);
+    alert('Erro ao finalizar a senha. Tente novamente.');
+  }
+}
+
+
   // Navega para a página de avaliação
 /*avaliar() {
   this.router.navigate(['/avaliar']); 

@@ -19,13 +19,15 @@
           <h3 class="text-white">Selecione um setor</h3>
         </div>
 
-        <!-- Botões com setores fixos -->
-        <div class="col-md-12 d-flex flex-wrap justify-content-center">
-          <button class="btn btn-2 btn-2h m-2" (click)="selecionarSetor('CONSULTA')">CONSULTA</button>
-          <button class="btn btn-2 btn-2h m-2" (click)="selecionarSetor('REALIZAR AGENDAMENTO')">REALIZAR AGENDAMENTO</button>
-          <button class="btn btn-2 btn-2h m-2" (click)="selecionarSetor('EXAME')">EXAME</button>
-          <button class="btn btn-2 btn-2h m-2" (click)="selecionarSetor('RESULTADO DE EXAMES')">RESULTADO DE EXAMES</button>
+        <!-- Botões com setores fixos em layout vertical -->
+        <div class="col-md-12 d-flex flex-column align-items-center">
+          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('CONSULTA')">CONSULTA</button>
+          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('REALIZAR AGENDAMENTO')">REALIZAR AGENDAMENTO</button>
+          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('EXAME')">EXAME</button>
+          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('RESULTADO DE EXAMES')">RESULTADO DE EXAMES</button>
         </div>
+
+     
       </div>
     </div>
   </div>
@@ -46,16 +48,13 @@
           <p class="setor-selecionado display-4 text-white">{{ setorSelecionado }}</p>
         </div>
 
-        <!-- Botão GERAR SENHA -->
-        <div class="col-md-5 d-flex justify-content-center">
-          <button class="btn btn-2 btn-2h" (click)="gerarSenha(false)">GERAR SENHA</button>
-        </div>
-
-        <!-- Botão VOLTAR -->
-        <div class="col-md-5 d-flex justify-content-center">
-          <button class="btn btn-2 btn-2h" (click)="mudarSetor()">VOLTAR</button>
+        <!-- Botões GERAR SENHA e VOLTAR em layout vertical -->
+        <div class="col-md-12 d-flex flex-column align-items-center">
+          <button class="btn btn-2 btn-2h my-2" (click)="gerarSenha(false)">GERAR SENHA</button>
+          <button class="btn btn-2 btn-2h my-2" (click)="mudarSetor()">VOLTAR</button>
         </div>
       </div>  
     </div>
   </div>
 </section>
+

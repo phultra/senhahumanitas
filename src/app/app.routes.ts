@@ -4,12 +4,12 @@ import { OperadorComponent } from './home/operador/operador.component';
 import { PainelComponent } from './home/painel/painel.component';
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './login/login.component';
-import { AvaliarComponent } from './avaliar/avaliar.component';
 import { SetoresComponent } from './admin/setores/setores.component';
 import { UsuariosComponent } from './admin/usuarios/usuarios.component';
 import { RelatorioComponent } from './admin/relatorio/relatorio.component';
-import { PainelMedicoComponent } from './home/painel-medico/painel-medico.component'; 
 import { ChamarPacienteComponent } from './home/chamar-paciente/chamar-paciente.component';
+import { MedicosComponent } from './admin/medicos/medicos.component';
+import { ConsultoriosComponent } from './admin/consultorios/consultorios.component';
 
 export const routes: Routes = [
 
@@ -19,11 +19,11 @@ export const routes: Routes = [
     {'path': 'painel', component: PainelComponent},
     {'path': 'admin', component: AdminComponent},
     {'path': 'login', component: LoginComponent},
-    {'path': 'avaliar', component: AvaliarComponent},
     {'path': 'setores', component: SetoresComponent},
     {'path': 'usuarios', component: UsuariosComponent},
-    {'path': 'relatorio', component: RelatorioComponent},
-    {'path': 'painelMedico', component: PainelMedicoComponent},
+    {'path': 'relatorio', component: RelatorioComponent},    
     {'path': 'chamarPaciente', component: ChamarPacienteComponent},
+    {'path': 'medicos', component: MedicosComponent},
+    {'path': 'consultorios', component: ConsultoriosComponent},
 ];
 

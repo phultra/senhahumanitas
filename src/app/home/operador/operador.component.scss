@@ -172,3 +172,24 @@ font-size:larger;
    
 
 }
+
+/* Cores para os diferentes tipos de senha */
+.senha-consulta {
+  background-color: green;
+  color: white;
+}
+
+.senha-agendamento {
+  background-color: blue;
+  color: white;
+}
+
+.senha-exames {
+  background-color: yellow;
+  color: black;
+}
+
+.senha-resultado {
+  background-color: white;
+  color: black;
+}

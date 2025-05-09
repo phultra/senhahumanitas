@@ -9,12 +9,15 @@ export class DadosSenha {
     horachamada:string='';
     finalatendimento: string= '';
     sigla: string = '';
-    
     nota:number = 0;
     cliente:string='';
     senha: string ='';
     tipo: string = '';
-  horaGeracao: string = '';
+    horaGeracao: string = '';
+    nome: string = '';
+    medico: string = '';
+    consultorio: string = '';
+
 
     
 }

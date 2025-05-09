@@ -7,17 +7,10 @@
     font-size: 25px;
 }
 
-div.main{
-    background: #0264d6; /* Old browsers */
-background: -moz-radial-gradient(center, ellipse cover,  #0264d6 1%, #1c2b5a 100%); /* FF3.6+ */
-background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(1%,#0264d6), color-stop(100%,#1c2b5a)); /* Chrome,Safari4+ */
-background: -webkit-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* Chrome10+,Safari5.1+ */
-background: -o-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* Opera 12+ */
-background: -ms-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* IE10+ */
-background: radial-gradient(ellipse at center,  #0264d6 1%,#1c2b5a 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0264d6', endColorstr='#1c2b5a',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-height:calc(150vh);
-width:100%;
+div.main {
+    background: #000; /* Fundo preto */
+    height: calc(150vh);
+    width: 100%;
 }
 
 [class*="fontawesome-"]:before {
@@ -62,12 +55,8 @@ p {
 	line-height: 1.5em;
 }
 
-.clearfix {
-  //*zoom: 1;
 
-  
 
-}
 
 .container {
   left: 50%;
@@ -176,23 +165,23 @@ fieldset{
 
 
 .btn {
-	border: none;
-	font-family: inherit;
-	font-size:250%;
-  width: 450px;
-	color: inherit;
-	background: none;
-	cursor: pointer;
-	padding: 25px 80px;
-	display: inline-block;
-	text-transform: uppercase;
-	letter-spacing: 1px;
-	font-weight: 700;
-	outline: none;
-	position: relative;
-	-webkit-transition: all 0.3s;
-	-moz-transition: all 0.3s;
-	transition: all 0.3s;
+    border: none;
+    font-family: inherit;
+    font-size: 250%;
+    width: 450px; /* Tamanho uniforme para todos os botões */
+    color: inherit;
+    background: none;
+    cursor: pointer;
+    padding: 25px 80px;
+    display: inline-block;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    outline: none;
+    position: relative;
+    -webkit-transition: all 0.3s;
+    -moz-transition: all 0.3s;
+    transition: all 0.3s;
 }
 
 .btn:after {
@@ -204,29 +193,29 @@ fieldset{
 	transition: all 0.3s;
 }
 
-/* Button 2 */
 .btn-2 {
-	background: #cb4e4e;
-	color: #fff;
-	box-shadow: 0 6px #ab3c3c;
-	-webkit-transition: none;
-	-moz-transition: none;
-	transition: none;
+    background: #4caf50; /* Verde */
+    color: #fff;
+    box-shadow: 0 6px #388e3c; /* Sombra verde escura */
+    -webkit-transition: none;
+    -moz-transition: none;
+    transition: none;
 }
+
 
 /* Button 2h */
 .btn-2h {
-	border-radius: 20px;
+    border-radius: 20px;
 }
 
 .btn-2h:hover {
-	box-shadow: 0 4px #ab3c3c;
-	top: 2px;
+    box-shadow: 0 4px #388e3c;
+    top: 2px;
 }
 
 .btn-2h:active {
-	box-shadow: 0 0 #ab3c3c;
-	top: 6px;
+    box-shadow: 0 0 #388e3c;
+    top: 6px;
 }
 /* Estilo para o seletor de setor */
 .custom-select {

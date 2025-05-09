@@ -5,7 +5,7 @@ import { CommonModule } from '@angular/common';
 import { BehaviorSubject } from 'rxjs';
 import { AuthService } from '../../service/auth/auth.service';
 import { Router } from '@angular/router';
-import { Database, ref, get } from '@angular/fire/database';
+import { Database, ref, get, onValue } from '@angular/fire/database';
 
 
 import { ChangeDetectorRef } from '@angular/core';
@@ -56,124 +56,69 @@ export class PainelComponent implements OnInit {
     if (!this.authService.isUserAuthenticated()) {
       this.router.navigate(['/login']);
     } else {
-      this.carregarSetores(); // Carrega os setores disponíveis
+     
       this.carregarTodasAsSenhas();
       // this.verificarSetorUsuario(); // Garante que o usuário selecione o setor correto
     }
   }
 
-  // Carrega os setores do Firebase
-  async carregarSetores() {
-    const setoresRef = ref(this.db, `avelar/setor`);
-    const snapshot = await get(setoresRef);
 
-    if (snapshot.exists()) {
-      const setoresData = snapshot.val() as Record<string, { setor: string }>;
-      this.setoresDisponiveis = Object.values(setoresData).map(item => item.setor);
-      console.log('Setores carregados:', this.setoresDisponiveis);
-    } else {
-      console.log('Nenhum setor encontrado no banco de dados.');
-    }
-  }
 
-  // Verifica se o usuário logado pertence ao setor selecionado
-  /* async verificarSetorUsuario() {
-    // Criamos um identificador único para cada aba
-    const abaId = this.gerarIdentificadorAba();
-  
-    // Verifica se já há um setor salvo para esta aba
-    const setorSalvo = localStorage.getItem(`setorUsuario_${abaId}`);
-    if (setorSalvo) {
-      this.setorUsuario = setorSalvo;
-      this.setorUsuarioDefinido = true;
-      console.log(`Setor carregado para a aba ${abaId}:`, this.setorUsuario);
-      // this.carregarSenhasDoSetor();
-      return;
-    }
-  
-    // Se ainda não foi definido, busca do banco
-    this.authService.getUser().subscribe(async user => {
-      if (user && !this.setorUsuarioDefinido) {
-        const userRef = ref(this.db, `usuarios/${user.uid}`);
-        const snapshot = await get(userRef);
-  
-        if (snapshot.exists()) {
-          this.setorUsuario = snapshot.val().setor.trim().toLowerCase();
-  
-          // Salva no localStorage com o ID da aba
-          localStorage.setItem(`setorUsuario_${abaId}`, this.setorUsuario);
-          this.setorUsuarioDefinido = true;
-          
-          console.log(`Setor do usuário logado (Aba ${abaId}):`, this.setorUsuario);
-  
-          // Se o setor selecionado for diferente, corrige
-          if (this.setorSelecionado.trim().toLowerCase() !== this.setorUsuario) {
-            alert(`Você só pode acessar senhas do setor: ${this.setorUsuario}`);
-            this.setorSelecionado = this.setorUsuario;
-          }
-  
-          // this.carregarSenhasDoSetor();
-        }
-      }
-    });
-   }*/
-  
-  
-  
-    // Gera um identificador único para cada aba
-/*private gerarIdentificadorAba(): string {
-  // Sempre gera um novo ID quando a aba é recarregada
-  const abaId = Math.random().toString(36).substring(2, 15); // Gera um ID aleatório
-  sessionStorage.setItem('abaId', abaId); // Salva o novo ID no sessionStorage
-  return abaId;
- }*/
-
-  // Carrega as senhas
+  // Carrega senhas
   private carregarTodasAsSenhas() {
-    this.adminService.getSenhaPainelConvencional().subscribe(async d => {
-      this.senha = [];
-      this.senhasChamadas = [];
+    const senhageradaRef = ref(this.db, 'avelar/senhachamada');
+    let paginaCarregada = false; // Flag para verificar se a página já foi carregada
+    let senhasIniciais: DadosSenha[] = []; // Armazena as senhas iniciais para comparação
   
-      for (let index = 0; index < d.length; index++) {
-        const senhaRef = ref(this.db, `avelar/senhachamada/${d[index].horachamada}`);
-        const snapshot = await get(senhaRef);
+    // Escuta mudanças no nó senhachamada
+    onValue(senhageradaRef, snapshot => {
+      if (snapshot.exists()) {
+        const senhasGeradas = snapshot.val();
+        const novasSenhas = Object.values(senhasGeradas) as DadosSenha[];
   
-        if (snapshot.exists()) {
-          const senhaData = snapshot.val();
+        // Atualiza a lista de senhas
+        this.senha = novasSenhas;
   
-          // Agora, independentemente do setor
-          if (d[index].status === '1') {
-            this.senha.push(d[index]);
-          } else if (d[index].status === '2') {
-            this.senhasChamadas.push(d[index]);
+        // Armazena as senhas iniciais na primeira execução
+        if (!paginaCarregada) {
+          senhasIniciais = [...novasSenhas];
+          paginaCarregada = true;
+          return; // Não processa senhas na primeira execução
+        }
+  
+        // Verifica se há novas senhas após a página estar carregada
+        if (novasSenhas.length > senhasIniciais.length) {
+          const novaSenha = novasSenhas[novasSenhas.length - 1]; // Última senha adicionada
+  
+          // Move a senha anterior para a lista de senhas chamadas
+          if (this.psenha !== '000') {
+            const senhaAnterior = { senha: this.psenha, guiche: this.pguiche } as DadosSenha;
+            this.atualizarSenhasChamadas(senhaAnterior);
           }
+  
+          // Fala a nova senha
+          this.playAudio(novaSenha);
         }
+  
+        // Atualiza a lista de senhas iniciais
+        senhasIniciais = [...novasSenhas];
+      } else {
+        console.log('Nenhuma senha encontrada no nó senhagerada.');
       }
-  
-      console.log('Todas as senhas aguardando:', this.senha);
-      console.log('Todas as senhas chamadas:', this.senhasChamadas);
-  
-      const interval = setInterval(async () => {
-        if (this.senha[0] !== undefined) {
-          await this.playAudio(this.senha[0]);
-        }
-      }, 3000);
+    }, error => {
+      console.error('Erro ao monitorar senhas do nó senhagerada:', error);
     });
-  
-    this.pegavalor(this.senhasChamadas.length);
-    this.audio.src = "../assets/audio/SOM.wav";
   }
-  
 
   atualizarSenhasChamadas(senha: DadosSenha) {
     const senhas = this.senhasChamadasSubject.value;
-    
+  
     // Verifica se a senha já está na lista
     const senhaExistente = senhas.some(s => s.senha === senha.senha);
-    
+  
     // Se a senha já existir, não adiciona de novo
     if (!senhaExistente) {
-      if (senhas.length >= 6) {
+      if (senhas.length >= 4) {
         senhas.shift(); // Remove a primeira senha se a lista estiver cheia
       }
       senhas.push(senha); // Adiciona a nova senha
@@ -196,8 +141,6 @@ export class PainelComponent implements OnInit {
       // Atualizar as variáveis que aparecem no painel
       this.psenha = senha.senha;
       this.pguiche = senha.guiche;
-      this.pnome = senha.cliente;
-      // this.ppreferencial = senha.preferencial;
   
       // Forçar a atualização da interface
       this.cdRef.detectChanges();
@@ -216,15 +159,8 @@ export class PainelComponent implements OnInit {
         this.audio.onended = () => resolve();
       });
   
-      // Agora, chamar a fala da senha
+      // Agora, chamar a fala da senha letra por letra
       await this.falarSenha(senha);
-  
-      // Atualizar status da senha
-      this.senha[0] = { ...senha, status: '2' };
-      this.adminService.updateSenhaChamadaConvencional(this.senha[0].horachamada, this.senha[0]);
-  
-      // Atualizar lista de senhas chamadas
-      this.atualizarSenhasChamadas(senha);
   
       // Forçar nova atualização da interface após a senha ser chamada
       this.cdRef.detectChanges();
@@ -236,10 +172,12 @@ export class PainelComponent implements OnInit {
     }
   }
   
+  
   private async falarSenha(senha: DadosSenha) {
     return new Promise<void>((resolve, reject) => {
-      // Criar a fala da senha
-      const utterThis = new SpeechSynthesisUtterance(`${senha.cliente} Senha ${senha.senha} Guichê ${senha.guiche}`);
+      // Criar a fala da senha letra por letra
+      const senhaPorLetras = senha.senha.split('').join(' ');
+      const utterThis = new SpeechSynthesisUtterance(`Senha ${senhaPorLetras}, Guichê ${senha.guiche}`);
       utterThis.rate = 0.9;
   
       // Quando a fala terminar, liberar para chamar a próxima senha
