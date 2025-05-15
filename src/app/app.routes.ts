@@ -4,7 +4,7 @@ import { OperadorComponent } from './home/operador/operador.component';
 import { PainelComponent } from './home/painel/painel.component';
 import { AdminComponent } from './admin/admin.component';
 import { LoginComponent } from './login/login.component';
-import { SetoresComponent } from './admin/setores/setores.component';
+
 import { UsuariosComponent } from './admin/usuarios/usuarios.component';
 import { RelatorioComponent } from './admin/relatorio/relatorio.component';
 import { ChamarPacienteComponent } from './home/chamar-paciente/chamar-paciente.component';
@@ -19,7 +19,7 @@ export const routes: Routes = [
     {'path': 'painel', component: PainelComponent},
     {'path': 'admin', component: AdminComponent},
     {'path': 'login', component: LoginComponent},
-    {'path': 'setores', component: SetoresComponent},
+   
     {'path': 'usuarios', component: UsuariosComponent},
     {'path': 'relatorio', component: RelatorioComponent},    
     {'path': 'chamarPaciente', component: ChamarPacienteComponent},

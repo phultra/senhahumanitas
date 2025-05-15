@@ -1,70 +1,145 @@
-<section style="background-color: #003366; color: white; height: 100vh;">
-  <div class="container pt-5">
-    <h2 class="text-center">Chamar Paciente</h2>
+<!-- Spinner de carregamento enquanto uma senha é chamada -->
+<ngx-spinner
+bdColor="rgba(51,51,51,0.8)"
+size="medium"
+color="#fff"
+type="ball-scale-multiple"
+>
+<p style="font-size: 20px; color: white">Chamando Paciente...</p>
+</ngx-spinner>
 
-    <!-- Seleção do médico -->
-    <div class="form-group mt-4">
-      <label for="medico">Selecione o Médico:</label>
-      <select
-        id="medico"
-        class="form-control"
-        [(ngModel)]="medicoSelecionado"
-      >
-        <option value="" disabled selected>Escolha um médico</option>
-        <option *ngFor="let medico of medicos" [value]="medico.nome">
-          {{ medico.nome }}
-        </option>
-      </select>
+
+<!--TELA CONVENCIONAL-->
+<section *ngIf="telaoperador">  
+  <div class="main">
+    <!-- Cabeçalho com informações do operador -->
+    <div class="row text-center pt-5 ">
+    <div class="col-md-12 ">
+      <h1 style="color:rgb(255, 255, 255)">MÉDCIO(A)</h1>
+      <h3 style="color:rgb(136, 157, 189)"> {{operador}}</h3>
+    </div>
+    
+    <!-- Botao para chamar senha -->
+    <div class="col-md-6 mt-5">
+      <button class="btn  botao" (click)="chamarSenhaConvencional()">CHAMAR PACIENTE</button>
+    </div>
+   
+   
+  
     </div>
 
-    <!-- Seleção do consultório -->
-    <div class="form-group mt-4">
-      <label for="consultorio">Selecione o Consultório:</label>
-      <select
-        id="consultorio"
-        class="form-control"
-        [(ngModel)]="consultorioSelecionado"
-      >
-        <option value="" disabled selected>Escolha um consultório</option>
-        <option *ngFor="let consultorio of consultorios" [value]="consultorio.numero">
-          {{ consultorio.numero }}
-        </option>
-      </select>
-    </div>
+   <!-- Linha separadora -->
+  <hr class="my-4 mb-4">
 
-    <!-- Botão para chamar paciente -->
-    <div class="text-center mt-4">
-      <button
-        class="btn btn-primary"
-        [disabled]="!medicoSelecionado || !consultorioSelecionado"
-        (click)="chamarPaciente()"
-      >
-        Chamar Paciente
-      </button>
-    </div>
 
-    <!-- Lista de pacientes -->
-    <div class="mt-5" *ngIf="pacientes.length > 0">
-      <h3 class="text-center">Lista de Pacientes</h3>
-      <ul class="list-group">
-        <li
-          *ngFor="let paciente of pacientes"
-          class="list-group-item d-flex justify-content-between align-items-center"
-          [class.active]="paciente === pacienteAtual"
-        >
-          <span>
-            <strong>Nome:</strong> {{ paciente.nome }}
-          </span>
-          <!-- Botão de finalizar atendimento aparece apenas para o paciente atual -->
-          <button
-            *ngIf="paciente === pacienteAtual"
-            class="btn btn-danger btn-sm"
-            (click)="finalizarAtendimento(paciente)"
-          >
-            Finalizar Atendimento
-          </button>
-        </li>
-      </ul>
+ <!-- Tabela com senhas sendo atendidas -->
+<div class="container-fluid mb-5">
+  <div class="row">
+    <div class="container-fluid">
+      <table class="table table-overflow">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col"></th>
+            <th scope="col">PACIENTE</th>
+            <th scope="col">CHAMAR PACIENTE</th>
+            <th scope="col">REPETIR CHAMADA</th>
+            <th scope="col">FINALIZAR</th>
+            <th scope="col">ESCOLHER PACIENTE</th>
+          </tr>
+          
+        </thead>
+        <tbody>
+          <tr >
+             <!-- Dados do cliente e senha sendo atendida -->
+            <th scope="row"></th>
+            <td>{{senhaOperadorPainel.cliente}}</td>
+            <td>{{senhaOperadorPainel.nome}}</td>
+            
+            <!-- Botões de ações para a senha -->
+            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>
+            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirSenhaConvencional(senhaOperadorPainel)">REPETIR CHAMADA</button></td>
+            <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
+            
+          
+            <td class = "align-top">
+             
+              
+     <!-- Lista de Senhas -->
+<div class="col-md-12">
+          <h5>Lista de Pacientes:</h5>
+          <ul>
+            <li *ngFor="let senha of senhasDisponiveis">
+              Nome: {{ senha.nome }}
+            </li>
+  </ul>
+</div>
+            
+          </tr>
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+  </div>
+</section>
+
+
+
+<!--TELA DE ENTRADA-->
+<section *ngIf="!telaoperador">
+  <div class="main">
+    <div style="color: aliceblue;" class="d-flex justify-content-center"><h3 style="margin-top: 6%;">Escolha o Consultório e Médico:</h3></div> 
+    <div class="container"> 
+      <div class="middle">
+        <div id="login">
+          <!-- Formulário para selecionar consultório e médico -->
+          <form action="javascript:void(0);" [formGroup]="formulario" (ngSubmit)="cadastrarConvencional()">
+            <fieldset class="clearfix">
+              <!-- Seleção de consultório -->
+              <div class="mb-4" style="text-align: center;">
+                <label style="color: aliceblue;" for="selectedConsultorio" class="m-1">Informe o Consultório:</label>
+                <select id="selectedConsultorio" formControlName="guiche" 
+                  style="font-size: 1.5rem; width: 80%; margin-top: 10px; text-align: center; box-shadow: none;">
+                  <option *ngFor="let consultorio of consultorios" [value]="consultorio.numero">
+                    {{ consultorio.numero }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Seleção de médico -->
+              <div class="mb-4" style="text-align: center;">
+                <label style="color: aliceblue;" for="selectedMedico" class="m-1">Selecione o Médico:</label>
+                <select id="selectedMedico" formControlName="nome" 
+                  style="font-size: 1.5rem; width: 80%; margin-top: 10px; text-align: center; box-shadow: none;">
+                  <option *ngFor="let medico of medicos" [value]="medico.nome">
+                    {{ medico.nome }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Botão para entrar no sistema -->
+              <div>
+                <span style="width:60%; text-align:right; display: inline-block;">
+                  <input type="submit" name="submit" value="ENTRAR">
+                </span>
+              </div>
+            </fieldset>
+            <div class="clearfix"></div>
+          </form>
+
+          <div class="clearfix"></div>
+
+          <!-- Logo do sistema -->
+        </div> <!-- end login -->
+        <div class="logo1">
+          <img class="logo" src="./assets/img/logouai.png"/>
+          <div class="clearfix"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
+  
+
+

@@ -18,8 +18,8 @@ interface RelatorioItem {
   dataCompleta: Date;
   finalatendimento: number;
   horachamada: number;
-  setor: string;
-  preferencial: boolean;
+ 
+ 
 }
 
 @Component({
@@ -42,8 +42,8 @@ export class RelatorioComponent {
   filtroGuiche: string = '';
   filtroSenha: string = '';
   filtroNota: string = '';
-  filtroSetor: string = '';
-  filtroPreferencial: string = '';
+  
+
 
   filtroDataInicio: string = '';
 filtroDataFim: string = '';
@@ -53,8 +53,8 @@ filtroDataFim: string = '';
   guichesList: string[] = [];
   senhasList: string[] = [];
   notasList: number[] = [];
-  setoresList: string[] = [];
-  preferencialList: string[] = [];
+  
+  
 
   mediaNotas: { operador: string, mediaNota: number, totalAtendimentos: number }[] = [];
 
@@ -99,8 +99,8 @@ filtroDataFim: string = '';
           this.guichesList = [...new Set(dadosArray.map((item) => item.guiche))];
           this.senhasList = [...new Set(dadosArray.map((item) => item.senha))];
           this.notasList = [...new Set(dadosArray.map((item) => Number(item.nota)))];
-          this.setoresList = [...new Set(dadosArray.map((item) => item.setor))];
-          this.preferencialList = ['Sim', 'Não'];
+          
+       
           this.diasList = [...new Set(dadosArray.map((item) => item.dataCompleta.toLocaleDateString()))];
   
           // Aplicar filtros
@@ -120,9 +120,9 @@ filtroDataFim: string = '';
               (this.filtroOperador ? valor.operador === this.filtroOperador : true) &&
               (this.filtroGuiche ? valor.guiche === this.filtroGuiche : true) &&
               (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
-              (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) &&
-              (this.filtroSetor ? valor.setor === this.filtroSetor : true) &&
-              (this.filtroPreferencial ? valor.preferencial === (this.filtroPreferencial === 'Sim') : true)
+              (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) 
+             
+             
             );
           });
   
@@ -206,14 +206,14 @@ filtroDataFim: string = '';
         <table class="table-bordered" style="width: 100%; border-collapse: collapse;">
           <thead>
             <tr>
-              <th>Setor</th>
+              
               <th>Data</th>
               <th>Operador</th>
               <th>Guichê</th>
               <th>Senha</th>
               <th>Duração Atendimento (ms)</th>
               <th>Nota</th>
-              <th>Preferencial</th>
+              
             </tr>
           </thead>
           <tbody>`;
@@ -221,14 +221,14 @@ filtroDataFim: string = '';
     for (let i = 0; i < dados.length; i++) {
       const valor = dados[i];
       tabelaHTML += `<tr>
-                        <td>${valor.setor || 'Não informado'}</td>
+                      
                         <td>${valor.dataCompleta.toLocaleDateString() || 'Não informado'}</td>
                         <td>${valor.operador || 'Não informado'}</td>
                         <td>${valor.guiche || 'Não informado'}</td>
                         <td>${valor.senha || 'Não informado'}</td>
                         <td>${valor.duracaoAtendimento || 'Não informado'}</td>
                         <td>${valor.nota || 'Não informado'}</td>
-                        <td>${valor.preferencial ? 'Sim' : 'Não'}</td>
+                      
                       </tr>`;
     }
   
@@ -264,11 +264,7 @@ filtroDataFim: string = '';
       this.filtroSenha = '';
     } else if (filtro === 'nota') {
       this.filtroNota = '';
-    } else if (filtro === 'setor') {
-      this.filtroSetor = '';
-    } else if (filtro === 'preferencial') {
-      this.filtroPreferencial = '';
-    }
+    } 
     this.exibirRelatorio();
   }
 
@@ -296,7 +292,7 @@ filtroDataFim: string = '';
         
         autoTable(doc, {
           startY: 20,
-          head: [['Setor', 'Data', 'Operador', 'Guichê', 'Senha', 'Duração', 'Nota', 'Preferencial']],
+          head: [[ 'Data', 'Operador', 'Guichê', 'Senha', 'Duração', 'Nota']],
           body: dadosArray.map(item => {
             // Verificando o valor de finalatendimento antes de tentar criar a data
             console.log("Valor de finalatendimento:", item.finalatendimento); 
@@ -339,14 +335,14 @@ filtroDataFim: string = '';
             }
         
             return [
-              item.setor || 'N/D',
+             
               dataFormatada,
               item.operador || 'N/D',
               item.guiche || 'N/D',
               item.senha || 'N/D',
               duracaoFormatada,
               item.nota || 'N/D',
-              item.preferencial ? 'Sim' : 'Não'
+             
             ];
           }),
           theme: 'grid'

@@ -52,16 +52,7 @@
       </div>
     </div>
 
-    <div>
-      <label for="setor">Setor</label>
-      <select id="setor" class="form-control" formControlName="setor">
-        <option value="">Selecione um setor</option>
-        <option *ngFor="let setor of setoresDisponiveis" [value]="setor">{{ setor }}</option>
-      </select>
-      <div *ngIf="formularioUsuario.get('setor')?.invalid && formularioUsuario.get('setor')?.touched">
-        <small *ngIf="formularioUsuario.get('setor')?.hasError('required')">Setor é obrigatório.</small>
-      </div>
-    </div>
+ 
 
     <button type="submit" [disabled]="formularioUsuario.invalid" class="btn btn-success">Cadastrar</button>
   </form>

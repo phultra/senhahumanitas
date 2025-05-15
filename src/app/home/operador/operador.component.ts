@@ -239,7 +239,7 @@ private gerarIdentificadorAba(): string {
     this.spinner.show();
      for (let index = 0; index < this.senhaPainel.length; index++) {
        if( senha.senhaid === this.senhaPainel[index].senhaid ){
-         this.senhaPainel[index].status = '1'
+         this.senhaPainel[index].status = '2'
        await  this.adminService.updateSenhaChamada(this.senhaPainel[index].horachamada, this.senhaPainel[index]).then(async d => {
            console.log(d);
            await delay(2000);
@@ -315,6 +315,12 @@ buscarSenhasDoSetor(): Promise<DadosSenha[]> {
 
 // Método que só chama a senha quando o botão for clicado
 chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
+  // Verifica se há uma senha em andamento e se ela não foi finalizada
+  if (this.senhaOperadorPainel && this.senhaOperadorPainel.status && this.senhaOperadorPainel.status !== '3') {
+    alert('Finalize a senha atual antes de chamar uma nova!');
+    return;
+  }
+
   this.spinner.show();
   const time = Date.now().toString();
 
@@ -325,14 +331,14 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
     this.spinner.hide();
     return;
   }
- 
+
   // Limpa os dados do paciente antes de chamar a próxima senha
- this.dadosPaciente = {
-  nome: '',
-  medico: '',
-  consultorio: '',
-  senhaid: ''
-};
+  this.dadosPaciente = {
+    nome: '',
+    medico: '',
+    consultorio: '',
+    senhaid: ''
+  };
 
   senha.operador = this.operador;
   senha.guiche = this.guiche;
@@ -354,7 +360,8 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
       horachamada: senha.horachamada,
       status: senha.status,
       setor: senha.setor,
-      preferencial: senha.preferencial || false
+      preferencial: senha.preferencial || false,
+      nome: senha.nome || '',
     }
   })
     .then(() => {

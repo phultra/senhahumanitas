@@ -1,20 +1,22 @@
-<section style="background-color: #003366; color: white; height: 100vh;">
-    <section>
-      <app-menu></app-menu>
-    </section>
-    <section style="padding: 20px;">
-      <h2>Cadastro de Consultório</h2>
-      <form (ngSubmit)="salvarConsultorio()">
-        <label for="numero">Número do Consultório:</label>
-        <input
-          type="text"
-          id="numero"
-          [(ngModel)]="numero"
-          name="numero"
-          placeholder="Digite o número"
-          required
-        />
-        <button type="submit">Salvar</button>
-      </form>
-    </section>
+<section>
+    <app-menu></app-menu>
   </section>
+
+<section class="consultorios-container">
+  
+  <section class="form-container">
+    <h2>Cadastro de Consultório</h2>
+    <form (ngSubmit)="salvarConsultorio()" class="form">
+      <label for="numero">Número do Consultório:</label>
+      <input
+        type="text"
+        id="numero"
+        [(ngModel)]="numero"
+        name="numero"
+        placeholder="Digite o número"
+        required
+      />
+      <button type="submit">Salvar</button>
+    </form>
+  </section>
+</section>

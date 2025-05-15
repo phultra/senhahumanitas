@@ -21,7 +21,7 @@ import { MenuComponent } from "../menu/menu/menu.component";
 })
 export class UsuariosComponent {
   formularioUsuario!: FormGroup;
-  setoresDisponiveis: string[] = [];
+  
 
   constructor(
     private formBuilder: FormBuilder,
@@ -32,7 +32,7 @@ export class UsuariosComponent {
   ngOnInit() {
     // Verifica se o usuário está autenticado ao carregar o componente
     {
-    this.carregarSetores();
+    
     this.formCadastroUsuario();
     }
   }
@@ -43,7 +43,7 @@ export class UsuariosComponent {
       email: ['', [Validators.required, Validators.email]],
       senha: ['', [Validators.required, Validators.minLength(6)]],
       funcao: ['', [Validators.required]], // Campo para a função do usuário
-      setor: ['', [Validators.required]]   // Campo para o setor do usuário
+     
     });
   }
 
@@ -55,7 +55,7 @@ export class UsuariosComponent {
         return;
       }
     
-      const { nome, email, senha, funcao, setor } = this.formularioUsuario.value;
+      const { nome, email, senha, funcao } = this.formularioUsuario.value;
       
       try {
         const auth = getAuth();
@@ -67,7 +67,7 @@ export class UsuariosComponent {
           nome: nome,
           email: user.email,
           funcao: funcao,
-          setor: setor,
+          
           uid: user.uid,
         });
     
@@ -81,18 +81,6 @@ export class UsuariosComponent {
     }
 
 
- // Função para carregar os setores do Firebase
- async carregarSetores() {
-  const setoresRef = ref(this.db, `avelar/setor`);
-  const snapshot = await get(setoresRef);
 
-  if (snapshot.exists()) {
-    const setoresData = snapshot.val() as Record<string, { setor: string }>;
-    this.setoresDisponiveis = Object.values(setoresData).map((item) => item.setor);
-    console.log('Setores carregados:', this.setoresDisponiveis);
-  } else {
-    console.log('Nenhum setor encontrado no banco de dados.');
-  }
-}
 
 }

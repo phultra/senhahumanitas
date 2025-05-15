@@ -19,7 +19,7 @@
                   <th>Email</th>
                   <th>Setor</th>
                   <th>Função</th>
-                  <th>Alterar Setor</th>
+                  
                   <th>Excluir Usuário</th>
                 </tr>
               </thead>
@@ -27,19 +27,14 @@
                 <tr *ngFor="let usuario of usuariosSalvos">
                   <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
-                  <td>{{ usuario.setor }}</td>
                   <td>{{ usuario.funcao }}</td>
+                  
                   <td>
-                    <!-- Select para mudar o setor -->
-                    <select [(ngModel)]="usuario.setor" (change)="alterarSetor(usuario)" class="form-control">
-                      <option *ngFor="let setor of setoresSalvos" [value]="setor.nomeSetor">
-                        {{ setor.nomeSetor }}
-                      </option>
-                    </select>
+                   
                   </td>
                    <!-- Botão para excluir o usuario -->
                     <td> 
-                      <button *ngIf="usuario.setor" (click)="excluirUsuario(usuario)" class="btn-danger">
+                      <button *ngIf="usuario" (click)="excluirUsuario(usuario)" class="btn-danger">
                         Excluir Usuário
                       </button>
                     </td>
@@ -47,38 +42,13 @@
                 </tbody>
                </table>
 
-            <h3 class="text-white">Setores Cadastrados</h3>
-            <div *ngIf="mostrarSetores">
-              <table class="table table-bordered" style="background-color: #003366; color: white;">
-                <thead>
-                  <tr>
-                    <th>Nome do Setor</th>
-                    <th>Sigla</th>
-                    <th>Status</th>
-                    <th>Excluir Setor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let setor of setoresSalvos">
-                    <td>{{ setor.nomeSetor }}</td>
-                    <td>{{ setor.sigla }}</td>
-                    <td>{{ setor.status }}</td>
-                    <td>
-                      <!-- Botão para excluir o setor -->
-                      <button (click)="excluirSetor(setor.nomeSetor)" class="btn btn-danger">
-                        Excluir Setor
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+        
 
           <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
           <button (click)="confirmarApagarNos()" class="btn btn-danger ml-3" style="margin-left: 10px;">Reiniciar Senhas</button>
         </div>
       </div>
     </div>
+  </div>
   </div>
 </section>

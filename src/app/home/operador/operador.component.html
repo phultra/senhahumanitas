@@ -26,25 +26,25 @@ type="ball-scale-multiple"
    
    
     <!-- Formulário de informações adicionais -->
-    <div *ngIf="senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO'" class="mt-4">
-      <h5>Informações do Paciente</h5>
-      <div class="form-group">
-        <label>Nome do Paciente</label>
-        <input class="form-control" [(ngModel)]="dadosPaciente.nome" placeholder="Digite o nome">
-      </div>
-      <div class="form-group mt-2">
-        <label>Nome do Médico</label>
-        <select class="form-control" [(ngModel)]="dadosPaciente.medico">
-          <option *ngFor="let medico of medicos" [value]="medico.nome">{{ medico.nome }}</option>
-        </select>
-      </div>
-      <div class="form-group mt-2">
-        <label>Número do Consultório</label>
-        <select class="form-control" [(ngModel)]="dadosPaciente.consultorio">
-          <option *ngFor="let consultorio of consultorios" [value]="consultorio.numero">{{ consultorio.numero }}</option>
-        </select>
-      </div>
-    </div>
+   <div *ngIf="senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO' && senhaOperadorPainel.status !== '3'" class="mt-4">
+  <h5>Informações do Paciente</h5>
+  <div class="form-group">
+    <label>Nome do Paciente</label>
+    <input class="form-control" [(ngModel)]="dadosPaciente.nome" placeholder="Digite o nome">
+  </div>
+  <div class="form-group mt-2">
+    <label>Nome do Médico</label>
+    <select class="form-control" [(ngModel)]="dadosPaciente.medico">
+      <option *ngFor="let medico of medicos" [value]="medico.nome">{{ medico.nome }}</option>
+    </select>
+  </div>
+  <div class="form-group mt-2">
+    <label>Número do Consultório</label>
+    <select class="form-control" [(ngModel)]="dadosPaciente.consultorio">
+      <option *ngFor="let consultorio of consultorios" [value]="consultorio.numero">{{ consultorio.numero }}</option>
+    </select>
+  </div>
+</div>
     </div>
 
    <!-- Linha separadora -->

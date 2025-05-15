@@ -27,15 +27,14 @@ export class AdminComponent implements OnInit {
   
   
   
-   usuariosSalvos: { email: string; setor: string; funcao: string; nome: string }[] = []; // Lista de usuários
+   usuariosSalvos: { email: string;  funcao: string; nome: string }[] = []; // Lista de usuários
    
 
    mostrarUsuarios: boolean = false;
    mostrarRelatorio: boolean = false;
    mostrarSigla: boolean = false;
 
-   setoresSalvos: { nomeSetor: string; sigla: string; status: string }[] = []; // Lista de setores
-mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
+  
   
   // Dados armazenados para o relatório
  // dadosArray: RelatorioItem[] = [];
@@ -53,9 +52,9 @@ mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
       this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
     } else {
       this.exibirUsuarios();
-      this.exibirSetores();
-     // this.carregarSetores();
-      //this.inicializarFormularios();
+      
+    
+      
     }
   }
 
@@ -74,7 +73,7 @@ mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
           this.usuariosSalvos = Object.values(dadosUsuarios).map((user: any) => ({
             nome: user.nome,
             email: user.email,
-            setor: user.setor || 'Não informado',
+            
             funcao: user.funcao,
             uid: user.uid
           }));
@@ -89,91 +88,12 @@ mostrarSetores: boolean = false; // Controla a exibição da tabela de setores
       }
     }
 
-    async exibirSetores() {
-      try {
-        const setoresRef = ref(this.db, 'avelar/setor'); 
-        const snapshot = await get(setoresRef);
-    
-        if (snapshot.exists()) {
-          const dadosSetores = snapshot.val();
-          this.setoresSalvos = Object.values(dadosSetores).map((setor: any) => ({
-            nomeSetor: setor.setor,
-            sigla: setor.sigla,
-            status: setor.status
-          }));
-    
-          this.mostrarSetores = true; // Exibe os setores
-        } else {
-          alert('Nenhum setor encontrado.');
-        }
-      } catch (error) {
-        console.error('Erro ao recuperar os setores:', error);
-        alert('Erro ao recuperar os setores.');
-      }
-    }
+ 
 
-    async alterarSetor(usuario: any) {
-      
-      try {
-        // Verifica se o usuário tem a função "Operador" e se o setor dele é alterável
-        if (usuario.funcao !== 'operador') {
-          alert('Somente usuários com a função "Operador" podem ter seu setor alterado.');
-          this.exibirUsuarios();
-          return;
-          
-        }
-        
-        const usuarioRef = ref(this.db, `usuarios/${usuario.uid}`);
-        
-        // Usando 'update()' para atualizar apenas o setor, sem sobrescrever os outros dados
-        await update(usuarioRef, {
-          setor: usuario.setor  // Atualiza apenas o setor
-          
-        });
-    
-        alert('Setor alterado com sucesso!');
-        this.exibirUsuarios();
-      } catch (error) {
-        console.error('Erro ao atualizar o setor:', error);
-        alert('Erro ao atualizar o setor. Tente novamente.');
-      }
-    }
+  
     
 
-    async excluirSetor(setorNome: string) {
-      const confirmacao = window.confirm('Tem certeza que deseja excluir este Setor? Esta ação não pode ser desfeita.');
-     if(confirmacao) try {
-        // Referência ao caminho dos setores
-        const setoresRef = ref(this.db, `avelar/setor`);
-    
-        // Obtém todos os setores salvos
-        const snapshot = await get(setoresRef);
-        if (snapshot.exists()) {
-          const setoresExistentes = snapshot.val() as Record<string, any>;
-    
-          // Encontra o setor pelo nome
-          const setorParaExcluir = Object.keys(setoresExistentes).find(key => 
-            setoresExistentes[key].setor.toLowerCase() === setorNome.toLowerCase()
-          );
-    
-          if (setorParaExcluir) {
-            // Remove o setor encontrado
-            await remove(ref(this.db, `avelar/setor/${setorParaExcluir}`));
-            this.exibirSetores();
-    
-            alert('Setor excluído com sucesso!');
-          } else {
-            alert('Setor não encontrado.');
-          }
-        } else {
-          alert('Nenhum setor encontrado.');
-        }
-      } catch (error) {
-        console.error('Erro ao excluir o setor:', error);
-        alert('Erro ao excluir o setor. Tente novamente.');
-      }
-    }
-    
+   
 
     async excluirUsuario(usuario: any) {
       const confirmacao = window.confirm('Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.');
