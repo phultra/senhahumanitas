@@ -44,11 +44,11 @@ export class OperadorComponent implements OnInit, OnDestroy {
   dadosPaciente = {
     nome: '',
     medico: '',
-    consultorio: '',
+    // consultorio: '',
     senhaid: ''
   };
   medicos: any[] = []; // Lista de médicos
-  consultorios: any[] = []; // Lista de consultórios
+  // consultorios: any[] = []; // Lista de consultórios
   private keyPressHandler!: (event: KeyboardEvent) => void;
   private setorUsuarioDefinido = false;
   setorUsuario: string = '';
@@ -99,7 +99,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
   } else {
     this.formbuilder()
     this.carregarMedicos();
-    this.carregarConsultorios();
+    // this.carregarConsultorios();
  }
   
     // this.verificarSetorUsuario();
@@ -151,7 +151,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
   }
 
   // Método para carregar os consultórios do nó "consultorios"
-  carregarConsultorios() {
+  /*  carregarConsultorios() {
     const consultoriosRef = ref(this.db, 'consultorios');
     get(consultoriosRef)
       .then((snapshot) => {
@@ -162,7 +162,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
       .catch((error) => {
         console.error('Erro ao carregar consultórios:', error);
       });
-  }
+   }*/
 
   ngOnDestroy() {
     document.removeEventListener('keydown', this.keyPressHandler);
@@ -234,23 +234,22 @@ private gerarIdentificadorAba(): string {
   
   
    // Repete a chamada de uma senha no painel
-  async repetirsenha(senha:DadosSenha) {
-    // console.log(senha);
-    this.spinner.show();
-     for (let index = 0; index < this.senhaPainel.length; index++) {
-       if( senha.senhaid === this.senhaPainel[index].senhaid ){
-         this.senhaPainel[index].status = '2'
-       await  this.adminService.updateSenhaChamada(this.senhaPainel[index].horachamada, this.senhaPainel[index]).then(async d => {
-           console.log(d);
-           await delay(2000);
-           this.spinner.hide();
-         })
-       } 
-     }
-      this.spinner.hide();
-    
-         
-   }
+  async repetirsenha(senha: DadosSenha) {
+  this.spinner.show();
+  try {
+    const time = Date.now().toString();
+    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    await update(ref(this.db, senhachamadaPath), {
+      status: '1',
+      horachamada: time
+    });
+    console.log('Chamada repetida:', senha);
+  } catch (error) {
+    console.error('Erro ao repetir chamada:', error);
+  } finally {
+    this.spinner.hide();
+  }
+}
 
  // Repete a chamada de uma senha convencional  
  async repetirSenhaConvencional(senha: DadosSenha) {
@@ -336,7 +335,7 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
   this.dadosPaciente = {
     nome: '',
     medico: '',
-    consultorio: '',
+    // consultorio: '',
     senhaid: ''
   };
 
@@ -393,7 +392,7 @@ salvarDadosPaciente() {
   update(ref(this.db, path), {
     nome: this.dadosPaciente.nome,
     medico: this.dadosPaciente.medico,
-    consultorio: this.dadosPaciente.consultorio
+    // consultorio: this.dadosPaciente.consultorio
   })
     .then(() => {
       console.log('Dados do paciente atualizados com sucesso na coleção senhachamada!');
@@ -403,7 +402,7 @@ salvarDadosPaciente() {
       this.dadosPaciente = {
         nome: '',
         medico: '',
-        consultorio: '',
+        // consultorio: '',
         senhaid: ''
       };
     })
@@ -476,14 +475,14 @@ salvarDadosPaciente() {
   
    async finalizarConvencional(senha: DadosSenha) {
   if (senha.setor === 'CONSULTA' || senha.setor === 'REALIZAR AGENDAMENTO') {
-    if (!this.dadosPaciente.nome || !this.dadosPaciente.medico || !this.dadosPaciente.consultorio) {
+    if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
       alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
       return;
     }
 
     senha.nome = this.dadosPaciente.nome;
     senha.medico = this.dadosPaciente.medico;
-    senha.consultorio = this.dadosPaciente.consultorio;
+    // senha.consultorio = this.dadosPaciente.consultorio;
   }
 
   const time = Date.now().toString();
@@ -509,7 +508,7 @@ salvarDadosPaciente() {
       await update(ref(this.db, senhachamadaPath), {
         nome: senha.nome,
         medico: senha.medico,
-        consultorio: senha.consultorio,
+        // consultorio: senha.consultorio,
         finalatendimento: senha.finalatendimento,
         status: senha.status
       });

@@ -49,27 +49,35 @@
            
             
 
-            <div class="row">
-              <div class="col-md-12 mb-3" *ngFor="let senha of senhasChamadas$ | async">
-                <div class="table table-hover table-striped">
-                  <div class="header text-center">
-                    <a>
-                     
-                      <h4 class="card-title" style="color: blue;">
-                        <b>SENHA: {{ senha.senha }}</b>
-                      </h4>
-                      <h3 class="card-text" style="color: blue;">
-                        <small>MESA: {{ senha.guiche }}</small>
-                      </h3>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div> 
-          </div>
-        </div>
+         <div class="row">
+  <div class="col-md-12 mb-3" *ngFor="let senha of senhasChamadas$ | async">
+    <div class="table table-hover table-striped">
+      <div class="header text-center">
+        <a>
+          <ng-container *ngIf="senha.nome && senha.consultorio; else convencional">
+            <h4 class="card-title" style="color: blue;">
+              <b>PACIENTE: {{ senha.nome }}</b>
+            </h4>
+            <h3 class="card-text" style="color: blue;">
+              <small>CONSULTÓRIO: {{ senha.consultorio }}</small>
+            </h3>
+          </ng-container>
+          <ng-template #convencional>
+            <h4 class="card-title" style="color: blue;">
+              <b>SENHA: {{ senha.senha }}</b>
+            </h4>
+            <h3 class="card-text" style="color: blue;">
+              <small>GUICHÊ: {{ senha.guiche }}</small>
+            </h3>
+          </ng-template>
+        </a>
       </div>
     </div>
+  </div>
+</div>
+          </div>
+        </div>
+      </div></div>
 
      <!-- Exibe o logotipo centralizado e maior -->
      <div class="d-flex justify-content-center mb-2 logo-position">

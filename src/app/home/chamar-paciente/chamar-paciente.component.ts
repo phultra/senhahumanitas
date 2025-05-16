@@ -172,23 +172,22 @@ export class ChamarPacienteComponent implements OnInit {
    
    
     // Repete a chamada de uma senha no painel
-   async repetirsenha(senha:DadosSenha) {
-     // console.log(senha);
-     this.spinner.show();
-      for (let index = 0; index < this.senhaPainel.length; index++) {
-        if( senha.senhaid === this.senhaPainel[index].senhaid ){
-          this.senhaPainel[index].status = '1'
-        await  this.adminService.updateSenhaChamada(this.senhaPainel[index].horachamada, this.senhaPainel[index]).then(async d => {
-            console.log(d);
-            await delay(2000);
-            this.spinner.hide();
-          })
-        } 
-      }
-       this.spinner.hide();
-     
-          
-    }
+   async repetirsenha(senha: DadosSenha) {
+  this.spinner.show();
+  try {
+    const time = Date.now().toString();
+    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    await update(ref(this.db, senhachamadaPath), {
+      status: '1',
+      horachamada: time
+    });
+    console.log('Chamada repetida:', senha);
+  } catch (error) {
+    console.error('Erro ao repetir chamada:', error);
+  } finally {
+    this.spinner.hide();
+  }
+}
  
   // Repete a chamada de uma senha convencional  
   async repetirSenhaConvencional(senha: DadosSenha) {
@@ -264,7 +263,7 @@ export class ChamarPacienteComponent implements OnInit {
      return;
    }
   
- 
+    senha.consultorio = this.formulario.value.guiche;
    senha.operador = this.operador;
    senha.guiche = this.guiche;
    senha.status = '1'; // Status "chamada"
@@ -432,7 +431,7 @@ mostrarSenhasNaoAtendidas() {
           this.senhasDisponiveis = todasSenhas.filter(
             (senha) =>
               senha.medico === this.formulario.value.nome &&
-              senha.consultorio === this.formulario.value.guiche &&
+              
               senha.nome // Garante que o campo nome não esteja vazio
           );
           console.log("Senhas disponíveis atualizadas:", this.senhasDisponiveis);

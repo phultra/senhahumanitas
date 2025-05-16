@@ -44,7 +44,8 @@ export class PainelComponent implements OnInit {
 
   private chamadaMap = new Map<string, number>();
   isProcessing: any;
-
+private ultimoPaciente: { nome: string, consultorio: string, horachamada: string } | null = null;
+  private ultimaSenha: string | null = null;
   constructor(
     private cdRef: ChangeDetectorRef,
     private adminService: AdminService,
@@ -66,52 +67,45 @@ export class PainelComponent implements OnInit {
 
 
   // Carrega senhas
- private carregarTodasAsSenhas() {
+private carregarTodasAsSenhas() {
   const senhageradaRef = ref(this.db, 'avelar/senhachamada');
-  let ultimoNomeProcessado: string | null = null; // Armazena o último nome processado
+ 
 
-  // Escuta mudanças no nó senhachamada
   onValue(senhageradaRef, snapshot => {
     if (snapshot.exists()) {
       const senhasGeradas = snapshot.val();
       const novasSenhas = Object.values(senhasGeradas) as DadosSenha[];
+// Limpa controles se alguma senha foi finalizada
+    if (novasSenhas.some(s => s.status === '3')) {
+      
+      this.ultimaSenha = null;
+    }
+      // Busca chamada de paciente (nome e consultorio preenchidos) ainda não processada
+     const chamadaPaciente = novasSenhas.find(s =>
+  s.status === '1' &&
+  s.nome &&
+  s.consultorio &&
+  (!this.ultimoPaciente || s.horachamada !== this.ultimoPaciente.horachamada)
+);
 
-      // Busca a chamada ativa com status "1"
-      const chamadaAtual = novasSenhas.find(s => s.status === '1' && s.nome !== ultimoNomeProcessado);
+      // Busca chamada de senha convencional (sem nome e consultorio) ainda não processada
+     const chamadaSenha = novasSenhas.find(s =>
+  s.status === '1' &&
+  (!s.nome || !s.consultorio) &&
+  (!this.ultimaSenha || s.horachamada !== this.ultimaSenha)
+);
 
-      if (chamadaAtual) {
-        // Atualiza o último nome processado
-        ultimoNomeProcessado = chamadaAtual.nome;
-
-        // Exibe a chamada no painel
-        if (chamadaAtual.nome && chamadaAtual.consultorio) {
-          // Chamada de paciente
-          this.psenha = chamadaAtual.nome; // Nome do paciente
-          this.pguiche = chamadaAtual.consultorio; // Número do consultório
-        } else {
-          // Chamada de senha
-          this.psenha = chamadaAtual.senha; // Senha
-          this.pguiche = chamadaAtual.guiche; // Guichê
-        }
-
-        // Fala a chamada
-    
-          // Após falar, mover para a lista de senhas chamadas e alterar o status
-          this.atualizarSenhasChamadas(chamadaAtual);
-
-          // Atualiza o status no banco de dados para "2" (chamada processada)
-          const chamadaPath = `avelar/senhachamada/${chamadaAtual.senhaid}`;
-          update(ref(this.db), {
-            [chamadaPath]: {
-              ...chamadaAtual,
-              status: '2' // Status "chamada processada"
-            }
-          }).then(() => {
-            console.log(`Chamada processada: ${chamadaAtual.senhaid}`);
-          }).catch(error => {
-            console.error('Erro ao atualizar o status da chamada:', error);
-          });
-        
+     if (chamadaPaciente) {
+  this.ultimoPaciente = { 
+    nome: chamadaPaciente.nome, 
+    consultorio: chamadaPaciente.consultorio,
+    horachamada: chamadaPaciente.horachamada // <-- adicione isso
+  };
+  this.atualizarSenhasChamadas(chamadaPaciente);
+      } else if (chamadaSenha) {
+        // Atualiza controle para senha convencional
+        this.ultimaSenha = chamadaSenha.horachamada;
+        this.atualizarSenhasChamadas(chamadaSenha);
       }
     } else {
       console.log('Nenhuma chamada encontrada no nó senhachamada.');
@@ -123,24 +117,28 @@ export class PainelComponent implements OnInit {
   });
 }
 
- atualizarSenhasChamadas(senha: DadosSenha) {
+atualizarSenhasChamadas(senha: DadosSenha) {
   const senhas = this.senhasChamadasSubject.value;
 
-  // Verifica se a senha já está na lista ou na fila
-  const senhaExistente = senhas.some(s => s.senha === senha.senha);
-  const senhaNaFila = this.queue.some(item => item.senha.senha === senha.senha);
+  // Remove qualquer chamada anterior com o mesmo senhaid
+  const idx = senhas.findIndex(s => s.senhaid === senha.senhaid);
+  if (idx !== -1) {
+    senhas.splice(idx, 1);
+  }
 
-  if (!senhaExistente && !senhaNaFila) {
-    if (senhas.length >= 4) {
-      senhas.shift(); // Remove a primeira senha se a lista estiver cheia
-    }
-    senhas.push(senha); // Adiciona a nova senha
-    this.senhasChamadasSubject.next(senhas);
+  // Adiciona a nova senha (mantendo limite de 4)
+  if (senhas.length >= 4) {
+    senhas.shift();
+  }
+  senhas.push(senha);
+  this.senhasChamadasSubject.next(senhas);
 
-    // Adiciona a senha à fila de chamadas
+  // Adiciona à fila de chamadas se ainda não estiver na fila
+  const senhaNaFila = this.queue.some(item =>
+    item.senha.senha === senha.senha && item.senha.horachamada === senha.horachamada
+  );
+  if (!senhaNaFila) {
     this.queue.push({ senha, action: () => this.playAudio(senha) });
-
-    // Processa a fila se não estiver processando
     this.processQueue();
   }
 }

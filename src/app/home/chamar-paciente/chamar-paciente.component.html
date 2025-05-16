@@ -21,7 +21,12 @@ type="ball-scale-multiple"
     
     <!-- Botao para chamar senha -->
     <div class="col-md-6 mt-5">
-      <button class="btn  botao" (click)="chamarSenhaConvencional()">CHAMAR PACIENTE</button>
+    <button 
+  class="btn botao" 
+  (click)="chamarSenhaConvencional()" 
+  [disabled]="!!(senhaOperadorPainel && senhaOperadorPainel.status && senhaOperadorPainel.status !== '3')">
+  CHAMAR PACIENTE
+</button>
     </div>
    
    
@@ -45,7 +50,7 @@ type="ball-scale-multiple"
             <th scope="col">CHAMAR PACIENTE</th>
             <th scope="col">REPETIR CHAMADA</th>
             <th scope="col">FINALIZAR</th>
-            <th scope="col">ESCOLHER PACIENTE</th>
+            <th scope="col">PACIENTES</th>
           </tr>
           
         </thead>
@@ -58,7 +63,7 @@ type="ball-scale-multiple"
             
             <!-- Botões de ações para a senha -->
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirSenhaConvencional(senhaOperadorPainel)">REPETIR CHAMADA</button></td>
+            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirsenha(senhaOperadorPainel)">REPETIR CHAMADA</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
             
           
@@ -67,10 +72,10 @@ type="ball-scale-multiple"
               
      <!-- Lista de Senhas -->
 <div class="col-md-12">
-          <h5>Lista de Pacientes:</h5>
+          
           <ul>
             <li *ngFor="let senha of senhasDisponiveis">
-              Nome: {{ senha.nome }}
+             {{ senha.nome }}
             </li>
   </ul>
 </div>
