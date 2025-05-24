@@ -55,9 +55,7 @@ private ultimoPaciente: { nome: string, consultorio: string, horachamada: string
   ) {}
 
   ngOnInit() {
-    if (!this.authService.isUserAuthenticated()) {
-      this.router.navigate(['/login']);
-    } else {
+    {
      
       this.carregarTodasAsSenhas();
       // this.verificarSetorUsuario(); // Garante que o usuário selecione o setor correto
@@ -68,7 +66,7 @@ private ultimoPaciente: { nome: string, consultorio: string, horachamada: string
 
   // Carrega senhas
 private carregarTodasAsSenhas() {
-  const senhageradaRef = ref(this.db, 'avelar/senhachamada');
+  const senhageradaRef = ref(this.db, 'humanitas/senhachamada');
  
 
   onValue(senhageradaRef, snapshot => {
@@ -118,20 +116,20 @@ private carregarTodasAsSenhas() {
 }
 
 atualizarSenhasChamadas(senha: DadosSenha) {
-  const senhas = this.senhasChamadasSubject.value;
+  let senhas = this.senhasChamadasSubject.value;
 
   // Remove qualquer chamada anterior com o mesmo senhaid
-  const idx = senhas.findIndex(s => s.senhaid === senha.senhaid);
-  if (idx !== -1) {
-    senhas.splice(idx, 1);
+  senhas = senhas.filter(s => s.senhaid !== senha.senhaid);
+
+  // Adiciona a nova senha no início (mais recente primeiro)
+  senhas.unshift(senha);
+
+  // Mantém limite de 4 senhas
+  if (senhas.length > 6) {
+    senhas = senhas.slice(0, 6);
   }
 
-  // Adiciona a nova senha (mantendo limite de 4)
-  if (senhas.length >= 4) {
-    senhas.shift();
-  }
-  senhas.push(senha);
-  this.senhasChamadasSubject.next(senhas);
+  this.senhasChamadasSubject.next([...senhas]);
 
   // Adiciona à fila de chamadas se ainda não estiver na fila
   const senhaNaFila = this.queue.some(item =>
@@ -196,7 +194,7 @@ atualizarSenhasChamadas(senha: DadosSenha) {
       this.cdRef.detectChanges();
   
    // Após a chamada, atualize o status da senha no banco de dados
-    const chamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    const chamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
     await update(ref(this.db), {
       [chamadaPath]: {
         ...senha,

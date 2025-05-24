@@ -8,23 +8,21 @@
 </ngx-spinner>
 
 <!-- TELA DE SELEÇÃO DE SETORES -->
+ <img class="logo-humanitas logo-fixed" src="./assets/img/logohumanitas.png"/>
 <section *ngIf="!convencional">
   <div class="main">
     <div class="container">
-      <div class="d-flex justify-content-center">
-        <img style="width:10%; margin-bottom: 8%;" src="./assets/img/logouai.png"/>
-      </div>
       <div class="middle row">
         <div class="col-md-12 mb-4 text-center">
-          <h3 class="text-white">Selecione um setor</h3>
+          <h3 class="text-white">Tipo de Atendimento</h3>
         </div>
 
         <!-- Botões com setores fixos em layout vertical -->
-        <div class="col-md-12 d-flex flex-column align-items-center">
-          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('CONSULTA')">CONSULTA</button>
-          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('REALIZAR AGENDAMENTO')">REALIZAR AGENDAMENTO</button>
-          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('EXAME')">EXAME</button>
-          <button class="btn btn-2 btn-2h my-2" (click)="selecionarSetor('RESULTADO DE EXAMES')">RESULTADO DE EXAMES</button>
+        <div class="col-md-12 d-flex flex-column align-items-center w-100">
+          <button class="btn btn-2 btn-2h my-4" (click)="selecionarSetor('CONSULTA')">CONSULTA</button>
+          <button class="btn btn-2 btn-2h my-4" (click)="selecionarSetor('REALIZAR AGENDAMENTO')">REALIZAR AGENDAMENTO</button>
+          <button class="btn btn-2 btn-2h my-4" (click)="selecionarSetor('EXAME')">EXAME</button>
+          <button class="btn btn-2 btn-2h my-4" (click)="selecionarSetor('RESULTADO DE EXAMES')">RESULTADO DE EXAMES</button>
         </div>
 
      
@@ -38,13 +36,11 @@
   <div class="main">
     <div class="container">    
       <!-- Logo da empresa -->
-      <div class="d-flex justify-content-center">
-        <img style="width:10%; margin-bottom: 8%;" src="./assets/img/logouai.png"/>
-      </div> 
+     
       <div class="middle row">
         <!-- Setor selecionado -->
         <div class="col-md-12 mb-2 text-center">
-          <label class="text-white">Setor Selecionado:</label>
+          <label class="text-white">Tipo Selecionado:</label>
           <p class="setor-selecionado display-4 text-white">{{ setorSelecionado }}</p>
         </div>
 

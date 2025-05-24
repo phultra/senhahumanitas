@@ -238,7 +238,7 @@ private gerarIdentificadorAba(): string {
   this.spinner.show();
   try {
     const time = Date.now().toString();
-    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
     await update(ref(this.db, senhachamadaPath), {
       status: '1',
       horachamada: time
@@ -347,8 +347,8 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
   this.senhaOperadorPainel = senha;
 
   // Salvar a senha no nó `senhachamada`
-  const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
-  const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
+  const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+  const senhageradaPath = `humanitas/senhagerada/${senha.senhaid}`;
 
   update(ref(this.db), {
     [senhachamadaPath]: {
@@ -386,7 +386,7 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
 }
 
 salvarDadosPaciente() {
-  const path = `avelar/senhachamada/${this.dadosPaciente.senhaid}`;
+  const path = `humanitas/senhachamada/${this.dadosPaciente.senhaid}`;
 
   // Atualiza apenas os campos especificados, mantendo os outros dados inalterados
   update(ref(this.db, path), {
@@ -490,8 +490,8 @@ salvarDadosPaciente() {
   senha.status = '3'; // Status "finalizado"
 
   try {
-    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
-    const senhafinalizadaPath = `avelar/senhafinalizada/${senha.senhaid}`;
+    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+    const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
 
     if (senha.setor === 'EXAME' || senha.setor === 'RESULTADO DE EXAMES') {
       // Mover para o nó `senhafinalizada`
@@ -581,7 +581,32 @@ mostrarSenhasNaoAtendidas() {
   }, 500); // 500 milissegundos = 0,5 segundo
 }
 
+async naoCompareceu(senha: DadosSenha) {
+  if (!senha) return;
+  this.spinner.show();
+  try {
+    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+    const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
 
+    // Atualiza o nome e status
+    senha.nome = 'NÃO COMPARECEU';
+    senha.status = '3';
+    
+
+    // Move para senhafinalizada e remove de senhachamada
+    await update(ref(this.db), {
+      [senhafinalizadaPath]: { ...senha, nome: 'NÃO COMPARECEU'},
+      [senhachamadaPath]: null
+    });
+
+    alert('Marcado como NÃO COMPARECEU!');
+  } catch (error) {
+    console.error('Erro ao marcar como não compareceu:', error);
+    alert('Erro ao marcar como não compareceu.');
+  } finally {
+    this.spinner.hide();
+  }
+}
 
 
 
@@ -613,7 +638,7 @@ mostrarSenhasNaoAtendidas() {
   }
 
   this.senhaFinalizar.nota = nota; // Atribui a nota à senhaFinalizar
-  const senhachamadaPath = `avelar/senhachamada/${this.senhaFinalizar.horachamada}`;
+  const senhachamadaPath = `humanitas/senhachamada/${this.senhaFinalizar.horachamada}`;
 
   try {
     // Salva as informações no banco de dados

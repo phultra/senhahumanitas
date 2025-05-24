@@ -8,9 +8,14 @@
 }
 
 div.main {
-    background: #000; /* Fundo preto */
-    height: calc(150vh);
-    width: 100%;
+
+   min-height: 100vh;
+  width: 100%;
+  background: url('/assets/img/fundohumanitas.png') no-repeat center center fixed;
+  background-size: cover;
+    // background: #000; /* Fundo preto */
+    // height: calc(150vh);
+    // width: 100%;
 }
 
 [class*="fontawesome-"]:before {
@@ -155,7 +160,7 @@ fieldset{
 
 .table-container {
   width: 370px;
-  max-height: 300px; /* Ajuste a altura conforme necessário */
+  max-height: 600px; /* Ajuste a altura conforme necessário */
   overflow-y: auto;
 }
 
@@ -201,10 +206,10 @@ fieldset{
     -moz-transition: none;
     transition: none;
    
-  width: 450px; /* ou o valor desejado */
+  width: 500px; /* ou o valor desejado */
   min-width: 300px;
   max-width: 100%;
-  height: 100px;
+  height: 120px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,8 +219,17 @@ fieldset{
   text-overflow: ellipsis;
 }
 
-
-
+.logo-fixed {
+  position: fixed;
+  top: -90px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  width: 300px;
+  max-width: 30vw;
+  margin-bottom: 0;
+  pointer-events: none; // não bloqueia clique nos botões
+}
 /* Button 2h */
 .btn-2h {
     border-radius: 20px;

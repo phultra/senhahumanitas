@@ -44,14 +44,14 @@
     </div>
    
    
-    <div class="filter col-md-3 text-center">
-      <label>Nota:</label>
+     <!-- <div class="filter col-md-3 text-center">  
+   <label>Nota:</label>
       <select [(ngModel)]="filtroNota" (ngModelChange)="filtrarRelatorio()">
         <option value="">Todos</option>
         <option *ngFor="let nota of notasList" [value]="nota">{{ nota }}</option>
       </select>
       <button *ngIf="filtroNota" (click)="removerFiltro('nota')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>
+    </div>-->
    
    
    

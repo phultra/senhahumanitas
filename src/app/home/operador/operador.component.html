@@ -67,6 +67,7 @@ type="ball-scale-multiple"
             <th scope="col">CHAMAR SENHA</th>
             <th scope="col">REPETIR SENHA</th>
             <th scope="col">FINALIZAR</th>
+            <th>NÃO COMPARECEU</th>
             <th scope="col">ESCOLHER SENHA</th>
           </tr>
           
@@ -81,9 +82,17 @@ type="ball-scale-multiple"
             <!-- Botões de ações para a senha -->
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>
             <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirsenha(senhaOperadorPainel)">REPETIR SENHA</button></td>
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
+           <td><button *ngIf="senhaOperadorPainel.status ==='1'" type="button" class="btn btn-primary btn-lg btn-block" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button>
             
-          
+          <td>
+  <button
+    *ngIf="senhaOperadorPainel.status === '1'"
+    class="btn btn-warning btn-lg btn-block"
+    style="color: #222; font-weight: bold;"
+    (click)="naoCompareceu(senhaOperadorPainel)">
+    NÃO COMPARECEU
+  </button>
+</td>
             <td class = "align-top">
              
               
@@ -97,8 +106,8 @@ type="ball-scale-multiple"
         [ngClass]="{
           'senha-consulta': senha.setor === 'CONSULTA',
           'senha-agendamento': senha.setor === 'REALIZAR AGENDAMENTO',
-          'senha-exames': senha.setor === 'EXAMES',
-          'senha-resultado': senha.setor === 'RESULTADO'
+          'senha-exames': senha.setor === 'EXAME',
+          'senha-resultado': senha.setor === 'RESULTADO DE EXAMES'
         }"
         (click)="chamarSenhaConvencional(senha)"
       >

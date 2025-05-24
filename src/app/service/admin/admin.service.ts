@@ -96,7 +96,7 @@ export class AdminService {
   const dia = new Date().getDate(); // Obtém o dia atual
 
   // Cria uma referência para salvar os dados no Firebase
-  const itemsRef = ref(this.database, `avelar/senhafinalizada/${senha.finalatendimento}`);
+  const itemsRef = ref(this.database, `humanitas/senhafinalizada/${senha.finalatendimento}`);
 
   try {
     // Salva os dados da senha no Firebase
@@ -109,7 +109,7 @@ export class AdminService {
 
 // Função para recuperar a senha finalizada, caso necessário
 async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
-  const senhaRef = ref(this.database, `avelar/senhafinalizada/${senha.finalatendimento}`);
+  const senhaRef = ref(this.database, `humanitas/senhafinalizada/${senha.finalatendimento}`);
   try {
     const snapshot = await get(senhaRef);
     if (snapshot.exists()) {
@@ -132,7 +132,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
     const dat = new Date(millisec);
     let dia = dat.getDate();
      senha.finalatendimento = time;
-    const itemsRef = ref(this.database, `avelar/senhacontador/${senha.finalatendimento}` );
+    const itemsRef = ref(this.database, `humanitas/senhacontador/${senha.finalatendimento}` );
    // const newItemRef = push(itemsRef);
     await set(itemsRef, senha).then( d => {
       //console.log(d);
@@ -152,7 +152,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
     const dat = new Date(millisec);
     let dia = dat.getDate();
      
-    const itemsRef = ref(this.database, `avelar/senhagerada/${senha.senhaid}` );
+    const itemsRef = ref(this.database, `humanitas/senhagerada/${senha.senhaid}` );
    // const newItemRef = push(itemsRef);
     return set(itemsRef, senha).then(async d => {
       //console.log(d);
@@ -173,7 +173,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
     const dat = new Date(millisec);
     let dia = dat.getDate();
      
-    const itemsRef = ref(this.database, `avelar/senhachamada/${senha.horachamada}` );
+    const itemsRef = ref(this.database, `humanitas/senhachamada/${senha.horachamada}` );
    // const newItemRef = push(itemsRef);
     await set(itemsRef, senha).then(async d => {
       //console.log(d);
@@ -248,7 +248,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
   const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
 
   // Caminho dinâmico da coleção 'senhagerada'
-  const senhasRef = ref(db, `/avelar/senhagerada`);
+  const senhasRef = ref(db, `/humanitas/senhagerada`);
 
   return new Observable(observer => {
     // Escuta os dados da coleção no Firebase em tempo real
@@ -277,7 +277,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
 
   //Retorna um Observable com os dados da referência avelar/senhachamada no Realtime Database.
   getSenhaPainelConvencional(): Observable<any[]> {
-    const dbRef = ref(this.database, `avelar/senhachamada`);
+    const dbRef = ref(this.database, `humanitas/senhachamada`);
 
     return new Observable(observer => {
       onValue(dbRef, (snapshot) => {
@@ -303,7 +303,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
     const dat = new Date(millisec);
     let dia = dat.getDate();
      
-    const dbRef = ref(this.database, `avelar/senhacontador`);
+    const dbRef = ref(this.database, `humanitas/senhacontador`);
 
     return new Observable(observer => {
       onValue(dbRef, (snapshot) => {
@@ -328,7 +328,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
     const dat = new Date();
     let dia = dat.getDate();
      console.log(dia);
-    const dbRef = ref(this.database, `avelar/senhagerada/`);
+    const dbRef = ref(this.database, `humanitas/senhagerada/`);
    
     return new Observable(observer => {
       onValue(dbRef, (snapshot) => {
@@ -372,7 +372,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
   updateSenhaRealtimeConvencional(id: string, data: Partial<DadosSenha>): Promise<void> {
     const dat = new Date();
     let dia = dat.getDate();
-    const senhaRef = ref(this.database, `avelar/senhagerada/${id}`);
+    const senhaRef = ref(this.database, `humanitas/senhagerada/${id}`);
     return update(senhaRef, data);
   }
 
@@ -387,7 +387,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
   //Atualiza os dados de uma chamada de senha no Realtime Database na referência avelar/senhachamada/{id}.
   updateSenhaChamadaConvencional(id: string, data: Partial<DadosSenha>): Promise<void> {
   
-    const senhaRef = ref(this.database, `avelar/senhachamada/${id}`);
+    const senhaRef = ref(this.database, `humanitas/senhachamada/${id}`);
     return update(senhaRef, data);
   }
 
@@ -412,7 +412,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
   //Remove uma senha chamada no Realtime Database na referência avelar/senhachamada/{id}.
   deleteSenhaChamadaConvencional(id: string): Promise<void> {
     // Cria uma referência ao item que deseja excluir no Realtime Database
-    const senhaRef = ref(this.database, `avelar/senhachamada/${id}`);
+    const senhaRef = ref(this.database, `humanitas/senhachamada/${id}`);
     
     // Executa a operação de remoção
     return remove(senhaRef);

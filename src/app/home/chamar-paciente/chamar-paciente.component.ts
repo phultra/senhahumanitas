@@ -176,7 +176,7 @@ export class ChamarPacienteComponent implements OnInit {
   this.spinner.show();
   try {
     const time = Date.now().toString();
-    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
     await update(ref(this.db, senhachamadaPath), {
       status: '1',
       horachamada: time
@@ -272,8 +272,8 @@ export class ChamarPacienteComponent implements OnInit {
    this.senhaOperadorPainel = senha;
  
    // Salvar a senha no nó `senhachamada`
-   const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
-   const senhageradaPath = `avelar/senhagerada/${senha.senhaid}`;
+   const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+   const senhageradaPath = `humanitas/senhagerada/${senha.senhaid}`;
   //  const novoIdPath = `avelar/senhachamada/1`; 
  
    update(ref(this.db), {
@@ -318,7 +318,7 @@ export class ChamarPacienteComponent implements OnInit {
  
  // Método para buscar senhas filtradas pelo médico selecionado
 buscarSenhasFiltradasPorMedico() {
-  const senhasRef = ref(this.db, 'avelar/senhachamada');
+  const senhasRef = ref(this.db, 'humanitas/senhachamada');
   get(senhasRef)
     .then((snapshot) => {
       if (snapshot.exists()) {
@@ -391,8 +391,8 @@ cadastrarConvencional() {
   senha.status = '3'; // Status "finalizado"
 
   try {
-    const senhafinalizadaPath = `avelar/senhafinalizada/${senha.senhaid}`;
-    const senhachamadaPath = `avelar/senhachamada/${senha.senhaid}`;
+    const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
     // const novoIdPath = `avelar/senhachamada/1`;
     // Mover a senha para o nó `senhafinalizada`
     await update(ref(this.db), {
@@ -422,7 +422,7 @@ mostrarSenhasNaoAtendidas() {
 
   // Atualiza a lista de senhas a cada 0,5 segundos
   setInterval(() => {
-    const senhasRef = ref(this.db, 'avelar/senhachamada');
+    const senhasRef = ref(this.db, 'humanitas/senhachamada');
     get(senhasRef)
       .then((snapshot) => {
         if (snapshot.exists()) {
@@ -447,7 +447,34 @@ mostrarSenhasNaoAtendidas() {
 }
  
  
- 
+ async naoCompareceu(senha: DadosSenha) {
+  if (!senha) return;
+  this.spinner.show();
+  try {
+    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+    const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+
+    // Adiciona "NÃO COMPARECEU" ao final do nome, se ainda não tiver
+    if (!senha.nome.toUpperCase().includes('NÃO COMPARECEU')) {
+      senha.nome = `${senha.nome}, NÃO COMPARECEU`;
+    }
+    senha.status = '3';
+    
+
+    // Move para senhafinalizada e remove de senhachamada
+    await update(ref(this.db), {
+      [senhafinalizadaPath]: { ...senha},
+      [senhachamadaPath]: null
+    });
+
+    alert('Marcado como NÃO COMPARECEU!');
+  } catch (error) {
+    console.error('Erro ao marcar como não compareceu:', error);
+    alert('Erro ao marcar como não compareceu.');
+  } finally {
+    this.spinner.hide();
+  }
+}
  
  
    

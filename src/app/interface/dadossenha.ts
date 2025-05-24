@@ -17,6 +17,7 @@ export class DadosSenha {
     nome: string = '';
     medico: string = '';
     consultorio: string = '';
+    repetida: boolean= false;;
 
 
     

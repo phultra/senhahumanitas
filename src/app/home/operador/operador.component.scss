@@ -190,6 +190,12 @@ font-size:larger;
 }
 
 .senha-resultado {
-  background-color: white;
+  background-color: rgb(155, 152, 152);
   color: black;
+}
+ul > li > button,
+ul > li > .btn {
+  font-size: 1.4rem !important;
+  padding: 0.7rem 1.4rem !important;
+  min-width: 140px;
 }

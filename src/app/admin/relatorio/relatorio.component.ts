@@ -18,7 +18,9 @@ interface RelatorioItem {
   dataCompleta: Date;
   finalatendimento: number;
   horachamada: number;
- 
+  medico: string;
+  consultorio: string;
+  nome: string;
  
 }
 
@@ -41,7 +43,7 @@ export class RelatorioComponent {
   filtroOperador: string = '';
   filtroGuiche: string = '';
   filtroSenha: string = '';
-  filtroNota: string = '';
+  // filtroNota: string = '';
   
 
 
@@ -52,7 +54,7 @@ filtroDataFim: string = '';
   operadores: string[] = [];
   guichesList: string[] = [];
   senhasList: string[] = [];
-  notasList: number[] = [];
+  // notasList: number[] = [];
   
   
 
@@ -73,7 +75,7 @@ filtroDataFim: string = '';
     try {
       this.mostrarRelatorio = true; // Exibe a área de relatório
       const dadosArray: RelatorioItem[] = [];
-      const senhaRef = ref(this.db, `avelar/senhafinalizada`);
+      const senhaRef = ref(this.db, `humanitas/senhafinalizada`);
       const snapshot = await get(senhaRef);
   
       if (snapshot.exists()) {
@@ -98,7 +100,7 @@ filtroDataFim: string = '';
           this.operadores = [...new Set(dadosArray.map((item) => item.operador))];
           this.guichesList = [...new Set(dadosArray.map((item) => item.guiche))];
           this.senhasList = [...new Set(dadosArray.map((item) => item.senha))];
-          this.notasList = [...new Set(dadosArray.map((item) => Number(item.nota)))];
+          // this.notasList = [...new Set(dadosArray.map((item) => Number(item.nota)))];
           
        
           this.diasList = [...new Set(dadosArray.map((item) => item.dataCompleta.toLocaleDateString()))];
@@ -119,10 +121,11 @@ filtroDataFim: string = '';
               (this.filtroSemana ? this.getSemanaDoMes(valor.dataCompleta) === Number(this.filtroSemana) : true) &&
               (this.filtroOperador ? valor.operador === this.filtroOperador : true) &&
               (this.filtroGuiche ? valor.guiche === this.filtroGuiche : true) &&
-              (this.filtroSenha ? valor.senha === this.filtroSenha : true) &&
-              (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) 
+              (this.filtroSenha ? valor.senha === this.filtroSenha : true) 
+              // (!valor['medico'] || valor['medico'] === '')
+              // (this.filtroNota ? valor.nota === Number(this.filtroNota) : true) 
              
-             
+              
             );
           });
   
@@ -200,41 +203,120 @@ filtroDataFim: string = '';
   
  
 
-  formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
-    let tabelaHTML = `
-      <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+ formatarRelatorioEmTabela(dados: RelatorioItem[]): string {
+  // Primeira tabela: senhas sem médico
+  let tabelaHTML = `
+     <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px;">
+      <h4 style="text-align:center; margin-bottom: 12px;">Senhas finalizadas pelo Operador</h4>
+      <table class="table-bordered" style="width: 100%; border-collapse: collapse;">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Operador</th>
+            <th>Guichê</th>
+            <th>Senha</th>
+            <th>Duração Atendimento (ms)</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+  // Senhas sem médico
+  const semMedico = dados.filter(valor =>
+    (!valor.medico || valor.medico === '') &&
+    !(
+      (valor.nome && valor.nome.toUpperCase().includes('NÃO COMPARECEU'))
+      
+    ) 
+  );
+  for (let i = 0; i < semMedico.length; i++) {
+    const valor = semMedico[i];
+    tabelaHTML += `<tr>
+      <td>${valor.dataCompleta.toLocaleDateString() || 'Não informado'}</td>
+      <td>${valor.operador || 'Não informado'}</td>
+      <td>${valor.guiche || 'Não informado'}</td>
+      <td>${valor.senha || 'Não informado'}</td>
+      <td>${valor.duracaoAtendimento || 'Não informado'}</td>
+    </tr>`;
+  }
+  tabelaHTML += `</tbody></table></div>`;
+
+  // Segunda tabela: senhas com médico
+  const comMedico = dados.filter(valor => valor.medico && valor.medico !== '');
+  if (comMedico.length > 0) {
+    tabelaHTML += `
+      <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-top: 24px;">
+        <h4 style="text-align:center; margin-bottom: 12px;">Senhas finalizadas pelo Médico</h4>
         <table class="table-bordered" style="width: 100%; border-collapse: collapse;">
           <thead>
             <tr>
-              
               <th>Data</th>
-              <th>Operador</th>
-              <th>Guichê</th>
+              <th>Paciente</th>
+              <th>Médico</th>
+              <th>Consultório</th>
+              
               <th>Senha</th>
-              <th>Duração Atendimento (ms)</th>
-              <th>Nota</th>
               
             </tr>
           </thead>
           <tbody>`;
-  
-    for (let i = 0; i < dados.length; i++) {
-      const valor = dados[i];
+    for (let i = 0; i < comMedico.length; i++) {
+      const valor = comMedico[i];
+       if (!valor.nome || !valor.nome.toUpperCase().includes('NÃO COMPARECEU'))
       tabelaHTML += `<tr>
-                      
-                        <td>${valor.dataCompleta.toLocaleDateString() || 'Não informado'}</td>
-                        <td>${valor.operador || 'Não informado'}</td>
-                        <td>${valor.guiche || 'Não informado'}</td>
-                        <td>${valor.senha || 'Não informado'}</td>
-                        <td>${valor.duracaoAtendimento || 'Não informado'}</td>
-                        <td>${valor.nota || 'Não informado'}</td>
-                      
-                      </tr>`;
+        <td>${valor.dataCompleta.toLocaleDateString() || 'Não informado'}</td>
+        <td>${valor.nome || 'Não informado'}</td>
+        <td>${valor.medico || 'Não informado'}</td>
+        <td>${valor.consultorio || 'Não informado'}</td>
+        
+        <td>${valor.senha || 'Não informado'}</td>
+        
+      </tr>`;
     }
-  
     tabelaHTML += `</tbody></table></div>`;
-    return tabelaHTML;
   }
+
+   // Terceira tabela: senhas com "NÃO COMPARECEU" no nome, operador ou médico
+  const naoCompareceu = dados.filter(valor =>
+    (valor.nome && valor.nome.toUpperCase().includes('NÃO COMPARECEU')) ||
+    (valor.medico && valor.medico.toUpperCase().includes('NÃO COMPARECEU')) ||
+    (valor.operador && valor.operador.toUpperCase().includes('NÃO COMPARECEU'))
+  );
+  if (naoCompareceu.length > 0) {
+    tabelaHTML += `
+      <div style="max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-top: 24px;">
+        <h4 style="text-align:center; margin-bottom: 12px;">Senhas que não compareceram</h4>
+        <table class="table-bordered" style="width: 100%; border-collapse: collapse;">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Nome</th>
+              <th>Operador</th>
+              
+              <th>Médico</th>
+              
+              <th>Senha</th>
+              
+            </tr>
+          </thead>
+          <tbody>`;
+    for (let i = 0; i < naoCompareceu.length; i++) {
+      const valor = naoCompareceu[i];
+      tabelaHTML += `<tr>
+        <td>${valor.dataCompleta.toLocaleDateString() || 'Não informado'}</td>
+        <td>${valor.nome || 'Não informado'}</td>
+        <td>${valor.operador || 'Não informado'}</td>
+        
+        <td>${valor.medico || 'Não informado'}</td>
+        
+        <td>${valor.senha || 'Não informado'}</td>
+        
+      </tr>`;
+    }
+    tabelaHTML += `</tbody></table></div>`;
+  }
+
+  return tabelaHTML;
+}
 
   
 
@@ -262,106 +344,167 @@ filtroDataFim: string = '';
       this.filtroGuiche = '';
     } else if (filtro === 'senha') {
       this.filtroSenha = '';
-    } else if (filtro === 'nota') {
-      this.filtroNota = '';
     } 
+    
     this.exibirRelatorio();
   }
 
   
 
   async relatorioParaBaixar() {
-    
-    try {
-      const setoresRef = ref(this.db, 'avelar/senhafinalizada');
-      const snapshot = await get(setoresRef);
-  
-      if (snapshot.exists()) {
-        const dados = snapshot.val();
-        const dadosArray: RelatorioItem[] = Object.values(dados);
-  
-        if (dadosArray.length === 0) {
-          alert('Nenhum dado encontrado para exportação.');
-          return;
-        }
-  
-        // Criar o documento PDF
-        const doc = new jsPDF();
-        doc.text('Relatório de Senhas Finalizadas', 14, 10);
-   
-        
+  try {
+    const setoresRef = ref(this.db, 'humanitas/senhafinalizada');
+    const snapshot = await get(setoresRef);
+
+    if (snapshot.exists()) {
+      const dados = snapshot.val();
+      const dadosArray: RelatorioItem[] = Object.values(dados);
+
+      if (dadosArray.length === 0) {
+        alert('Nenhum dado encontrado para exportação.');
+        return;
+      }
+
+      // Separar os dados em dois grupos
+      const semMedico = dadosArray.filter(item =>
+  (!item.medico || item.medico === '') &&
+  !( (item.nome && item.nome.toUpperCase().includes('NÃO COMPARECEU')) )
+);
+      const comMedico = dadosArray.filter(item =>
+  item.medico && item.medico !== '' &&
+  (!item.nome || !item.nome.toUpperCase().includes('NÃO COMPARECEU'))
+);
+       const naoCompareceu = dadosArray.filter(item =>
+        (item.nome && item.nome.toUpperCase().includes('NÃO COMPARECEU'))
+      );
+
+      // Criar o documento PDF
+      const doc = new jsPDF();
+      doc.text('SENHAS POR OPERADOR(A)', 14, 10);
+
+      // Tabela 1: Senhas sem médico
+      autoTable(doc, {
+        startY: 20,
+        head: [['Data', 'Operador', 'Guichê', 'Senha', 'Duração']],
+        body: semMedico.map(item => {
+          let dataFormatada = 'N/D';
+          let timestamp = Number(item.finalatendimento);
+          if (timestamp && !isNaN(timestamp)) {
+            const data = new Date(timestamp);
+            if (!isNaN(data.getTime())) {
+              dataFormatada = data.toLocaleDateString();
+            }
+          }
+          let duracaoFormatada = 'N/D';
+          let finalAtendimento = item.finalatendimento;
+          let horaChamada = item.horachamada;
+          if (finalAtendimento && horaChamada) {
+            let duracao = finalAtendimento - horaChamada;
+            if (!isNaN(duracao) && duracao > 0) {
+              duracaoFormatada = duracao + 'ms';
+            }
+          }
+          return [
+            dataFormatada,
+            item.operador || 'N/D',
+            item.guiche || 'N/D',
+            item.senha || 'N/D',
+            duracaoFormatada,
+          ];
+        }),
+        theme: 'grid'
+      });
+
+      // Tabela 2: Senhas com médico
+      if (comMedico.length > 0) {
+        // Espaço entre as tabelas
+        let finalY = (doc as any).lastAutoTable.finalY || 30;
+        doc.text('SENHAS POR MÉDICO(A)', 14, finalY + 10);
+
         autoTable(doc, {
-          startY: 20,
-          head: [[ 'Data', 'Operador', 'Guichê', 'Senha', 'Duração', 'Nota']],
-          body: dadosArray.map(item => {
-            // Verificando o valor de finalatendimento antes de tentar criar a data
-            console.log("Valor de finalatendimento:", item.finalatendimento); 
-            
-            let dataFormatada = 'N/D'; // Valor padrão em caso de erro
-            
-            // Convertendo explicitamente para número (caso seja uma string numérica)
-            let timestamp = Number(item.finalatendimento); 
-            
-            // Verificar se o valor é um número válido (timestamp)
+          startY: finalY + 15,
+          head: [['Data','Paciente', 'Médico', 'Consultório', 'Senha']],
+          body: comMedico.map(item => {
+            let dataFormatada = 'N/D';
+            let timestamp = Number(item.finalatendimento);
             if (timestamp && !isNaN(timestamp)) {
               const data = new Date(timestamp);
-              
-              // Verificar se a data é válida
               if (!isNaN(data.getTime())) {
                 dataFormatada = data.toLocaleDateString();
               }
             }
-            
-           
-            
-            let duracaoFormatada = 'N/D'; // Valor padrão em caso de erro
-        
-            // Verificar se finalAtendimento e horaChamada estão definidos e são números válidos
+            let duracaoFormatada = 'N/D';
             let finalAtendimento = item.finalatendimento;
             let horaChamada = item.horachamada;
-        
             if (finalAtendimento && horaChamada) {
-              // Calcular a duração (em milissegundos)
               let duracao = finalAtendimento - horaChamada;
-        
-              // Verificar se a duração é válida
               if (!isNaN(duracao) && duracao > 0) {
                 duracaoFormatada = duracao + 'ms';
-              } else {
-                console.log("Duração inválida (finalAtendimento ou horaChamada):", finalAtendimento, horaChamada);
               }
-            } else {
-              console.log("Valores inválidos para finalAtendimento ou horaChamada:", finalAtendimento, horaChamada);
             }
-        
             return [
-             
               dataFormatada,
-              item.operador || 'N/D',
-              item.guiche || 'N/D',
-              item.senha || 'N/D',
-              duracaoFormatada,
-              item.nota || 'N/D',
-             
+              item.nome || 'N/D',
+              item.medico || 'N/D',
+              item.consultorio || 'N/D',
+              item.senha || 'N/D'
+              
             ];
           }),
           theme: 'grid'
         });
-        
-        
-        
-        
-  
-        // Baixar o PDF
-        doc.save(`relatorio_${new Date().toISOString().slice(0, 10)}.pdf`);
-      } else {
-        alert('Nenhum dado encontrado.');
       }
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      alert('Erro ao gerar o relatório em PDF.');
+       // Tabela 3: Senhas com "NÃO COMPARECEU" no nome
+      if (naoCompareceu.length > 0) {
+        let finalY = (doc as any).lastAutoTable.finalY || 30;
+        doc.text('SENHAS QUE NÃO COMPARECERAM', 14, finalY + 10);
+
+        autoTable(doc, {
+          startY: finalY + 15,
+          head: [['Data', 'Nome', 'Operador',  'Médico',  'Senha']],
+          body: naoCompareceu.map(item => {
+            let dataFormatada = 'N/D';
+            let timestamp = Number(item.finalatendimento);
+            if (timestamp && !isNaN(timestamp)) {
+              const data = new Date(timestamp);
+              if (!isNaN(data.getTime())) {
+                dataFormatada = data.toLocaleDateString();
+              }
+            }
+            let duracaoFormatada = 'N/D';
+            let finalAtendimento = item.finalatendimento;
+            let horaChamada = item.horachamada;
+            if (finalAtendimento && horaChamada) {
+              let duracao = finalAtendimento - horaChamada;
+              if (!isNaN(duracao) && duracao > 0) {
+                duracaoFormatada = duracao + 'ms';
+              }
+            }
+            return [
+              dataFormatada,
+              item.nome || 'N/D',
+              item.operador || 'N/D',
+              
+              item.medico || 'N/D',
+              
+              item.senha || 'N/D',
+              
+            ];
+          }),
+          theme: 'grid'
+        });
+      }
+
+      // Baixar o PDF
+      doc.save(`relatorio_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } else {
+      alert('Nenhum dado encontrado.');
     }
+  } catch (error) {
+    console.error('Erro ao gerar PDF:', error);
+    alert('Erro ao gerar o relatório em PDF.');
   }
+}
   
 
 

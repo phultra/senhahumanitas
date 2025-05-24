@@ -17,7 +17,7 @@
                 <tr>
                   <th>Nome</th>
                   <th>Email</th>
-                  <th>Setor</th>
+                  
                   <th>Função</th>
                   
                   <th>Excluir Usuário</th>
@@ -27,10 +27,10 @@
                 <tr *ngFor="let usuario of usuariosSalvos">
                   <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
-                  <td>{{ usuario.funcao }}</td>
+                  
                   
                   <td>
-                   
+                   {{ usuario.funcao }}
                   </td>
                    <!-- Botão para excluir o usuario -->
                     <td> 
@@ -47,6 +47,36 @@
           <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
           <button (click)="confirmarApagarNos()" class="btn btn-danger ml-3" style="margin-left: 10px;">Reiniciar Senhas</button>
         </div>
+
+        <!-- Tabela de Senhas Chamada -->
+<div *ngIf="mostrarSenhasChamada" class="senhas-chamada-container" style="background-color: #003366;">
+  <h3 class="text-white">Senhas em Chamada</h3>
+  <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
+    <thead>
+      <tr>
+        <th>Senha</th>
+        <th>Operador/Médico</th>
+        <th>Setor</th>
+        <th>Apagar</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of senhasChamada">
+        <td>{{ item.senha }}</td>
+        <td>{{ item.operadorOuMedico }}</td>
+        <td>{{ item.setor }}</td>
+        <td>
+  <button class="btn btn-danger btn-sm" (click)="apagarSenhaChamada(item)">
+    Apagar Senha
+  </button>
+</td>
+      </tr>
+    </tbody>
+  </table>
+  <button class="btn btn-danger mt-3" (click)="apagarTodasSenhasChamada()">
+    Apagar TODAS as Senhas
+  </button>
+</div>
       </div>
     </div>
   </div>

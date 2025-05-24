@@ -15,12 +15,12 @@
                     <td>
                       <!-- Exibe PACIENTE ou SENHA -->
                       <h3>{{ psenha && pguiche ? (pguiche === pconsultorio ? 'PACIENTE' : 'SENHA') : '' }}</h3>
-                      <h1 class="display-1" style="color: blue;">
+                      <h1 class="display-1" style="color: rgb(33, 143, 0);">
                         <b><strong>{{ psenha }}</strong></b>
                       </h1>
                       <!-- Exibe CONSULTÓRIO ou GUICHÊ -->
                       <h3>{{ pguiche !== '00' ? (pguiche === pconsultorio ? 'CONSULTÓRIO' : 'GUICHÊ') : '' }}</h3>
-                      <h1 class="display-1" style="color: blue;">
+                      <h1 class="display-1" style="color:  rgb(33, 143, 0);">
                         <b><strong>{{ pguiche }}</strong></b>
                       </h1>
                     </td>
@@ -55,18 +55,18 @@
       <div class="header text-center">
         <a>
           <ng-container *ngIf="senha.nome && senha.consultorio; else convencional">
-            <h4 class="card-title" style="color: blue;">
-              <b>PACIENTE: {{ senha.nome }}</b>
+            <h4 class="card-title" style="color:  rgb(33, 143, 0);">
+              <b>{{ senha.nome }}</b>
             </h4>
-            <h3 class="card-text" style="color: blue;">
+            <h3 class="card-text" style="color: rgb(33, 143, 0);">
               <small>CONSULTÓRIO: {{ senha.consultorio }}</small>
             </h3>
           </ng-container>
           <ng-template #convencional>
-            <h4 class="card-title" style="color: blue;">
+            <h4 class="card-title" style="color:  rgb(33, 143, 0);">
               <b>SENHA: {{ senha.senha }}</b>
             </h4>
-            <h3 class="card-text" style="color: blue;">
+            <h3 class="card-text" style="color: rgb(33, 143, 0);">
               <small>GUICHÊ: {{ senha.guiche }}</small>
             </h3>
           </ng-template>
@@ -81,7 +81,7 @@
 
      <!-- Exibe o logotipo centralizado e maior -->
      <div class="d-flex justify-content-center mb-2 logo-position">
-      <img style="width: 40%;" src="./assets/img/logoazul.png" />
+      <img style="width: 40%;" src="./assets/img/logohumanitas.png" />
     </div>
   </div>
 </section>

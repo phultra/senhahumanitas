@@ -59,14 +59,12 @@ siglasSetores: Record<string, string> = {
   // Método inicial executado ao carregar o componente
  async ngOnInit(){
   // Verifica se o usuário está autenticado ao carregar o componente
-  if (!this.authService.isUserAuthenticated()) {
-    this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
-  } else {
+ {
     //this.formbuilder();
    // this.formBusca();
     this.convencional = false;
     this.selecionarSetor
-    await this.carregarSetores();
+   
    await this.adminService.getContadorSenhaConvencional().subscribe( d => {
         
       console.log(d);
@@ -85,19 +83,7 @@ siglasSetores: Record<string, string> = {
 // Método para apagar o contador de senhas e limpar as senhas geradas
 
   // Carrega os setores do Firebase
-  async carregarSetores() {
-    const setoresRef = ref(this.db, `avelar/setor`);
-    const snapshot = await get(setoresRef);
-
-    if (snapshot.exists()) {
-      const setoresData = snapshot.val() as Record<string, { setor: string }>;
-      this.setoresDisponiveis = Object.values(setoresData).map((item) => item.setor);
-  
-     
-    } else {
-      console.log('Nenhum setor encontrado no banco de dados.');
-    }
-  }
+ 
 
    // Método para selecionar um setor e avançar para a tela de senhas
    selecionarSetor(setor: string) {
@@ -138,7 +124,7 @@ async novaSenhaPreferencial() {
   const siglaSetor = this.siglasSetores[this.setorSelecionado] || 'GEN';
 
      // Recuperar contador de senhas
-  const contadorRef = ref(this.db, `avelar/senhacontador/${siglaSetor}`);
+  const contadorRef = ref(this.db, `humanitas/senhacontador/${siglaSetor}`);
   const snapshotContador = await get(contadorRef);
   let contador = snapshotContador.exists() ? snapshotContador.val() : 0;
 
