@@ -17,7 +17,7 @@ export class MedicosComponent {
 
   salvarMedico() {
     if (this.nome.trim()) {
-      const medicosRef = ref(this.db, 'medicos');
+      const medicosRef = ref(this.db, `medicos`)
 
       // Obtém os médicos existentes para calcular o próximo número
       get(child(medicosRef, '/')).then((snapshot) => {
