@@ -385,7 +385,7 @@ cadastrarConvencional() {
   senha.status = '3'; // Status "finalizado"
 
   try {
-    const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+    const senhafinalizadaPath = `humanitas/senhafinalizada/${time}`;
     const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
     // const novoIdPath = `avelar/senhachamada/1`;
     // Mover a senha para o nó `senhafinalizada`
@@ -445,23 +445,23 @@ async mostrarSenhasNaoAtendidas() {
    if (dado) {
   //  const todasSenhas = Object.values(dado.val()) as DadosSenha[];
     // Filtra as senhas com base no médico e consultório selecionados
-     this.senhasDisponiveis = await dado.filter(senha => senha.medico === 'Gabriel');
+     this.senhasDisponiveis = await dado.filter(senha => senha.medico === this.formulario.value.nome && senha.nome);// Garante que o campo nome não esteja vazio
    //console.log("Senhas do Gabriel:", this.senhasDisponiveis);
     console.log("Senhas disponíveis atualizadas:", this.senhasDisponiveis);
   } else {
     this.senhasDisponiveis = [];
     console.warn("Nenhuma senha encontrada.");
   }
-   this.senhasDisponiveis = dado.filter(senha => senha.medico === 'Gabriel');
-   console.log("Senhas do Gabriel:", this.senhasDisponiveis);
+  // this.senhasDisponiveis = dado.filter(senha => senha.medico === 'Gabriel');
+ //  console.log("Senhas do Gabriel:", this.senhasDisponiveis);
 
     // Agora você pode iterar sobre 'senhasDoGabriel' para processá-las
-    this.senhasDisponiveis.forEach(senha => {
+   // this.senhasDisponiveis.forEach(senha => {
       // Faça algo com cada senha do Gabriel
-      console.log(`Senha: ${senha.senha}, Paciente: ${senha.nome}, Médico: ${senha.medico}`);
+     // console.log(`Senha: ${senha.senha}, Paciente: ${senha.nome}, Médico: ${senha.medico}`);
       // Exemplo: Você pode adicionar essas senhas a uma propriedade no seu componente
       // this.minhasSenhas = senhasDoGabriel;
-    });
+  //  });
  })
 }
  

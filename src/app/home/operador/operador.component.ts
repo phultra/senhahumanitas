@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { get, getDatabase, ref, set, update } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { AuthService } from '../../service/auth/auth.service';
+import { Consultorio } from '../../interface/consultorio';
 
 
 // Importar o Modal do Bootstrap
@@ -313,7 +314,7 @@ buscarSenhasDoSetor(): Promise<DadosSenha[]> {
 }
 
 // Método que só chama a senha quando o botão for clicado
-chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
+chamarSenhaConvencional(senhaSelecionada?: DadosSenha) {
   // Verifica se há uma senha em andamento e se ela não foi finalizada
   if (this.senhaOperadorPainel && this.senhaOperadorPainel.status && this.senhaOperadorPainel.status !== '3') {
     alert('Finalize a senha atual antes de chamar uma nova!');
@@ -361,6 +362,12 @@ chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = fals
       setor: senha.setor,
       preferencial: senha.preferencial || false,
       nome: senha.nome || '',
+      consultorio: senha.consultorio || '',
+      finalatendimento: '',
+      horagerada: senha.horaGeracao,
+      medico:''
+
+
     }
   })
     .then(() => {
@@ -482,63 +489,107 @@ salvarDadosPaciente() {
               senha.medico = this.dadosPaciente.medico;
             // senha.consultorio = this.dadosPaciente.consultorio;
               const time = Date.now().toString();
-              senha.finalatendimento = time;
+              //senha.finalatendimento = time;
               senha.status = '3'; // Status "finalizado"
               // Atualizar no nó `senhachamada`
               await update(ref(this.db, senhachamadaPath), {
                 nome: senha.nome,
                 medico: senha.medico,
                 // consultorio: senha.consultorio,
-                finalatendimento: '',
+                finalatendimento: time,
                 status: senha.status
               });
            // console.log('Senha atualizada no nó senhachamada:', senha);
       } else if (senha.setor === 'REALIZAR AGENDAMENTO') {
+            if(!this.dadosPaciente.nome ) {
+              const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+              const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+              const time = Date.now().toString();
+              await update(ref(this.db), {
+                  [senhafinalizadaPath]: {
+                    ...senha,
+                    finalatendimento: time
+                  },
+                  [senhachamadaPath]: null // Remove do nó `senhachamada`
+                });
+
+                this.senhaOperadorPainel.status = ''
+                this.senhaOperadorPainel.senha = ''
+                this.senhaOperadorPainel.setor = ''
+
+            } else {
               this.senhaOperadorPainel.senha = '';
               const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
               senha.nome = this.dadosPaciente.nome;
               senha.medico = this.dadosPaciente.medico;
             // senha.consultorio = this.dadosPaciente.consultorio;
               const time = Date.now().toString();
-              senha.finalatendimento = time;
+             // senha.finalatendimento = time;
               senha.status = '3'; // Status "finalizado"
               // Atualizar no nó `senhachamada`
               await update(ref(this.db, senhachamadaPath), {
                 nome: senha.nome,
                 medico: senha.medico,
                 // consultorio: senha.consultorio,
-                finalatendimento: '',
+                finalatendimento: time,
                 status: senha.status
               });
-            console.log('Senha atualizada no nó senhachamada:', senha);
+               this.senhaOperadorPainel.status = ''
+               this.senhaOperadorPainel.senha = ''
+               this.senhaOperadorPainel.setor = ''
+            }
+            //console.log('Senha atualizada no nó senhachamada:', senha);
       }else if (senha.setor === 'EXAME') {
-                this.senhaOperadorPainel.senha = '';
+            if(!this.dadosPaciente.nome) {
+              const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+              const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+              const time = Date.now().toString();
+              await update(ref(this.db), {
+                  [senhafinalizadaPath]: {
+                    ...senha,
+                    finalatendimento: time
+                  },
+                  [senhachamadaPath]: null // Remove do nó `senhachamada`
+                });
+                  this.senhaOperadorPainel.status = ''
+                  this.senhaOperadorPainel.senha = ''
+                   this.senhaOperadorPainel.setor = ''
+            } else {
+                
                 const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
                 senha.nome = this.dadosPaciente.nome;
                 senha.medico = this.dadosPaciente.medico;
               // senha.consultorio = this.dadosPaciente.consultorio;
                 const time = Date.now().toString();
-                senha.finalatendimento = time;
+               // senha.finalatendimento = time;
                 senha.status = '3'; // Status "finalizado"
                 // Atualizar no nó `senhachamada`
                 await update(ref(this.db, senhachamadaPath), {
                   nome: senha.nome,
                   medico: senha.medico,
                   // consultorio: senha.consultorio,
-                  finalatendimento: '',
+                  finalatendimento: time,
                   status: senha.status
                 });
-              console.log('Senha atualizada no nó senhachamada:', senha);
+                this.senhaOperadorPainel.senha = '';
+                this.senhaOperadorPainel.status = ''
+                this.senhaOperadorPainel.setor = ''
+              }
+            //  console.log('Senha atualizada no nó senhachamada:', senha);
       } else if (senha.setor === 'RESULTADO DE EXAMES'){
         this.senhaOperadorPainel.senha = '';
+         this.senhaOperadorPainel.status = ''
+          this.senhaOperadorPainel.setor = ''
+         const time = Date.now().toString();
+        
         const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
         const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
-             
+        
         // Mover para o nó `senhafinalizada`
                 await update(ref(this.db), {
                   [senhafinalizadaPath]: {
                     ...senha,
-                    finalatendimento: senha.finalatendimento
+                    finalatendimento: time
                   },
                   [senhachamadaPath]: null // Remove do nó `senhachamada`
                 });
