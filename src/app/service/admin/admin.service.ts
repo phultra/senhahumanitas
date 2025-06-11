@@ -1,9 +1,9 @@
 import { Injectable, inject } from '@angular/core';
 
-import { Firestore,  collection,  collectionData,  deleteDoc,  doc, setDoc, updateDoc } from '@angular/fire/firestore';
+//import { Firestore,  collection,  collectionData,  deleteDoc,  doc, setDoc, updateDoc } from '@angular/fire/firestore';
 import { DadosSenha } from '../../interface/dadossenha';
 import { Observable } from 'rxjs';
-import { Database, get, getDatabase, onValue, ref, remove, set, update } from '@angular/fire/database';
+import { Database, get, getDatabase, onValue, ref, remove, set, update,orderByChild, equalTo, off} from '@angular/fire/database';
 import { DadosContador } from '../../interface/dadoscontador';
 import { HttpClient } from '@angular/common/http';
 import { getFirestore, query, where } from 'firebase/firestore';
@@ -15,7 +15,7 @@ import { getAuth } from 'firebase/auth';
 export class AdminService {
  
   //variável para acessar o FIRESTORE
-  private firestore = inject(Firestore);
+  //private firestore = inject(Firestore);
   private database = inject(Database);
   dadosSenha: DadosSenha = new DadosSenha;
   private apimpresao = 'http://localhost:3000/dados';
@@ -23,7 +23,7 @@ export class AdminService {
   constructor(
     private http: HttpClient,
     ) { 
-      this.firestore = getFirestore(); // Inicializa o Firestore
+     // this.firestore = getFirestore(); // Inicializa o Firestore
     }
 
 
@@ -47,10 +47,10 @@ export class AdminService {
    // Salva uma nova senha no Firestore em uma coleção chamada 'senhagerada'    
   async salvaSenhaEvento(senha: DadosSenha) {
    // let time = Date.now().toString();
-    let salvaSenha = doc(this.firestore,'senhagerada'+'/'+ senha.senhaid);
+   // let salvaSenha = doc(this.firestore,'senhagerada'+'/'+ senha.senhaid);
     let preferencial = false
 
-    await setDoc(salvaSenha, {
+   /* await setDoc(salvaSenha, {
       senhaid: senha.senhaid,
       guiche: senha.guiche,
       setor: senha.setor,
@@ -71,7 +71,7 @@ export class AdminService {
      .catch(e =>{
        console.log(e);
     
-    })
+    })*/
   }
 
 
@@ -191,7 +191,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
   
 
 // Atualiza os contadores de senhas (normal e preferencial) no Firestore
- async salvaSenhaChamada(data:DadosSenha){
+ /*async salvaSenhaChamada(data:DadosSenha){
   let salvaSenhaChamada = doc(this.firestore,'senhapainel'+'/'+ data.horachamada);
   await setDoc(salvaSenhaChamada, {
     cliente: data.cliente,
@@ -215,11 +215,11 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
   
   })
  
-  }
+  }*/
 
 
   //Registra uma senha finalizada no Firestore, na coleção senhafinalizada, utilizando finalatendimento como identificador.
-async salvaSenhafinalizada(data:DadosSenha){
+/*async salvaSenhafinalizada(data:DadosSenha){
     let salvaSenhaChamada = doc(this.firestore,'senhafinalizada'+'/'+ data.finalatendimento);
     await setDoc(salvaSenhaChamada, {
             data
@@ -232,18 +232,18 @@ async salvaSenhafinalizada(data:DadosSenha){
     
     })
    
-    }
+    }*/
    
   
   //Retorna um Observable que emite os dados da coleção senhacontador do Firestore.
-  getContador(): Observable<DadosContador[]> {
+  /*getContador(): Observable<DadosContador[]> {
     const senhasCollection = collection(this.firestore, 'senhacontador');
     return collectionData<DadosContador>(senhasCollection, { idField: 'id' }) as Observable<DadosContador[]>;
-  }
+  }*/
 
 
  // Retorna um Observable que emite os dados da coleção senhagerada do Firestore
-getSenhasGeradas(): Observable<DadosSenha[]> {
+/*getSenhasGeradas(): Observable<DadosSenha[]> {
   const db = getDatabase(); // Obtenha a instância do banco de dados
   const auth = getAuth(); // Obtenha a instância de autenticação, caso seja necessário
 
@@ -270,6 +270,28 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
       observer.error(error); // Em caso de erro, emite um erro
     });
   });
+}*/
+
+//Retorna um Observable que devolve senhas para medicos
+getSenhasGeradas(): Observable<any[]> {
+ 
+  const dbRef = ref(this.database, 'humanitas/senhagerada');
+ 
+  return new Observable(observer => {
+    onValue(dbRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const itens: any[] = [];
+        snapshot.forEach((childSnapshot) => {
+          itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+        });
+        observer.next(itens);
+      } else {
+        observer.next([]);
+      }
+    }, (error) => {
+      observer.error(error);
+    });
+  });  
 }
 
 
@@ -366,7 +388,79 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
       return []
     }
   }
+
+  //Retorna um Observable que devolve medicos cadastrados
+  getMedicoCadastrados(): Observable<any[]> {
+    const dat = new Date();
+    let dia = dat.getDate();
+     console.log(dia);
+    const dbRef = ref(this.database, 'medicos');
+   
+    return new Observable(observer => {
+      onValue(dbRef, (snapshot) => {
+        if (snapshot.exists()) {
+          const itens: any[] = [];
+          snapshot.forEach((childSnapshot) => {
+            itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+          });
+          observer.next(itens);
+        } else {
+          observer.next([]);
+        }
+      }, (error) => {
+        observer.error(error);
+      });
+    });  
+  }
+
+ //Retorna um Observable que devolve medicos cadastrados
+ getConsultoiosCadastrados(): Observable<any[]> {
  
+  const dbRef = ref(this.database, 'consultorios');
+ 
+  return new Observable(observer => {
+    onValue(dbRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const itens: any[] = [];
+        snapshot.forEach((childSnapshot) => {
+          itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+        });
+        observer.next(itens);
+      } else {
+        observer.next([]);
+      }
+    }, (error) => {
+      observer.error(error);
+    });
+  });  
+}
+
+//Retorna um Observable que devolve senhas para medicos
+getSenhasParaMedico(): Observable<any[]> {
+ 
+  const dbRef = ref(this.database, 'humanitas/senhachamada');
+ 
+  return new Observable(observer => {
+    onValue(dbRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const itens: any[] = [];
+        snapshot.forEach((childSnapshot) => {
+          itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+        });
+        observer.next(itens);
+      } else {
+        observer.next([]);
+      }
+    }, (error) => {
+      observer.error(error);
+    });
+  });  
+}
+
+
+
+
+
  
   //Atualiza os dados de uma senha no Realtime Database na referência avelar/senhagerada/{dia}/{id}
   updateSenhaRealtimeConvencional(id: string, data: Partial<DadosSenha>): Promise<void> {
@@ -378,10 +472,10 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
 
   
   //Atualiza os dados de uma senha no Firestore dentro da coleção senhagerada.
-  updateSenha(id: string, data: Partial<DadosSenha>): Promise<void> {
+  /*updateSenha(id: string, data: Partial<DadosSenha>): Promise<void> {
     const senhaDocRef = doc(this.firestore, `senhagerada/${id}`);
     return updateDoc(senhaDocRef, data);
-  }
+  }*/
 
   
   //Atualiza os dados de uma chamada de senha no Realtime Database na referência avelar/senhachamada/{id}.
@@ -393,20 +487,20 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
 
 
   //Atualiza os dados de uma chamada de senha no Firestore dentro da coleção senhapainel.
-  updateSenhaChamada(id: string, data: Partial<DadosSenha>): Promise<void> {
+  /*updateSenhaChamada(id: string, data: Partial<DadosSenha>): Promise<void> {
     const senhaDocRef = doc(this.firestore, `senhapainel/${id}`);
     return updateDoc(senhaDocRef, data);
-  }
+  }*/
 
 
   //Remove uma senha das coleções senhagerada e senhapainel no Firestore e salva a senha finalizada na coleção senhafinalizada.
- deleteSenhaChamada(senhafinalizada: DadosSenha){
+ /*deleteSenhaChamada(senhafinalizada: DadosSenha){
     this.salvaSenhafinalizada(senhafinalizada);
     const senhaDoc = doc(this.firestore, `senhagerada/${senhafinalizada.senhaid}`);
     const senhaDoc2 = doc(this.firestore, `senhapainel/${senhafinalizada.horachamada}`);
     deleteDoc(senhaDoc);
     return deleteDoc(senhaDoc2);
-  }
+  }*/
 
   
   //Remove uma senha chamada no Realtime Database na referência avelar/senhachamada/{id}.
@@ -417,6 +511,24 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
     // Executa a operação de remoção
     return remove(senhaRef);
   }
+
+  //Remove MEDICO CADASTRADO
+  deletaMedico(id: string): Promise<void> {
+    // Cria uma referência ao item que deseja excluir no Realtime Database
+    const senhaRef = ref(this.database, `medicos/${id}`);
+    
+    // Executa a operação de remoção
+    return remove(senhaRef);
+  }
+
+    //REMOVE CONSULTÓRIO CADASTRADO
+    deletaConsultorio(id: string): Promise<void> {
+      // Cria uma referência ao item que deseja excluir no Realtime Database
+      const senhaRef = ref(this.database, `consultorios/${id}`);
+      
+      // Executa a operação de remoção
+      return remove(senhaRef);
+    }
 
  
 }

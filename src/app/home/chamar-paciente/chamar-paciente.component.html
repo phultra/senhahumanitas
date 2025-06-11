@@ -21,12 +21,12 @@ type="ball-scale-multiple"
     
     <!-- Botao para chamar senha -->
     <div class="col-md-6 mt-5">
-    <button 
+    <!--<button 
   class="btn botao" 
   (click)="chamarSenhaConvencional()" 
   [disabled]="!!(senhaOperadorPainel && senhaOperadorPainel.status && senhaOperadorPainel.status !== '3')">
   CHAMAR PACIENTE
-</button>
+</button>-->
     </div>
    
    
@@ -43,51 +43,54 @@ type="ball-scale-multiple"
     <div class="container-fluid">
       <table class="table table-overflow">
         <thead>
-          <tr>
+          <tr class="text-center">
             <th scope="col">#</th>
-            <th scope="col"></th>
-            <th scope="col">PACIENTE</th>
+            <th scope="col">PACIENTES</th>
             <th scope="col">CHAMAR PACIENTE</th>
             <th scope="col">REPETIR CHAMADA</th>
             <th scope="col">FINALIZAR</th>
             <th>NÃO COMPARECEU</th>
-            <th scope="col">PACIENTES</th>
+           
           </tr>
           
         </thead>
         <tbody>
-          <tr >
+          <tr *ngFor="let senha of senhasDisponiveis" class="text-center">
              <!-- Dados do cliente e senha sendo atendida -->
             <th scope="row"></th>
-            <td>{{senhaOperadorPainel.cliente}}</td>
-            <td>{{senhaOperadorPainel.nome}}</td>
-            
+            <td>
+                <!-- Lista de Senhas -->
+                <div class="col-md-12">       
+                  <ul>
+                    <li >
+                    {{ senha.nome }}
+                    </li>
+                  </ul>
+                </div>
+            </td>
+            <td>
+                <button *ngIf="senha.status ==='3'"
+                    class="btn botao" 
+                    (click)="chamarSenhaConvencional(senha)" 
+                    [disabled]="!!(senhaOperadorPainel && senhaOperadorPainel.status && senhaOperadorPainel.status !== '3')">
+                    CHAMAR PACIENTE
+               </button>
+               <button *ngIf="senha.status ==='2'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button>
+               <button *ngIf="senha.status ==='1'" class="btn btn-warning btn-lg btn-block"  >CHAMANDO PACIENTE</button>
+            </td>
             <!-- Botões de ações para a senha -->
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirsenha(senhaOperadorPainel)">REPETIR CHAMADA</button></td>
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'"type="button" class="btn btn-primary btn-lg btn-block" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
-              
-             <td> <button
-    *ngIf="senhaOperadorPainel.status === '1'"
-    class="btn btn-warning btn-lg btn-block"
-    style="color: #222; font-weight: bold;"
-    (click)="naoCompareceu(senhaOperadorPainel)">
-    NÃO COMPARECEU
-  </button></td>
-          
-            <td class = "align-top">
-             
-              
-     <!-- Lista de Senhas -->
-<div class="col-md-12">
-          
-          <ul>
-            <li *ngFor="let senha of senhasDisponiveis">
-             {{ senha.nome }}
-            </li>
-  </ul>
-</div>
             
+            <td ><button *ngIf="senha.status ==='2'" class="btn btn-primary btn-lg btn-block" (click)="repetirsenha(senha)">REPETIR CHAMADA</button></td>
+            <td ><button *ngIf="senha.status ==='2'"type="button" class="btn btn-primary btn-lg btn-block" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button></td>
+              
+            <td> <button
+                    *ngIf="senha.status === '2'"
+                    class="btn btn-warning btn-lg btn-block"
+                    style="color: #222; font-weight: bold;"
+                    (click)="naoCompareceu(senhaOperadorPainel)">
+                    NÃO COMPARECEU
+                  </button>
+            </td>
           </tr>
        </tbody>
       </table>

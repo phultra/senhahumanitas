@@ -19,4 +19,40 @@
       <button type="submit">Salvar</button>
     </form>
   </section>
+
+  <section class="mt-5">
+    <!-- Tabela de Medicos cadastrados -->
+    <div class="usuarios-container" style="background-color: #003366;">
+      <h3 class="text-white">Medicos Cadastrados</h3>
+      <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            
+            <th>Excluir Usuário</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let usuario of medicos">
+            <td>{{ usuario.nome }}</td>
+            <!--<td>{{ usuario.email }}</td>-->
+            
+            
+            <!--<td>
+             {{ usuario.funcao }}
+            </td>-->
+             <!-- Botão para excluir o usuario -->
+              <td> 
+                <button *ngIf="usuario" (click)="excluirmedico(usuario)" class="btn-danger">
+                  Excluir Usuário
+                </button>
+              </td>
+            </tr>
+          </tbody>
+         </table>
+  
+  </div>
+  </section>
 </section>
+
+

@@ -2,18 +2,30 @@ import { Component } from '@angular/core';
 import { MenuComponent } from "../menu/menu/menu.component";
 import { FormsModule } from '@angular/forms';
 import { Database, push, ref, set, get, child } from '@angular/fire/database';
+import { AdminService } from '../../service/admin/admin.service';
+import { Consultorio } from '../../interface/consultorio';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-consultorios',
   standalone: true,
-  imports: [MenuComponent, FormsModule],
+  imports: [MenuComponent, FormsModule, CommonModule],
   templateUrl: './consultorios.component.html',
   styleUrl: './consultorios.component.scss'
 })
 export class ConsultoriosComponent {
   numero: string = '';
+  consultorio: Consultorio[]=[];
 
-  constructor(private db: Database) {}
+  constructor(
+    private db: Database,
+    private adminService: AdminService
+  ) {}
+
+ async ngOnInit() {
+    await this.getConsultorio();
+  }
+
 
   salvarConsultorio() {
     if (this.numero.trim()) {
@@ -46,4 +58,21 @@ export class ConsultoriosComponent {
       alert('Por favor, insira o número do consultório.');
     }
   }
+
+  async getConsultorio(){
+    
+   this.adminService.getConsultoiosCadastrados().subscribe(dados =>{
+    this.consultorio = dados;
+    console.log(dados);
+   });
+    
+    
+    }
+
+    excluirmedico(med: Consultorio) {
+
+      this.adminService.deletaConsultorio(med.key);
+    }
+  
+  
 }
