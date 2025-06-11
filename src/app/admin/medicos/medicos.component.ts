@@ -2,22 +2,39 @@ import { Component } from '@angular/core';
 import { MenuComponent } from "../menu/menu/menu.component";
 import { FormsModule } from '@angular/forms';
 import { Database, push, ref, set, child, get } from '@angular/fire/database';
+import { AdminService } from '../../service/admin/admin.service';
+import { Medicos } from '../../interface/medicos';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-medicos',
   standalone: true,
-  imports: [MenuComponent, FormsModule],
+  imports: [MenuComponent, FormsModule, CommonModule],
   templateUrl: './medicos.component.html',
   styleUrl: './medicos.component.scss'
 })
 export class MedicosComponent {
   nome: string = '';
+  medicos:Medicos[] = [];
 
-  constructor(private db: Database) {}
+  constructor(
+    private db: Database,
+    private adminService: AdminService
+  ) {}
+  ngOnInit() {
+    this.getMedicos();
+  }
+
+ async getMedicos(){
+  await this.adminService.getMedicoCadastrados().subscribe(async dados => {
+    this.medicos = await dados;
+    console.log(dados);
+   })
+  }
 
   salvarMedico() {
     if (this.nome.trim()) {
-      const medicosRef = ref(this.db, 'medicos');
+      const medicosRef = ref(this.db, `medicos`)
 
       // Obtém os médicos existentes para calcular o próximo número
       get(child(medicosRef, '/')).then((snapshot) => {
@@ -42,4 +59,14 @@ export class MedicosComponent {
       alert('Por favor, insira um nome.');
     }
   }
+
+
+
+  excluirmedico(med: Medicos) {
+
+    this.adminService.deletaMedico(med.key);
+  }
+
+  
+
 }

@@ -10,6 +10,7 @@ import { RelatorioComponent } from './admin/relatorio/relatorio.component';
 import { ChamarPacienteComponent } from './home/chamar-paciente/chamar-paciente.component';
 import { MedicosComponent } from './admin/medicos/medicos.component';
 import { ConsultoriosComponent } from './admin/consultorios/consultorios.component';
+import { authGuard } from './auth.guard';
 
 export const routes: Routes = [
 
@@ -17,13 +18,14 @@ export const routes: Routes = [
     {'path': 'inicio', component: GeradorsenhaComponent},
     {'path': 'operador', component: OperadorComponent},
     {'path': 'painel', component: PainelComponent},
-    {'path': 'admin', component: AdminComponent},
+    {'path': 'medico', component: ChamarPacienteComponent},
     {'path': 'login', component: LoginComponent},
-   
-    {'path': 'usuarios', component: UsuariosComponent},
-    {'path': 'relatorio', component: RelatorioComponent},    
-    {'path': 'chamarPaciente', component: ChamarPacienteComponent},
-    {'path': 'medicos', component: MedicosComponent},
-    {'path': 'consultorios', component: ConsultoriosComponent},
+
+
+    {'path': 'admin', component: AdminComponent, canActivate: [authGuard]},
+    {'path': 'usuarios', component: UsuariosComponent, canActivate: [authGuard] },
+    {'path': 'relatorio', component: RelatorioComponent, canActivate: [authGuard]},    
+    {'path': 'medicos', component: MedicosComponent, canActivate: [authGuard]},
+    {'path': 'consultorios', component: ConsultoriosComponent, canActivate: [authGuard]},
 ];
 

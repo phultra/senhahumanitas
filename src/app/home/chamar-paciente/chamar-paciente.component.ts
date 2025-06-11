@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { get, getDatabase, ref, set, update } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { AuthService } from '../../service/auth/auth.service';
+import { QueryService } from '../../service/admin/query/query.service';
 
 
 // Importar o Modal do Bootstrap
@@ -50,15 +51,8 @@ export class ChamarPacienteComponent implements OnInit {
    consultorios: any[] = []; // Lista de consultórios
    private keyPressHandler!: (event: KeyboardEvent) => void;
 
-   
- 
- 
-   
    nomeSelecionado: string = '';
-   
- 
- 
- 
+  
    // Array para armazenar as senhas geradas
    senhasDisponiveis: DadosSenha[] = [];
  
@@ -73,6 +67,7 @@ export class ChamarPacienteComponent implements OnInit {
     @ViewChild('modalTemplate') modalTemplate!: TemplateRef<any>;
    constructor(
      private adminService: AdminService,
+     private query: QueryService,
      private formBuilder: FormBuilder,
      private spinner: NgxSpinnerService,
      private modalService: BsModalService,
@@ -81,12 +76,6 @@ export class ChamarPacienteComponent implements OnInit {
       private authService: AuthService
    ) {}
  
-
-
-
-
-
-
  
    ngOnInit(): void {
      // Verifica se o usuário está autenticado ao carregar o componente
@@ -94,22 +83,25 @@ export class ChamarPacienteComponent implements OnInit {
      this.formbuilder()
      this.carregarMedicos();
      this.carregarConsultorios();
+    
   }
  
  
  
-  // Busca as senhas não atendidas ao carregar o componente
-  this.mostrarSenhasNaoAtendidas();
+    // Busca as senhas não atendidas ao carregar o componente
+    this.mostrarSenhasNaoAtendidas();
  
-
+   /*  this.query.getSenhasParaMedico().subscribe(dados=>{
+      console.log(dados);
+     });*/
   
      
      
       // Aqui unifica todas as senhas com status "0"
-   this.adminService.getSenhaGeradaConvencional().subscribe(d => {
+  /* this.adminService.getSenhaGeradaConvencional().subscribe(d => {
      this.repetirSenha = d;
-     this.senhasDisponiveis = d.filter(s => s.status === '0');
-   });
+     //this.senhasDisponiveis = d.filter(s => s.status === '0');
+   });*/
  
    // Painel
    this.adminService.getSenhaPainelConvencional().subscribe(d => {
@@ -120,12 +112,14 @@ export class ChamarPacienteComponent implements OnInit {
  }
   
    // Método para carregar os médicos do nó "medicos"
-   carregarMedicos() {
+   async carregarMedicos() {
      const medicosRef = ref(this.db, 'medicos');
-     get(medicosRef)
+     await get(medicosRef)
        .then((snapshot) => {
          if (snapshot.exists()) {
            this.medicos = Object.values(snapshot.val());
+           console.log(this.medicos);
+          // this.query.getPacientesConformeMedico(this.medicos)
          }
        })
        .catch((error) => {
@@ -173,21 +167,21 @@ export class ChamarPacienteComponent implements OnInit {
    
     // Repete a chamada de uma senha no painel
    async repetirsenha(senha: DadosSenha) {
-  this.spinner.show();
-  try {
-    const time = Date.now().toString();
-    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
-    await update(ref(this.db, senhachamadaPath), {
-      status: '1',
-      horachamada: time
-    });
-    console.log('Chamada repetida:', senha);
-  } catch (error) {
-    console.error('Erro ao repetir chamada:', error);
-  } finally {
-    this.spinner.hide();
-  }
-}
+      this.spinner.show();
+        try {
+          const time = Date.now().toString();
+          const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+          await update(ref(this.db, senhachamadaPath), {
+            status: '1',
+            horachamada: time
+          });
+          console.log('Chamada repetida:', senha);
+        } catch (error) {
+          console.error('Erro ao repetir chamada:', error);
+        } finally {
+          this.spinner.hide();
+        }
+   }
  
   // Repete a chamada de uma senha convencional  
   async repetirSenhaConvencional(senha: DadosSenha) {
@@ -207,7 +201,7 @@ export class ChamarPacienteComponent implements OnInit {
  }
  
     // Chama uma senha normal no painel
-   async chamarsenhanormal(senha:DadosSenha) {
+  /* async chamarsenhanormal(senha:DadosSenha) {
      this.spinner.show();
      let time = Date.now().toString();
      console.log(senha);
@@ -222,7 +216,7 @@ export class ChamarPacienteComponent implements OnInit {
      })
       // Registra o momento da chamada da senha
    this.senhaOperadorPainel = senha;  // Armazena a senha chamada
-   }
+   }*/
    
    // Método para buscar as senhas do setor sem chamar automaticamente
  buscarSenhasDoSetor(): Promise<DadosSenha[]> {
@@ -263,9 +257,9 @@ export class ChamarPacienteComponent implements OnInit {
      return;
    }
   
-    senha.consultorio = this.formulario.value.guiche;
-   senha.operador = this.operador;
-   senha.guiche = this.guiche;
+   senha.consultorio = this.formulario.value.guiche;
+  // senha.operador = this.operador;
+  // senha.guiche = this.guiche;
    senha.status = '1'; // Status "chamada"
    senha.horachamada = time;
  
@@ -285,8 +279,8 @@ export class ChamarPacienteComponent implements OnInit {
        horachamada: senha.horachamada,
        status: senha.status,
        setor: senha.setor,
-       
-      nome: senha.nome, // Adiciona o nome do paciente
+       medico: senha.medico,
+       nome: senha.nome, // Adiciona o nome do paciente
       consultorio: senha.consultorio // Adiciona o número do consultório
      }
   
@@ -417,7 +411,7 @@ cadastrarConvencional() {
  /*avaliar() {
    this.router.navigate(['/avaliar']); 
  }*/
-mostrarSenhasNaoAtendidas() {
+/*mostrarSenhasNaoAtendidas() {
   console.log("Atualizando lista de senhas não atendidas...");
 
   // Atualiza a lista de senhas a cada 0,5 segundos
@@ -444,8 +438,32 @@ mostrarSenhasNaoAtendidas() {
         console.error("Erro ao buscar senhas:", error);
       });
   }, 500); // Atualiza a cada 0,5 segundos
+}*/
+async mostrarSenhasNaoAtendidas() {
+ await this.adminService.getSenhasParaMedico().subscribe( async dado =>{
+   console.log(dado)
+   if (dado) {
+  //  const todasSenhas = Object.values(dado.val()) as DadosSenha[];
+    // Filtra as senhas com base no médico e consultório selecionados
+     this.senhasDisponiveis = await dado.filter(senha => senha.medico === 'Gabriel');
+   //console.log("Senhas do Gabriel:", this.senhasDisponiveis);
+    console.log("Senhas disponíveis atualizadas:", this.senhasDisponiveis);
+  } else {
+    this.senhasDisponiveis = [];
+    console.warn("Nenhuma senha encontrada.");
+  }
+   this.senhasDisponiveis = dado.filter(senha => senha.medico === 'Gabriel');
+   console.log("Senhas do Gabriel:", this.senhasDisponiveis);
+
+    // Agora você pode iterar sobre 'senhasDoGabriel' para processá-las
+    this.senhasDisponiveis.forEach(senha => {
+      // Faça algo com cada senha do Gabriel
+      console.log(`Senha: ${senha.senha}, Paciente: ${senha.nome}, Médico: ${senha.medico}`);
+      // Exemplo: Você pode adicionar essas senhas a uma propriedade no seu componente
+      // this.minhasSenhas = senhasDoGabriel;
+    });
+ })
 }
- 
  
  async naoCompareceu(senha: DadosSenha) {
   if (!senha) return;

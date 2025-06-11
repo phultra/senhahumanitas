@@ -1,3 +1,28 @@
+
+.espaco {
+  margin-bottom: 15%;
+}
+
+.espacot {
+  margin-bottom: 3%;
+}
+
+.espacoinferior {
+  margin-bottom:10% ;
+}
+
+.espacoinferiorsegundatela {
+  margin-bottom: 60% ;
+}
+
+.espacotitulo {
+  margin-bottom: 10%;
+}
+
+.titulo1{
+  font-size: 1.4em;
+}
+
 .botao-calltoaction{
     text-align: center;
     padding: 70px;
@@ -172,8 +197,8 @@ fieldset{
 .btn {
     border: none;
     font-family: inherit;
-    font-size: 250%;
-    width: 450px; /* Tamanho uniforme para todos os botões */
+    font-size: 100PX;
+    width: 600px; /* Tamanho uniforme para todos os botões */
     color: inherit;
     background: none;
     cursor: pointer;
@@ -206,14 +231,14 @@ fieldset{
     -moz-transition: none;
     transition: none;
    
-  width: 500px; /* ou o valor desejado */
+  width: 600x; /* ou o valor desejado */
   min-width: 300px;
   max-width: 100%;
-  height: 120px;
+  height: 170px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(1.2rem, 2vw, 2rem); /* Ajuste automático da fonte */
+  font-size: clamp(2.3rem, 2vw, 2rem); /* Ajuste automático da fonte */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -221,11 +246,11 @@ fieldset{
 
 .logo-fixed {
   position: fixed;
-  top: -90px;
+  top: -80px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  width: 300px;
+  width: 450px;
   max-width: 30vw;
   margin-bottom: 0;
   pointer-events: none; // não bloqueia clique nos botões

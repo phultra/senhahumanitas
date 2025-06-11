@@ -49,14 +49,18 @@ mostrarSenhasChamada: boolean = false;
 
   ngOnInit() {
     // Verifica se o usuário está autenticado ao carregar o componente
-    if (!this.authService.isUserAuthenticated()) {
+  /*  if (!this.authService.isUserAuthenticated()) {
       this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
     } else {
       this.exibirUsuarios();
       this.exibirSenhasChamada();
     
       
-    }
+    }*/
+
+      this.exibirUsuarios();
+      this.exibirSenhasChamada();
+    
   }
 
 

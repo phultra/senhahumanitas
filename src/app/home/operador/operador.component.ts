@@ -94,7 +94,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Verifica se o usuário está autenticado ao carregar o componente
-  if (!this.authService.isUserAuthenticated()) {
+  if (!sessionStorage.getItem('id')) {
     this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
   } else {
     this.formbuilder()
@@ -200,7 +200,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
     
             // Se o nome selecionado for diferente, corrige
             if (this.nomeSelecionado.trim().toLowerCase() !== this.nomeUsuario.toLowerCase()) {
-              alert(`Nome: ${this.nomeUsuario}`);
+             // alert(`Nome: ${this.nomeUsuario}`);
               this.nomeSelecionado = this.nomeUsuario;
             }
     
@@ -277,11 +277,11 @@ private gerarIdentificadorAba(): string {
     senha.status ='1';
     senha.horachamada = time;
     console.log(senha);
-    await this.adminService.salvaSenhaChamada(senha)
-    await this.adminService.updateSenha(senha.senhaid, senha).then( d=> {
+   // await this.adminService.salvaSenhaChamada(senha)
+ //   await this.adminService.updateSenha(senha.senhaid, senha).then( d=> {
        this.spinner.hide();
       //  this.filtrarSenhasPorSetor(); // Atualiza a lista após chamada
-    })
+  //  })
      // Registra o momento da chamada da senha
   this.senhaOperadorPainel = senha;  // Armazena a senha chamada
   }
@@ -469,65 +469,178 @@ salvarDadosPaciente() {
     this.notasDisponiveis = Array.from({ length: 10 }, (_, i) => i); 
   }*/
 
-  
-  
+    async finalizarConvencional(senha: DadosSenha) {
+      
+      if (senha.setor === 'CONSULTA') {
+            if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
+              alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
+              return;
+            }
+              this.senhaOperadorPainel.senha = ''; 
+              const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+              senha.nome = this.dadosPaciente.nome;
+              senha.medico = this.dadosPaciente.medico;
+            // senha.consultorio = this.dadosPaciente.consultorio;
+              const time = Date.now().toString();
+              senha.finalatendimento = time;
+              senha.status = '3'; // Status "finalizado"
+              // Atualizar no nó `senhachamada`
+              await update(ref(this.db, senhachamadaPath), {
+                nome: senha.nome,
+                medico: senha.medico,
+                // consultorio: senha.consultorio,
+                finalatendimento: '',
+                status: senha.status
+              });
+           // console.log('Senha atualizada no nó senhachamada:', senha);
+      } else if (senha.setor === 'REALIZAR AGENDAMENTO') {
+              this.senhaOperadorPainel.senha = '';
+              const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+              senha.nome = this.dadosPaciente.nome;
+              senha.medico = this.dadosPaciente.medico;
+            // senha.consultorio = this.dadosPaciente.consultorio;
+              const time = Date.now().toString();
+              senha.finalatendimento = time;
+              senha.status = '3'; // Status "finalizado"
+              // Atualizar no nó `senhachamada`
+              await update(ref(this.db, senhachamadaPath), {
+                nome: senha.nome,
+                medico: senha.medico,
+                // consultorio: senha.consultorio,
+                finalatendimento: '',
+                status: senha.status
+              });
+            console.log('Senha atualizada no nó senhachamada:', senha);
+      }else if (senha.setor === 'EXAME') {
+                this.senhaOperadorPainel.senha = '';
+                const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+                senha.nome = this.dadosPaciente.nome;
+                senha.medico = this.dadosPaciente.medico;
+              // senha.consultorio = this.dadosPaciente.consultorio;
+                const time = Date.now().toString();
+                senha.finalatendimento = time;
+                senha.status = '3'; // Status "finalizado"
+                // Atualizar no nó `senhachamada`
+                await update(ref(this.db, senhachamadaPath), {
+                  nome: senha.nome,
+                  medico: senha.medico,
+                  // consultorio: senha.consultorio,
+                  finalatendimento: '',
+                  status: senha.status
+                });
+              console.log('Senha atualizada no nó senhachamada:', senha);
+      } else if (senha.setor === 'RESULTADO DE EXAMES'){
+        this.senhaOperadorPainel.senha = '';
+        const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+        const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+             
+        // Mover para o nó `senhafinalizada`
+                await update(ref(this.db), {
+                  [senhafinalizadaPath]: {
+                    ...senha,
+                    finalatendimento: senha.finalatendimento
+                  },
+                  [senhachamadaPath]: null // Remove do nó `senhachamada`
+                });
+              console.log('Senha movida para o nó senhafinalizada:', senha);
+             
+      }
 
-  
-   async finalizarConvencional(senha: DadosSenha) {
-  if (senha.setor === 'CONSULTA' || senha.setor === 'REALIZAR AGENDAMENTO') {
-    if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
-      alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
-      return;
+        
+
+
+     /* try {
+        const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+        const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+
+        if (senha.setor === 'EXAME' || senha.setor === 'RESULTADO DE EXAMES') {
+          // Mover para o nó `senhafinalizada`
+          await update(ref(this.db), {
+            [senhafinalizadaPath]: {
+              ...senha,
+              finalatendimento: senha.finalatendimento
+            },
+            [senhachamadaPath]: null // Remove do nó `senhachamada`
+          });
+          console.log('Senha movida para o nó senhafinalizada:', senha);
+        } else {
+          // Atualizar no nó `senhachamada`
+          await update(ref(this.db, senhachamadaPath), {
+            nome: senha.nome,
+            medico: senha.medico,
+            // consultorio: senha.consultorio,
+            finalatendimento: senha.finalatendimento,
+            status: senha.status
+          });
+          console.log('Senha atualizada no nó senhachamada:', senha);
+        }
+
+        alert('Atendimento finalizado com sucesso!');
+      } catch (error) {
+        console.error('Erro ao finalizar a senha:', error);
+        alert('Erro ao finalizar a senha. Tente novamente.');
+      }*/
     }
 
-    senha.nome = this.dadosPaciente.nome;
-    senha.medico = this.dadosPaciente.medico;
-    // senha.consultorio = this.dadosPaciente.consultorio;
-  }
+  
 
-  const time = Date.now().toString();
-  senha.finalatendimento = time;
-  senha.status = '3'; // Status "finalizado"
+  
+   /*async finalizarConvencional(senha: DadosSenha) {
+       
+        if (senha.setor === 'CONSULTA') {
+              if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
+                alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
+                return;
+              }
 
-  try {
-    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
-    const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+              senha.nome = this.dadosPaciente.nome;
+              senha.medico = this.dadosPaciente.medico;
+            // senha.consultorio = this.dadosPaciente.consultorio;
+        }
 
-    if (senha.setor === 'EXAME' || senha.setor === 'RESULTADO DE EXAMES') {
-      // Mover para o nó `senhafinalizada`
-      await update(ref(this.db), {
-        [senhafinalizadaPath]: {
-          ...senha,
-          finalatendimento: senha.finalatendimento
-        },
-        [senhachamadaPath]: null // Remove do nó `senhachamada`
-      });
-      console.log('Senha movida para o nó senhafinalizada:', senha);
-    } else {
-      // Atualizar no nó `senhachamada`
-      await update(ref(this.db, senhachamadaPath), {
-        nome: senha.nome,
-        medico: senha.medico,
-        // consultorio: senha.consultorio,
-        finalatendimento: senha.finalatendimento,
-        status: senha.status
-      });
-      console.log('Senha atualizada no nó senhachamada:', senha);
-    }
+          const time = Date.now().toString();
+          senha.finalatendimento = time;
+          senha.status = '3'; // Status "finalizado"
 
-    alert('Atendimento finalizado com sucesso!');
-  } catch (error) {
-    console.error('Erro ao finalizar a senha:', error);
-    alert('Erro ao finalizar a senha. Tente novamente.');
-  }
-}
+        try {
+          const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+          const senhafinalizadaPath = `humanitas/senhafinalizada/${senha.senhaid}`;
+
+          if (senha.setor === 'EXAME' || senha.setor === 'RESULTADO DE EXAMES') {
+            // Mover para o nó `senhafinalizada`
+            await update(ref(this.db), {
+              [senhafinalizadaPath]: {
+                ...senha,
+                finalatendimento: senha.finalatendimento
+              },
+              [senhachamadaPath]: null // Remove do nó `senhachamada`
+            });
+            console.log('Senha movida para o nó senhafinalizada:', senha);
+          } else {
+            // Atualizar no nó `senhachamada`
+            await update(ref(this.db, senhachamadaPath), {
+              nome: senha.nome,
+              medico: senha.medico,
+              // consultorio: senha.consultorio,
+              finalatendimento: senha.finalatendimento,
+              status: senha.status
+            });
+            console.log('Senha atualizada no nó senhachamada:', senha);
+          }
+
+          alert('Atendimento finalizado com sucesso!');
+        } catch (error) {
+          console.error('Erro ao finalizar a senha:', error);
+          alert('Erro ao finalizar a senha. Tente novamente.');
+        }
+}*/
 
 
   // Navega para a página de avaliação
 /*avaliar() {
   this.router.navigate(['/avaliar']); 
 }*/
-mostrarSenhasNaoAtendidas() {
+/*mostrarSenhasNaoAtendidas() {
   console.log("Função chamada!");
 
   // Definir o intervalo de 5 segundos para reiniciar a função
@@ -579,7 +692,62 @@ mostrarSenhasNaoAtendidas() {
       }
     );
   }, 500); // 500 milissegundos = 0,5 segundo
-}
+}*/
+
+ mostrarSenhasNaoAtendidas() {
+  console.log("Função chamada!");
+
+  // Definir o intervalo de 5 segundos para reiniciar a função
+ // setInterval(() => {
+    // Resetando os dados antes de fazer a nova chamada
+    this.senha = [];  // Resetar a lista de senhas
+    // this.senhasPreferenciais = [];  // Resetar a lista de senhas preferenciais
+    // this.senhasNaoPreferenciais = [];  // Resetar a lista de senhas não preferenciais
+    this.mostrarSenhas = false;  // Resetar a flag de exibição das senhas
+
+    // Repetir o processo de busca e filtragem como na primeira execução
+    this.adminService.getSenhasGeradas().subscribe(
+      (senhas) => {
+        console.log('Senhas recebidas:', senhas);
+        if (!senhas || senhas.length === 0) {
+          console.warn('Nenhuma senha encontrada.');
+          return;
+        }
+
+        // Elimina duplicatas baseado no campo 'senha'
+        const senhasUnicas = Array.from(new Set(senhas.map((s) => s.senha)))
+          .map((senhaUnica) => senhas.find((s) => s.senha === senhaUnica)!);
+
+        // Normaliza os setores (converte para minúsculas e remove espaços extras)
+        // const setorUsuarioNormalizado = this.setorUsuario.trim().toLowerCase();
+
+        // Filtra as senhas de acordo com o setor (guiche)
+        // const senhasDoSetor = senhasUnicas.filter(s => s.setor.trim().toLowerCase() === setorUsuarioNormalizado);
+        // console.log('Senhas do setor:', senhasDoSetor);
+
+        // Atribui a lista de senhas filtradas
+        // this.senha = senhasDoSetor; // Lista de senhas do setor
+        // this.senhasPreferenciais = senhasDoSetor.filter((s) => s.preferencial);
+        // this.senhasNaoPreferenciais = senhasDoSetor.filter((s) => !s.preferencial);
+
+        // Para cada senha, calcular a hora com base no 'senhaid' (timestamp)
+        this.senha.forEach(s => {
+          // Converter o 'senhaid' (timestamp) em milissegundos para uma data
+          const dataGeracao = new Date(Number(s.senhaid));
+           // Obter apenas a hora, minutos e segundos
+           s.horaGeracao = dataGeracao.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        });
+
+        // Atualiza a flag para exibir as senhas
+        this.mostrarSenhas = true;
+      },
+      (error) => {
+        console.error('Erro ao buscar senhas:', error);
+      }
+    );
+  }
+  //, 500); // 500 milissegundos = 0,5 segundo
+//}
 
 async naoCompareceu(senha: DadosSenha) {
   if (!senha) return;
