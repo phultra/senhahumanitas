@@ -1,57 +1,60 @@
-<section>
-    <app-menu></app-menu>
-  </section>
+<section class="admin-wrapper">
+  <app-menu></app-menu>
 
-<section class="consultorios-container">
-  
-  <section class="form-container">
-    <h2>Cadastro de Consultório</h2>
-    <form (ngSubmit)="salvarConsultorio()" class="form">
-      <label for="numero">Número do Consultório:</label>
-      <input
-        type="text"
-        id="numero"
-        [(ngModel)]="numero"
-        name="numero"
-        placeholder="Digite o número"
-        required
-      />
-      <button type="submit">Salvar</button>
-    </form>
-  </section>
+  <div class="container py-4">
+    <div class="row justify-content-center mb-5">
+      <div class="col-12 col-md-6 col-lg-4">
+        <div class="form-card">
+          <h2>Novo Consultório</h2>
+          <form (ngSubmit)="salvarConsultorio()" class="d-flex flex-column gap-3">
+            <div class="text-start">
+              <label for="numero" class="form-label">Número ou Identificação:</label>
+              <input
+                type="text"
+                id="numero"
+                [(ngModel)]="numero"
+                name="numero"
+                class="form-control custom-input"
+                placeholder="Ex: Sala 101 ou Bloco A"
+                required
+              />
+            </div>
+            <button type="submit" class="btn-save">Salvar Consultório</button>
+          </form>
+        </div>
+      </div>
+    </div>
 
-
-  <section class="mt-5">
-    <!-- Tabela de Consultorios cadastrados -->
-    <div class="usuarios-container" style="background-color: #003366;">
-      <h3 class="text-white">Consultórios Cadastrados</h3>
-      <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
-        <thead>
-          <tr>
-            <th>Numero</th>
-            
-            <th>Excluir Consultorio</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let usuario of consultorio">
-            <td>{{ usuario.numero }}</td>
-            <!--<td>{{ usuario.email }}</td>-->
-            
-            
-            <!--<td>
-             {{ usuario.funcao }}
-            </td>-->
-             <!-- Botão para excluir o usuario -->
-              <td> 
-                <button *ngIf="usuario" (click)="excluirmedico(usuario)" class="btn-danger">
-                  Excluir Consultorio
-                </button>
-              </td>
-            </tr>
-          </tbody>
-         </table>
-  
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-7"> <div class="table-card">
+          <h3 class="text-white mb-4">Consultórios Ativos</h3>
+          <div class="table-responsive custom-scroll">
+            <table class="table table-custom">
+              <thead>
+                <tr>
+                  <th>Número / Identificação</th>
+                  <th class="text-center">Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of consultorio">
+                  <td class="fw-bold text-dark">{{ item.numero }}</td>
+                  <td class="text-center">
+                    <button (click)="excluirmedico(item)" class="btn-delete">
+                      Excluir
+                    </button>
+                  </td>
+                </tr>
+                <tr *ngIf="consultorio?.length === 0">
+                  <td colspan="2" class="text-muted text-center py-4">
+                    Nenhum consultório cadastrado no momento.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
-  </section>
 </section>

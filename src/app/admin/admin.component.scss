@@ -1,225 +1,144 @@
-/* Estilos principais */
+/* Estilos principais - Ajuste de Scroll */
 html, body {
-  overflow-y: auto;
-  height: auto;
+  overflow-x: hidden; /* Evita rolagem horizontal indesejada */
+  background-color: #1c2b5a;
 }
+
 div.main {
   background: radial-gradient(ellipse at center, #0264d6 1%, #1c2b5a 100%);
   min-height: 100vh;
   width: 100%;
+  padding: 20px 10px;
   display: flex;
   justify-content: center;
-  align-items: center;
-  overflow-y: auto; /* Permite rolagem vertical caso o conteúdo seja grande */
-  
+  align-items: flex-start; /* Melhor que 'center' para conteúdos longos */
 }
-.relatorio-container {
-  max-height: 400px;   /* Ajuste a altura máxima conforme necessário */
-  overflow-y: auto;    /* Habilita a rolagem vertical */
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px solid #ddd;  /* Adiciona uma borda para definir a área do conteúdo */
-  max-width: 90vw;
-}
+
 .container {
   background-color: #fff;
-  padding: 30px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(221, 14, 14, 0.1);
-  overflow-y: auto; /* Permite rolagem vertical caso o conteúdo seja grande */
-  
+  padding: clamp(15px, 5vw, 30px); /* Padding adaptável conforme a tela */
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  max-width: 1200px; /* Largura ideal para desktop */
+  margin: 20px auto;
 }
 
 h3 {
-  font-size: 2rem;
+  font-size: clamp(1.5rem, 4vw, 2.2rem);
   color: #0264d6;
-  margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: 25px;
+  font-weight: 700;
 }
 
-/* Estilos para os filtros */
+/* Container de Filtros - Grid é melhor que Flex aqui */
 .filters {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  gap: 10px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
 }
 
 .filter {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 200px;
-  margin-bottom: 15px;
 }
 
 .filter label {
   font-weight: bold;
   color: #0264d6;
-  margin-bottom: 5px;
-  text-align: center;
+  margin-bottom: 8px;
 }
 
-.filter select {
-  padding: 8px;
-  border-radius: 4px;
+.filter select, .filter input {
+  padding: 10px;
+  border-radius: 6px;
   border: 1px solid #ccc;
-  text-align-last: center;
   font-size: 1rem;
-}
-
-.filter button {
-  margin-top: 5px;
-  background-color: #dc3545;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.3s;
-}
-
-.filter button:hover {
-  background-color: #c82333;
-}
-
-/* Estilos para centralizar os botões */
-.filter-container {
-  display: flex;
-  justify-content: center;
   width: 100%;
 }
 
-.filter-container button {
-  margin: 0 5px;
-  background-color: #0264d6;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
-}
-
-.filter-container button:hover {
-  background-color: #1c2b5a;
-}
-
-/* Filtros de Mês e Semana */
-.filtro-mes-semana {
-  display: flex;
-  justify-content: space-between;
+/* Tabelas Realmente Responsivas */
+.table-responsive {
   width: 100%;
-  margin-bottom: 15px;
-}
-
-.filtro-mes-semana select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  text-align-last: center;
-  font-size: 1rem;
-  width: 45%;
-}
-
-.filtro-mes-semana label {
-  font-weight: bold;
-  color: #0264d6;
-  text-align: center;
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-.filtro-mes-semana button {
-  margin-top: 5px;
-  background-color: #dc3545;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.3s;
-}
-
-.filtro-mes-semana button:hover {
-  background-color: #c82333;
-}
-
-/* Estilos para o relatório */
-.relatorio {
-  margin-top: 30px;
-  
+  margin-top: 20px;
+  overflow-x: auto; /* Rolagem horizontal apenas se necessário */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  margin: 10px; /* Adiciona margem ao redor da tabela */
-  border: 2px solid black; /* Borda preta */
-  
+  min-width: 600px; /* Garante que a tabela não esmague no mobile */
+  background: white;
 }
 
-.table-responsive {
-  max-height: 500px;
-  overflow-y: auto;
-
-  table {
-    table-layout: fixed;
-    width: 100%;
-  }
-
-  th {
-    position: sticky;
-    top: 0;
-    background-color: #0264d6;
-    z-index: 10;
-  }
-}
 th, td {
-  padding: 10px;
+  padding: 14px;
   text-align: center;
-  border: 1px solid black; /* Borda preta nas células */
-
+  border-bottom: 1px solid #eee;
 }
 
 th {
   background-color: #0264d6;
   color: white;
+  position: sticky;
+  top: 0;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
 }
 
-td {
-  background-color: #f9f9f9;
-}
+tr:nth-child(even) { background-color: #fcfcfc; }
+tr:hover { background-color: #f1f7ff; }
 
-/* Ajustes de botão */
-button {
-  margin-top: 10px;
-}
-
-button.btn-info {
-  background-color: #17a2b8;
-  color: rgb(20, 19, 19);
-}
-
-button.btn-primary {
+/* Botões Modernizados */
+.btn-primary, .filter-container button {
   background-color: #0264d6;
   color: white;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 600;
 }
 
-button.btn-danger {
+.btn-primary:hover {
+  background-color: #1c2b5a;
+  transform: translateY(-1px);
+}
+
+.btn-danger {
   background-color: #dc3545;
   color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
 }
 
-button.btn-success {
-  background-color: #28a745;
-  color: white;
-}
+/* Ajustes Específicos para Mobile */
+@media (max-width: 600px) {
+  .filters {
+    grid-template-columns: 1fr; /* Coluna única no celular */
+  }
+  
+  .container {
+    padding: 15px;
+  }
 
+  /* Faz os botões ocuparem a largura toda no celular */
+  .filter-container {
+    flex-direction: column;
+  }
+  
+  .filter-container button {
+    width: 100%;
+    margin: 5px 0;
+  }
+}

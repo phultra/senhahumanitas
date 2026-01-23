@@ -1,59 +1,63 @@
-<section style="background-color: #003366; color: rgb(240, 0, 0); height: 0vh;">
+<section class="admin-wrapper d-flex flex-column">
   <app-menu></app-menu>
-</section>
 
-<section class="d-flex justify-content-center align-items-center" style="background-color: #003366; color: white; height: 100vh;">
-  <!-- Formulário para cadastrar usuário -->
-  
-  <form [formGroup]="formularioUsuario" (ngSubmit)="cadastrarUsuario()" style="width: 100%; max-width: 600px;">
-    
-    <div>
+  <div class="container d-flex justify-content-center align-items-center flex-grow-1 py-5">
+    <div class="user-card">
+      <div class="card-header-custom">
+        <i class="bi bi-person-plus-fill"></i>
+        <h3>Novo Usuário</h3>
+        <p>Preencha os dados para acesso ao sistema</p>
+      </div>
 
-      <div style="text-align: center; margin-bottom: 20px;">
-        <strong>Cadastrar novo Usuário</strong>
-      </div>
-      <label for="nomeUsuario">Nome</label>
-      <input id="nomeUsuario" formControlName="nome" class="form-control" type="text" />
-      <div *ngIf="formularioUsuario.get('nome')?.invalid && formularioUsuario.get('nome')?.touched">
-        <small *ngIf="formularioUsuario.get('nome')?.hasError('required')">Nome é obrigatório.</small>
-        <small *ngIf="formularioUsuario.get('nome')?.hasError('minlength')">Nome deve ter pelo menos 6 caracteres.</small>
-      </div>
+      <form [formGroup]="formularioUsuario" (ngSubmit)="cadastrarUsuario()" class="row g-3">
+        
+        <div class="col-12">
+          <label for="nomeUsuario" class="form-label-custom">Nome Completo</label>
+          <input id="nomeUsuario" formControlName="nome" class="form-control custom-input" type="text" placeholder="Ex: João Silva" />
+          <div class="error-container" *ngIf="formularioUsuario.get('nome')?.invalid && formularioUsuario.get('nome')?.touched">
+            <small *ngIf="formularioUsuario.get('nome')?.hasError('required')">O nome é obrigatório.</small>
+            <small *ngIf="formularioUsuario.get('nome')?.hasError('minlength')">Mínimo de 6 caracteres.</small>
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label for="email" class="form-label-custom">Email Corporativo</label>
+          <input id="email" formControlName="email" class="form-control custom-input" type="email" placeholder="email@empresa.com" />
+          <div class="error-container" *ngIf="formularioUsuario.get('email')?.invalid && formularioUsuario.get('email')?.touched">
+            <small *ngIf="formularioUsuario.get('email')?.hasError('required')">O email é obrigatório.</small>
+            <small *ngIf="formularioUsuario.get('email')?.hasError('email')">Informe um email válido.</small>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="senha" class="form-label-custom">Senha</label>
+          <input id="senha" formControlName="senha" class="form-control custom-input" type="password" placeholder="******" />
+          <div class="error-container" *ngIf="formularioUsuario.get('senha')?.invalid && formularioUsuario.get('senha')?.touched">
+            <small *ngIf="formularioUsuario.get('senha')?.hasError('required')">Senha obrigatória.</small>
+            <small *ngIf="formularioUsuario.get('senha')?.hasError('minlength')">Mínimo 6 dígitos.</small>
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <label for="funcao" class="form-label-custom">Perfil de Acesso</label>
+          <select id="funcao" class="form-select custom-input" formControlName="funcao">
+            <option value="">Selecione...</option>
+            <option value="admin">Administrador</option>
+            <option value="operador">Operador de Guichê</option>
+            <option value="chamaSenha">Chamada de Senha</option>
+            <option value="Painel">Visualização Painel</option>
+          </select>
+          <div class="error-container" *ngIf="formularioUsuario.get('funcao')?.invalid && formularioUsuario.get('funcao')?.touched">
+            <small>Selecione uma função.</small>
+          </div>
+        </div>
+
+        <div class="col-12 mt-4">
+          <button type="submit" [disabled]="formularioUsuario.invalid" class="btn-register w-100">
+            Finalizar Cadastro
+          </button>
+        </div>
+      </form>
     </div>
-
-    <div>
-      <label for="email">Email</label>
-      <input id="email" formControlName="email" class="form-control" type="email" />
-      <div *ngIf="formularioUsuario.get('email')?.invalid && formularioUsuario.get('email')?.touched">
-        <small *ngIf="formularioUsuario.get('email')?.hasError('required')">Email é obrigatório.</small>
-        <small *ngIf="formularioUsuario.get('email')?.hasError('email')">Email inválido.</small>
-      </div>
-    </div>
-
-    <div>
-      <label for="senha">Senha</label>
-      <input id="senha" formControlName="senha" class="form-control" type="password" />
-      <div *ngIf="formularioUsuario.get('senha')?.invalid && formularioUsuario.get('senha')?.touched">
-        <small *ngIf="formularioUsuario.get('senha')?.hasError('required')">Senha é obrigatória.</small>
-        <small *ngIf="formularioUsuario.get('senha')?.hasError('minlength')">Senha deve ter pelo menos 6 caracteres.</small>
-      </div>
-    </div>
-
-    <div>
-      <label for="funcao">Função</label>
-      <select id="funcao" class="form-control" formControlName="funcao">
-        <option value="">Selecione uma função</option>
-        <option value="admin">Admin</option>
-        <option value="operador">Operador</option>
-        <option value="chamaSenha">ChamaSenha</option>
-        <option value="Painel">Painel</option>
-      </select>
-      <div *ngIf="formularioUsuario.get('funcao')?.invalid && formularioUsuario.get('funcao')?.touched">
-        <small *ngIf="formularioUsuario.get('funcao')?.hasError('required')">Função é obrigatória.</small>
-      </div>
-    </div>
-
- 
-
-    <button type="submit" [disabled]="formularioUsuario.invalid" class="btn btn-success">Cadastrar</button>
-  </form>
+  </div>
 </section>

@@ -146,7 +146,7 @@ mostrarSenhasChamada: boolean = false;
     
 async apagarSenhaChamada(item: any) {
   try {
-    
+      
     const chamadaRef = ref(this.db, `humanitas/senhachamada/${item.key}`);
     await remove(chamadaRef);
     this.exibirSenhasChamada();
@@ -160,7 +160,10 @@ async apagarSenhaChamada(item: any) {
 async apagarTodasSenhasChamada() {
   const confirmar = window.confirm('Tem certeza que deseja apagar TODAS as senhas em chamada? Esta ação não pode ser desfeita.');
   if (!confirmar) return;
-  try {
+  try { 
+    const contadorRef = ref(this.db, 'humanitas/senhacontador');
+    await remove(contadorRef);
+
     const chamadaRef = ref(this.db, 'humanitas/senhachamada');
     await remove(chamadaRef);
     this.exibirSenhasChamada();

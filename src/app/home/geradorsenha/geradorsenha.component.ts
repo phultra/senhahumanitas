@@ -93,13 +93,13 @@ siglasSetores: Record<string, string> = {
 
   // Gera uma nova senha normal
   async novaSenhaNormal() {
-    this.gerarSenha(false);
+    this.gerarSenha();
   }
 
 
 // Gera uma nova senha preferencial
 async novaSenhaPreferencial() {
-  this.gerarSenha(true);
+  this.gerarSenha();
 }
   
 
@@ -108,7 +108,7 @@ async novaSenhaPreferencial() {
   
   // Busca a quantidade de senhas geradas no modo convencional
   // Método para gerar senhas
-  async gerarSenha(preferencial: boolean) {
+  async gerarSenha() {
     this.spinner.show();
 
     if (!this.setorSelecionado) {
@@ -121,12 +121,12 @@ async novaSenhaPreferencial() {
     this.cadastrarSenha.setor = this.setorSelecionado;
 
       // Pega sigla do setor da lista fixa
-  const siglaSetor = this.siglasSetores[this.setorSelecionado] || 'GEN';
+    const siglaSetor = this.siglasSetores[this.setorSelecionado] || 'GEN';
 
      // Recuperar contador de senhas
-  const contadorRef = ref(this.db, `humanitas/senhacontador/${siglaSetor}`);
-  const snapshotContador = await get(contadorRef);
-  let contador = snapshotContador.exists() ? snapshotContador.val() : 0;
+      const contadorRef = ref(this.db, `humanitas/senhacontador/${siglaSetor}`);
+      const snapshotContador = await get(contadorRef);
+      let contador = snapshotContador.exists() ? snapshotContador.val() : 0;
 
   // Criar número da senha
   let numeroSenha = contador + 1;
@@ -135,7 +135,7 @@ async novaSenhaPreferencial() {
   this.cadastrarSenha.senha = `${siglaSetor}${numeroSenha.toString().padStart(2, '0')}`;
   this.cadastrarSenha.status = '0';
   this.cadastrarSenha.senhaid = Date.now().toString();
-
+  this.cadastrarSenha.horaGeracao = this.cadastrarSenha.senhaid
     console.log('Senha gerada:', this.cadastrarSenha.senha);
 
     // Salvar e imprimir senha

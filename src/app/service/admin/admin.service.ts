@@ -273,7 +273,7 @@ async recuperaSenhaFinalizada(senha: DadosSenha): Promise<any> {
 }*/
 
 //Retorna um Observable que devolve senhas para medicos
-getSenhasGeradas(): Observable<any[]> {
+getSenhasGeradas(): Observable<DadosSenha[]> {
  
   const dbRef = ref(this.database, 'humanitas/senhagerada');
  
@@ -457,6 +457,28 @@ getSenhasParaMedico(): Observable<any[]> {
   });  
 }
 
+
+//Retorna um Observable que devolve pacientes para medicos
+getPacientesParaMedico(): Observable<any[]> {
+ 
+  const dbRef = ref(this.database, 'humanitas/senhachamada');
+ 
+  return new Observable(observer => {
+    onValue(dbRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const itens: any[] = [];
+        snapshot.forEach((childSnapshot) => {
+          itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+        });
+        observer.next(itens);
+      } else {
+        observer.next([]);
+      }
+    }, (error) => {
+      observer.error(error);
+    });
+  });  
+}
 
 
 

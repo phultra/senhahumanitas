@@ -1,87 +1,75 @@
-<section class="area">
-  <div class="container">
-    <div class="row">
-      <!-- Painel principal (Senha e Guichê) -->
-      <div class="col-md-6">
-        <div class="h-100 w-100 z-index-2">
-          <div class="row mb-2 mt-5">
-            <div class="col-lg-12 mb-4">
-              <table class="table table-hover table-striped">
-                <thead>
-                  <th></th>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <!-- Exibe PACIENTE ou SENHA -->
-                      <h3>{{ psenha && pguiche ? (pguiche === pconsultorio ? 'PACIENTE' : 'SENHA') : '' }}</h3>
-                      <h1 class="display-1" style="color: rgb(33, 143, 0);">
-                        <b><strong>{{ psenha }}</strong></b>
-                      </h1>
-                      <!-- Exibe CONSULTÓRIO ou GUICHÊ -->
-                      <h3>{{ pguiche !== '00' ? (pguiche === pconsultorio ? 'CONSULTÓRIO' : 'GUICHÊ') : '' }}</h3>
-                      <h1 class="display-1" style="color:  rgb(33, 143, 0);">
-                        <b><strong>{{ pguiche }}</strong></b>
-                      </h1>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+<section class="painel-tv-wrapper">
+  <div class="container-fluid h-100 p-0">
+    
+    <div class="row m-0 h-100">
+      
+      <div class="col-md-7 d-flex align-items-center justify-content-center p-4">
+        <div class="chamada-principal card-glass shadow-lg w-100 text-center py-5">
+          
+          <ng-container *ngIf="psenha && pguiche">
+            <span class="label-superior">{{ pguiche === pconsultorio ? 'PACIENTE' : 'SENHA' }}</span>
+            <h1 class="valor-principal piscar-suave">{{ psenha }}</h1>
+
+            <div class="divisor-horizontal my-4"></div>
+
+            <span class="label-superior">{{ pguiche !== '00' ? (pguiche === pconsultorio ? 'CONSULTÓRIO' : 'GUICHÊ') : '' }}</span>
+            <h1 class="valor-secundario">{{ pguiche }}</h1>
+          </ng-container>
+
+          <div *ngIf="ativarPainel" class="mt-4">
+            <button class="btn btn-danger btn-lg px-5 py-3 shadow" (click)="ativar()">
+              Clique para Ativar o Painel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-5 d-flex flex-column p-4 background-dark-glass">
+        <div class="header-historico mb-4">
+          <h2 class="titulo-historico">ÚLTIMAS CHAMADAS</h2>
+        </div>
+
+        <div class="historico-lista custom-scroll flex-grow-1">
+          <div class="row g-3">
+            <div class="col-12" *ngFor="let senha of senhasChamadas$ | async">
+              <div class="card-historico shadow-sm">
+                
+                <ng-container *ngIf="senha.nome && senha.consultorio; else convencional">
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="info">
+                      <small class="text-info d-block">PACIENTE</small>
+                      <span class="nome-historico">{{ senha.nome }}</span>
+                    </div>
+                    <div class="local text-end">
+                      <small class="text-white-50 d-block">CONSULTÓRIO</small>
+                      <span class="numero-historico">{{ senha.consultorio }}</span>
+                    </div>
+                  </div>
+                </ng-container>
+
+                <ng-template #convencional>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <div class="info">
+                      <small class="text-info d-block">SENHA</small>
+                      <span class="nome-historico">{{ senha.senha }}</span>
+                    </div>
+                    <div class="local text-end">
+                      <small class="text-white-50 d-block">GUICHÊ</small>
+                      <span class="numero-historico">{{ senha.guiche }}</span>
+                    </div>
+                  </div>
+                </ng-template>
+
+              </div>
             </div>
           </div>
         </div>
-      </div>
- 
 
-
-      <!-- Linha vertical de separação entre o painel principal e as senhas chamadas -->
-      <div class="col-md-1 d-flex justify-content-center">
-        <div class="separator"></div>
+       <!-- <div class="logo-container mt-auto pt-4 text-center">
+          <img src="./assets/img/logohumanitas.png" class="logo-img" />
+        </div>-->
       </div>
 
-      <!-- Senhas chamadas ocupando 50% da tela -->
-      <div class="col-md-5">
-        <div class="header mt-5">
-          <h4 class="title"><b>SENHAS CHAMADAS</b></h4>
-          <!-- Subtítulo desativado que pode ser utilizado para fornecer informações adicionais -->
-          <!--<p class="category"><small>abaixo, segue as últimas senhas chamadas pelo sistema</small></p>-->
-          <div class="row">
-           
-            
-
-         <div class="row">
-  <div class="col-md-12 mb-3" *ngFor="let senha of senhasChamadas$ | async">
-    <div class="table table-hover table-striped">
-      <div class="header text-center">
-        <a>
-          <ng-container *ngIf="senha.nome && senha.consultorio; else convencional">
-            <h4 class="card-title" style="color:  rgb(33, 143, 0);">
-              <b>{{ senha.nome }}</b>
-            </h4>
-            <h3 class="card-text" style="color: rgb(33, 143, 0);">
-              <small>CONSULTÓRIO: {{ senha.consultorio }}</small>
-            </h3>
-          </ng-container>
-          <ng-template #convencional>
-            <h4 class="card-title" style="color:  rgb(33, 143, 0);">
-              <b>SENHA: {{ senha.senha }}</b>
-            </h4>
-            <h3 class="card-text" style="color: rgb(33, 143, 0);">
-              <small>GUICHÊ: {{ senha.guiche }}</small>
-            </h3>
-          </ng-template>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-          </div>
-        </div>
-      </div></div>
-
-     <!-- Exibe o logotipo centralizado e maior -->
-     <div class="d-flex justify-content-center mb-2 logo-position">
-      <img style="width: 40%;" src="./assets/img/logohumanitas.png" />
     </div>
   </div>
 </section>
