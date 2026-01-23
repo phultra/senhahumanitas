@@ -1,201 +1,153 @@
-div.main{
-  background: #0264d6; /* Old browsers */
-background: -moz-radial-gradient(center, ellipse cover,  #0264d6 1%, #1c2b5a 100%); /* FF3.6+ */
-background: -webkit-gradient(radial, center center, 0px, center center, 100%, color-stop(1%,#0264d6), color-stop(100%,#1c2b5a)); /* Chrome,Safari4+ */
-background: -webkit-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* Chrome10+,Safari5.1+ */
-background: -o-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* Opera 12+ */
-background: -ms-radial-gradient(center, ellipse cover,  #0264d6 1%,#1c2b5a 100%); /* IE10+ */
-background: radial-gradient(ellipse at center,  #0264d6 1%,#1c2b5a 100%); /* W3C */
-filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0264d6', endColorstr='#1c2b5a',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-height:calc(200vh);
-width:100%;
+/* Fundo dinâmico mantendo sua paleta de azul */
+.painel-medico {
+  background: radial-gradient(circle at center, #1c2b5a 0%, #07122e 100%);
+  min-height: 100vh;
+  width: 100%;
+  padding-bottom: 50px;
 }
 
-[class*="fontawesome-"]:before {
-font-family: 'FontAwesome', sans-serif;
+/* Header */
+.header-container {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 20px;
 }
 
-/* ---------- GENERAL ---------- */
-
-* {
-box-sizing: border-box;
-  margin:0px auto;
-
-
+.badge-medico {
+  background: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
 }
 
-.setor-info {
-position: fixed;
-top: 10px;
-right: 10px;
-background-color: rgba(0, 0, 0, 0.7);
-color: white;
-padding: 10px;
-border-radius: 5px;
-font-size: 16px;
-z-index: 1000; /* Garante que o setor ficará acima de outros elementos */
-}
-
-body {
- 
-  color: #606468;
-font: 87.5%/1.5em 'Open Sans', sans-serif;
-margin: 0;
-}
-
-a {
-color: #eee;
-text-decoration: none;
-}
-
-a:hover {
-text-decoration: underline;
-}
-
-input {
-border: none;
-font-family: 'Open Sans', Arial, sans-serif;
-font-size: 14px;
-line-height: 1.5em;
-padding: 0;
--webkit-appearance: none;
-}
-
-p {
-line-height: 2.5em;
-}
-
-
-
-.container {
-left: 50%;
-position: fixed;
-top: 50%;
-transform: translate(-50%, -50%);
-}
-
-/* ---------- LOGIN ---------- */
-
-#login form{
-width: 250px;
-}
-#login, .logo{
-  display:inline-block;
-  width:40%;
-}
-#login{
-border-right:1px solid #fff;
-padding: 0px 22px;
-width: 59%;
-}
-.logo{
-//color:#fff;
-//font-size:50px;
-//line-height: 100px;
-width: 70%;
-}
-
-.logo1{
-margin-left: 8%;
-}
-
-#login form span.fa {
-background-color: #fff;
-border-radius: 3px 0px 0px 3px;
-color: #000;
-display: block;
-float: left;
-height: 50px;
-  font-size:24px;
-line-height: 50px;
-text-align: center;
-width: 50px;
-}
-
-#login form input {
-height: 50px;
-}
-fieldset{
-  padding:0;
-  border:0;
-  margin: 0;
-
-}
-#login form input[type="text"], input[type="password"] {
-background-color: #fff;
-border-radius: 0px 3px 3px 0px;
-color: #000;
-margin-bottom: 1em;
-padding: 0 16px;
-width: 200px;
-}
-
-#login form input[type="submit"] {
-border-radius: 3px;
--moz-border-radius: 3px;
--webkit-border-radius: 3px;
-background-color: #000000;
-color: #eee;
-font-weight: bold;
-/* margin-bottom: 2em; */
-text-transform: uppercase;
-padding: 5px 10px;
-height: 30px;
-}
-
-#login form input[type="submit"]:hover {
-background-color: #d44179;
-}
-
-#login > p {
-text-align: center;
-}
-
-#login > p span {
-padding-left: 5px;
-}
-.middle {
-display: flex;
-width: 600px;
-}
-.table-overflow {
-max-height:400px;
-overflow-y:auto;
-}
-
-.botao{
-width: 200px;
-height: 40px;
-color: #101d47;
-background-color: #68d364;
-font-size:larger;
-}
-
-.botaoatendimento{
-  width: 200px;
-  height: 40px;
-  color: #f4f6f9;
-  background-color: #c6462f;
-  font-size:larger;
-}
-
-/* Cores para os diferentes tipos de senha */
-.senha-consulta {
-  background-color: green;
+.nome-medico {
   color: white;
+  font-weight: 800;
+  margin-top: 5px;
 }
 
-.senha-agendamento {
-  background-color: blue;
+.consultorio-pill {
+  background: white;
+  color: #1c2b5a;
+  padding: 10px 25px;
+  border-radius: 50px;
+  display: inline-block;
+  font-weight: 900;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+/* Card do Paciente */
+.card-paciente {
+  background: #ffffff;
+  border-radius: 12px;
+  border-left: 6px solid #6c757d;
+  transition: all 0.3s ease;
+}
+
+.card-paciente.atendimento-ativo {
+  border-left-color: #28a745;
+  background: #f8fff9;
+  transform: scale(1.01);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.nome-paciente {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #1c2b5a;
+}
+
+/* Botões Customizados */
+.btn-call {
+  background: #28a745;
   color: white;
+  border: none;
+  font-weight: 800;
+  padding: 10px 20px;
+  border-radius: 8px;
 }
 
-.senha-exames {
-  background-color: yellow;
-  color: black;
+.btn-warning-custom {
+  background: #ffc107;
+  color: #1c2b5a;
+  border: none;
+  font-weight: 800;
+  padding: 10px 20px;
+  border-radius: 8px;
 }
 
-.senha-resultado {
-  background-color: white;
-  color: black;
+.btn-status-active {
+  background: #eefbee;
+  color: #28a745;
+  border: 1px solid #28a745;
+  font-weight: 800;
+  cursor: default;
+  border-radius: 8px;
+}
+
+.btn-outline-info-custom {
+  border: 2px solid #007bff;
+  color: #007bff;
+  background: transparent;
+  font-weight: 800;
+  border-radius: 8px;
+}
+
+.btn-success-custom {
+  background: #007bff;
+  color: white;
+  border: none;
+  font-weight: 800;
+  border-radius: 8px;
+}
+
+.btn-danger-custom {
+  background: #dc3545;
+  color: white;
+  border: none;
+  font-weight: 800;
+  border-radius: 8px;
+}
+
+/* Login */
+.login-card-medico {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 450px;
+}
+
+.label-login {
+  color: #00d4ff;
+  font-weight: 700;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.select-custom {
+  background: white;
+  border: none;
+  height: 55px;
+  font-weight: 600;
+  color: #1c2b5a;
+}
+
+.btn-entrar-medico {
+  background: #00d4ff;
+  color: #07122e;
+  border: none;
+  border-radius: 8px;
+  transition: all 0.3s;
+}
+
+.btn-entrar-medico:hover {
+  background: #00b8e6;
+  transform: translateY(-2px);
 }

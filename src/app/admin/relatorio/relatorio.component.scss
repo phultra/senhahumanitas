@@ -1,188 +1,101 @@
-/* Estilos principais */
-html, body {
-  overflow-y: auto;
-  height: auto;
+/* Layout Base */
+.admin-wrapper {
+  background: radial-gradient(ellipse at center, #0264d6 1%, #1c2b5a 100%);
+  min-height: 100vh;
+  width: 100%;
 }
 
-.relatorio-container {
-  max-height: 520px;   /* Ajuste a altura máxima conforme necessário */
-  overflow-y: auto;    /* Habilita a rolagem vertical */
-  margin: 20px 0;
-  padding: 20px;
- // border: 1px solid #ddd;  /* Adiciona uma borda para definir a área do conteúdo */
-  max-width: 200vw;     /* Largura máxima */
-  
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  flex-direction: column; /* Para alinhar o conteúdo de forma vertical dentro da área */
+/* Painel de Filtros */
+.filter-card {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+  padding: 25px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-
-/* Estilos para os filtros */
-.filters {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-top: 20px;
-  gap: 10px;
-
-  @media (max-width: 768px) {
-    flex-direction: column;
-  }
-}
-
-.filter {
+.filter-group {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  max-width: 200px;
-  margin-bottom: 15px;
+  gap: 5px;
 }
 
-.filter label {
+.filter-group label {
+  color: #00d4ff;
   font-weight: bold;
-  color: #dfdfdf;
-  margin-bottom: 5px;
-  text-align: center;
-}
-
-.filter select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  text-align-last: center;
-  font-size: 1rem;
-}
-
-.filter button {
-  margin-top: 5px;
-  background-color: #dc3545;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.3s;
-}
-
-.filter button:hover {
-  background-color: #c82333;
-}
-
-/* Estilos para centralizar os botões */
-.filter-container {
-  display: flex;
-  justify-content: center;
-  width: 100%;
-}
-
-.filter-container button {
-  margin: 0 5px;
-  background-color: #0264d6;
-  color: rgb(228, 0, 0);
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s;
-}
-
-.filter-container button:hover {
-  background-color: #1c2b5a;
-}
-
-/* Filtros de Mês e Semana */
-.filtro-mes-semana {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  margin-bottom: 15px;
-}
-
-.filtro-mes-semana select {
-  padding: 8px;
-  border-radius: 4px;
-  border: 1px solid #000000;
-  text-align-last: center;
-  font-size: 1rem;
-  width: 45%;
-}
-
-.filtro-mes-semana label {
-  font-weight: bold;
-  color: #0264d6;
-  text-align: center;
-  width: 100%;
-  margin-bottom: 5px;
-}
-
-.filtro-mes-semana button {
-  margin-top: 5px;
-  background-color: #dc3545;
-  color: white;
-  padding: 5px 10px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: background-color 0.3s;
-}
-
-.filtro-mes-semana button:hover {
-  background-color: #c82333;
-}
-
-/* Estilos para o relatório */
-.relatorio {
-  margin-top: 30px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  margin: 10px; /* Adiciona margem ao redor da tabela */
-  border: 2px solid black; /* Borda preta */
-}
-
-/* Responsividade para a tabela */
-.table-responsive {
-  max-height: 500px;
-  overflow-y: auto;
-
-  table {
-    table-layout: fixed;
-    width: 100%;
-  }
-
-  th {
-    position: sticky;
-    top: 0;
-    background-color: #0264d6; /* Fundo azul */
-    color: white; /* Letras brancas */
-    z-index: 10;
-    padding: 12px;
-    text-transform: uppercase;
-    font-size: 1rem;
-  }
-}
-
-th, td {
-  padding: 10px;
-  text-align: center;
-  border: 1px solid black; /* Borda preta nas células */
-}
-
-th {
-  background-color: #0264d6; /* Fundo azul */
-  color: white; /* Letras brancas */
-  font-weight: bold;
+  font-size: 0.85rem;
   text-transform: uppercase;
 }
 
-td {
-  background-color: #b92525;
+.custom-select, .custom-input {
+  background-color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px;
+  font-weight: 500;
+}
+
+.custom-select-sm {
+  font-size: 0.85rem;
+  padding: 5px;
+}
+
+.btn-remove {
+  background: none;
+  border: none;
+  color: #ff6b6b;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  text-align: left;
+}
+
+/* Área de Resultados */
+.results-card {
+  background: rgba(255, 255, 255, 0.05);
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Fix para a Tabela Dinâmica via innerHTML */
+.custom-table-container {
+  max-height: 500px;
+  overflow-y: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.dynamic-table-wrapper ::ng-deep table {
+  width: 100%;
+  border-collapse: collapse;
+  color: #333;
+}
+
+.dynamic-table-wrapper ::ng-deep th {
+  background-color: #002244 !important;
+  color: #00d4ff !important;
+  position: sticky;
+  top: 0;
+  padding: 15px;
+  z-index: 20;
+}
+
+.dynamic-table-wrapper ::ng-deep td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.dynamic-table-wrapper ::ng-deep tr:nth-child(even) {
+  background-color: #f8f9fa;
+}
+
+/* Ajustes de Responsividade */
+@media (max-width: 768px) {
+  .filter-card { padding: 15px; }
+  .filter-group { margin-bottom: 10px; }
+  .results-card h3 { font-size: 1.2rem; }
 }

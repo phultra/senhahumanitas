@@ -1,84 +1,77 @@
-<section style="background-color: #003366; color: white; height: 100vh;">
+<section class="admin-section">
   <app-menu></app-menu>
-  <div class="main" style="background-color: #003366; color: rgb(10, 160, 247);">
-    <div class="container" style="background-color: #003366;">
-      <div class="row justify-content-center" style="background-color: #003366;">
-        <div class="col-md-8" style="background-color: #003366;">
-          <div class="mt-4 text-center" style="background-color: #003366;">
-            <h3 class="text-white">Dados da Empresa</h3>
-          </div>
-         
+  
+  <div class="container py-4">
+    <div class="row">
+      <div class="col-12 text-center mb-5">
+        <h2 class="text-white">Painel Administrativo</h2>
+        <p class="text-info">Versão 1.03</p>
+      </div>
+    </div>
 
-          <!-- Tabela de usuários -->
-          <div class="usuarios-container" style="background-color: #003366;">
-            <h3 class="text-white">Usuários Cadastrados</h3>
-            <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
+    <div class="row justify-content-center">
+      <div class="col-lg-10"> <div class="card-painel mb-5">
+          <h3 class="text-white mb-3">Usuários Cadastrados</h3>
+          <div class="table-responsive">
+            <table class="table table-custom">
               <thead>
                 <tr>
                   <th>Nome</th>
                   <th>Email</th>
-                  
                   <th>Função</th>
-                  
-                  <th>Excluir Usuário</th>
+                  <th class="text-center">Ações</th>
                 </tr>
               </thead>
               <tbody>
                 <tr *ngFor="let usuario of usuariosSalvos">
                   <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
-                  
-                  
-                  <td>
-                   {{ usuario.funcao }}
+                  <td>{{ usuario.funcao }}</td>
+                  <td class="text-center">
+                    <button *ngIf="usuario" (click)="excluirUsuario(usuario)" class="btn btn-outline-danger btn-sm">
+                      Excluir
+                    </button>
                   </td>
-                   <!-- Botão para excluir o usuario -->
-                    <td> 
-                      <button *ngIf="usuario" (click)="excluirUsuario(usuario)" class="btn-danger">
-                        Excluir Usuário
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-               </table>
-
-        
-
-          <button (click)="confirmarApagarBanco()" class="btn btn-danger">Apagar Banco</button>
-          <button (click)="confirmarApagarNos()" class="btn btn-danger ml-3" style="margin-left: 10px;">Reiniciar Senhas</button>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
-        <!-- Tabela de Senhas Chamada -->
-<div  class="senhas-chamada-container" style="background-color: #003366;">
-  <h3 class="text-white">Senhas em Chamada</h3>
-  <table class="table-bordered" style="background-color: #003366; color: rgb(0, 0, 0);">
-    <thead>
-      <tr>
-        <th>Senha</th>
-        <th>Operador/Médico</th>
-        <th>Setor</th>
-        <th>Apagar</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let item of senhasChamada">
-        <td>{{ item.senha }}</td>
-        <td>{{ item.operadorOuMedico }}</td>
-        <td>{{ item.setor }}</td>
-        <td>
-  <button class="btn btn-danger btn-sm" (click)="apagarSenhaChamada(item)">
-    Apagar Senha
-  </button>
-</td>
-      </tr>
-    </tbody>
-  </table>
-  <button class="btn btn-danger mt-3" (click)="apagarTodasSenhasChamada()">
-    Apagar TODAS as Senhas
-  </button>
-</div>
+        <div class="card-painel mb-5">
+          <h3 class="text-white mb-3">Senhas em Chamada</h3>
+          <div class="table-responsive">
+            <table class="table table-custom">
+              <thead>
+                <tr>
+                  <th>Senha</th>
+                  <th>Operador/Médico</th>
+                  <th>Setor</th>
+                  <th class="text-center">Apagar</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of senhasChamada">
+                  <td class="fw-bold">{{ item.senha }}</td>
+                  <td>{{ item.operadorOuMedico }}</td>
+                  <td>{{ item.setor }}</td>
+                  <td class="text-center">
+                    <button class="btn btn-danger btn-sm" (click)="apagarSenhaChamada(item)">
+                      Remover
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-3">
+            <button class="btn btn-danger" (click)="apagarTodasSenhasChamada()">
+              Apagar TODAS as Senhas
+            </button>
+          </div>
+        </div>
+
       </div>
     </div>
-  </div>
   </div>
 </section>

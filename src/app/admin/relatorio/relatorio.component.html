@@ -1,141 +1,119 @@
+<section class="admin-wrapper">
+  <app-menu></app-menu>
 
-<!-- Relatório com filtros -->
-<!--<div class="form-group">
-    <button type="button" class="btn btn-primary" (click)="exibirRelatorio()">Exibir Relatório</button>
+  <div class="container-fluid px-4 py-4">
+    <div class="row justify-content-center">
+      <div class="col-12 col-xl-11">
+        
+        <div class="filter-card mb-4">
+          <h2 class="text-white mb-4"><i class="bi bi-filter-circle"></i> Filtros do Relatório</h2>
+          
+          <div class="row g-3">
+            <div class="col-md-3">
+              <div class="filter-group">
+                <label>Operador</label>
+                <select class="form-select custom-select" [(ngModel)]="filtroOperador" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todos os Operadores</option>
+                  <option *ngFor="let op of operadores" [value]="op">{{ op }}</option>
+                </select>
+                <button *ngIf="filtroOperador" (click)="removerFiltro('operador')" class="btn-remove">Remover Filtro</button>
+              </div>
+            </div>
 
-   
-  </div>-->
- <!-- Filtros -->
- 
- <section  style="background-color: #003366; color: white; height: 100vh;">
-  <section>
-    <app-menu></app-menu>
-  </section>
-  
-  
-  <div class="filters row justify-content-center">
-    <div class="filter col-md-3 text-center">
-      <label>Operador:</label>
-      <select [(ngModel)]="filtroOperador" (ngModelChange)="filtrarRelatorio()">
-        <option value="">Todos</option>
-        <option *ngFor="let operador of operadores" [value]="operador">{{ operador }}</option>
-      </select>
-      <button *ngIf="filtroOperador" (click)="removerFiltro('operador')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>
-    
-    
-    <div class="filter col-md-3 text-center">
-      <label>Guiche:</label>
-      <select [(ngModel)]="filtroGuiche" (ngModelChange)="filtrarRelatorio()">
-        <option value="">Todos</option>
-        <option *ngFor="let guiche of guichesList" [value]="guiche">{{ guiche }}</option>
-      </select>
-      <button *ngIf="filtroGuiche" (click)="removerFiltro('guiche')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>
-    
-    
-    <div class="filter col-md-3 text-center">
-      <label>Senha:</label>
-      <select [(ngModel)]="filtroSenha" (ngModelChange)="filtrarRelatorio()">
-        <option value="">Todos</option>
-        <option *ngFor="let senha of senhasList" [value]="senha">{{ senha }}</option>
-      </select>
-      <button *ngIf="filtroSenha" (click)="removerFiltro('senha')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>
-   
-   
-     <!-- <div class="filter col-md-3 text-center">  
-   <label>Nota:</label>
-      <select [(ngModel)]="filtroNota" (ngModelChange)="filtrarRelatorio()">
-        <option value="">Todos</option>
-        <option *ngFor="let nota of notasList" [value]="nota">{{ nota }}</option>
-      </select>
-      <button *ngIf="filtroNota" (click)="removerFiltro('nota')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>-->
-   
-   
-   
+            <div class="col-md-2">
+              <div class="filter-group">
+                <label>Guichê</label>
+                <select class="form-select custom-select" [(ngModel)]="filtroGuiche" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todos</option>
+                  <option *ngFor="let g of guichesList" [value]="g">{{ g }}</option>
+                </select>
+                <button *ngIf="filtroGuiche" (click)="removerFiltro('guiche')" class="btn-remove">Remover Filtro</button>
+              </div>
+            </div>
 
-    
-  </div>
+            <div class="col-md-2">
+              <div class="filter-group">
+                <label>Senha</label>
+                <select class="form-select custom-select" [(ngModel)]="filtroSenha" (ngModelChange)="filtrarRelatorio()">
+                  <option value="">Todas</option>
+                  <option *ngFor="let s of senhasList" [value]="s">{{ s }}</option>
+                </select>
+                <button *ngIf="filtroSenha" (click)="removerFiltro('senha')" class="btn-remove">Remover Filtro</button>
+              </div>
+            </div>
 
+            <div class="col-md-5">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="text-white small fw-bold">Data Início</label>
+                  <input type="date" class="form-control custom-input" [(ngModel)]="filtroDataInicio" (change)="filtrarRelatorio()">
+                </div>
+                <div class="col-6">
+                  <label class="text-white small fw-bold">Data Fim</label>
+                  <input type="date" class="form-control custom-input" [(ngModel)]="filtroDataFim" (change)="filtrarRelatorio()">
+                </div>
+              </div>
+            </div>
+          </div>
 
-  
- 
+          <div class="row g-3 mt-2 border-top pt-3 border-secondary">
+             <div class="col-md-4 d-flex gap-2">
+                <select class="form-select custom-select-sm" [(ngModel)]="filtroDia" (change)="filtrarRelatorio()">
+                  <option value="">Dia (Todos)</option>
+                  <option *ngFor="let d of diasList" [value]="d">{{ d }}</option>
+                </select>
+                <select class="form-select custom-select-sm" [(ngModel)]="filtroMes" (change)="filtrarRelatorio()">
+                  <option value="">Mês (Todos)</option>
+                  <option *ngFor="let m of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="m">{{ m }}</option>
+                </select>
+                <select class="form-select custom-select-sm" [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
+                  <option value="">Semana (Todas)</option>
+                  <option *ngFor="let sem of [1,2,3,4,5]" [value]="sem">{{ sem }}</option>
+                </select>
+             </div>
+          </div>
+        </div>
 
-  <div class="filters row justify-content-center" style="background-color: #003366;">
-    <div class="filter col-md-3 text-center">
-      <label>Dia:</label>
-      <select [(ngModel)]="filtroDia" (ngModelChange)="filtrarRelatorio()">
-        <option value="">Todos</option>
-        <option *ngFor="let dia of diasList" [value]="dia">{{ dia }}</option>
-      </select>
-      <button *ngIf="filtroDia" (click)="removerFiltro('dia')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>
-    
-    
-    <div class="filter col-md-3 text-center">
-      <label for="mes">Mês:</label>
-      <select [(ngModel)]="filtroMes" (change)="filtrarRelatorio()">
-        <option value="">Todos</option>
-        <option *ngFor="let mes of [1,2,3,4,5,6,7,8,9,10,11,12]" [value]="mes">{{ mes }}</option>
-      </select>
-      <button *ngIf="filtroMes" (click)="removerFiltro('mes')" class="btn btn-sm btn-danger mt-2">Remover</button>
-    </div>
-   
-   
-    <div class="filter col-md-3 text-center">
-      <label for="semana">Semana:</label>
-      <select [(ngModel)]="filtroSemana" (change)="filtrarRelatorio()">
-        <option value="">Todas</option>
-        <option *ngFor="let semana of [1,2,3,4,5]" [value]="semana">{{ semana }}</option>
-        <button *ngIf="filtroSemana" (click)="removerFiltro('semana')" class="btn btn-sm btn-danger mt-2">Remover</button>
-      </select>
-    </div>
-    
-    
-    <div class="filter col-md-3 text-center">
-      <label>Data Início:</label>
-      <input type="date" [(ngModel)]="filtroDataInicio" (change)="filtrarRelatorio()">
-    
-      <label>Data Fim:</label>
-      <input type="date" [(ngModel)]="filtroDataFim" (change)="filtrarRelatorio()">
-    </div>
-    
-    
-    
-    
-    
-    <div *ngIf="mostrarRelatorio" class="relatorio-container">
-      
-      <div class="table-responsive" [innerHTML]="relatorio"></div>
-      <button (click)="relatorioParaBaixar()"  style="margin-top: 20px;">Baixar Relatório Completo</button>
-      <!--<button (click)="fecharRelatorio()" class="btn btn-secondary">Fechar Relatório</button>-->
-    </div>
-    
-   
-   
-   
-    <!-- <button class="filter col-md-3 text-center" (click)="calcularMediaNotas()">Calcular Média</button> -->
+        <div *ngIf="mostrarRelatorio" class="results-card">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="text-white m-0">Dados do Atendimento</h3>
+            <button class="btn btn-success btn-sm" (click)="relatorioParaBaixar()">
+              <i class="bi bi-download"></i> Baixar Relatório Completo
+            </button>
+          </div>
 
-    <table *ngIf="mediaNotas.length > 0" style="background-color: #003366;">
-      <thead>
-        <tr>
-          <th>Operador</th>
-          <th>Média da Nota</th>
-          <th>Total de Atendimentos</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of mediaNotas">
-          <td>{{ item.operador }}</td>
-          <td>{{ item.mediaNota | number:'1.2-2' }}</td>
-          <td>{{ item.totalAtendimentos }}</td>
-        </tr>
-      </tbody>
-    </table>
-    
-    
-    <!-- <button class="filter col-md-3 text-center"   (click)="gerarPDFmedia()">Baixar Média dos Operadores</button> -->
+          <div class="table-responsive custom-table-container">
+            <div [innerHTML]="relatorio" class="dynamic-table-wrapper"></div>
+          </div>
+        </div>
+
+        <div class="row mt-4" *ngIf="mediaNotas.length > 0">
+          <div class="col-md-6">
+            <div class="results-card">
+              <h4 class="text-info mb-3">Resumo de Performance</h4>
+              <div class="table-responsive">
+                <table class="table table-hover table-light border-0">
+                  <thead class="table-dark">
+                    <tr>
+                      <th>Operador</th>
+                      <th>Média</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of mediaNotas">
+                      <td class="fw-bold">{{ item.operador }}</td>
+                      <td><span class="badge bg-primary">{{ item.mediaNota | number:'1.2-2' }}</span></td>
+                      <td>{{ item.totalAtendimentos }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
   </div>
 </section>

@@ -46,6 +46,8 @@ export class PainelComponent implements OnInit {
   isProcessing: any;
 private ultimoPaciente: { nome: string, consultorio: string, horachamada: string } | null = null;
   private ultimaSenha: string | null = null;
+  ativarPainel = true;
+
   constructor(
     private cdRef: ChangeDetectorRef,
     private adminService: AdminService,
@@ -61,7 +63,10 @@ private ultimoPaciente: { nome: string, consultorio: string, horachamada: string
       // this.verificarSetorUsuario(); // Garante que o usuário selecione o setor correto
     }
   }
-
+ 
+  ativar(){
+    this.ativarPainel = false
+  }
 
 
   // Carrega senhas

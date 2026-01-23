@@ -1,237 +1,118 @@
-<!-- Spinner de carregamento enquanto uma senha é chamada -->
-<ngx-spinner
-bdColor="rgba(51,51,51,0.8)"
-size="medium"
-color="#fff"
-type="ball-scale-multiple"
->
-<p style="font-size: 20px; color: white">Chamando Senha...</p>
+<ngx-spinner bdColor="rgba(51,51,51,0.8)" size="medium" color="#fff" type="ball-scale-multiple">
+  <p style="font-size: 20px; color: white">Chamando Senha...</p>
 </ngx-spinner>
 
-
-<!--TELA CONVENCIONAL-->
-<section *ngIf="telaoperador">  
-  <div class="main">
-    <!-- Cabeçalho com informações do operador -->
-    <div class="row text-center pt-5 ">
-    <div class="col-md-12 ">
-      <h1 style="color:rgb(255, 255, 255)">OPERADOR(A)</h1>
-      <h3 style="color:rgb(136, 157, 189)"> {{operador}}</h3>
-    </div>
-    
-    <!-- Botao para chamar senha -->
-    <div class="col-md-6 mt-5">
-      <button class="btn  botao" (click)="chamarSenhaConvencional()">CHAMAR SENHA</button>
-    </div>
-   
-   
-    <!-- Formulário de informações adicionais -->
-   <div 
-  *ngIf="(senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'EXAME' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO' ) && senhaOperadorPainel.status !== '3'" 
-  class="mt-4"
-  style="color: white;">
-   <div class="">
-    <h5 style="color: white;">Informações do Paciente</h5>
-    <div class="form-group">
-      <label style="color: white;">Nome do Paciente</label>
-      <input class="form-control" [(ngModel)]="dadosPaciente.nome" placeholder="Digite o nome">
-    </div>
-    <div class="form-group mt-2">
-      <label style="color: white;">Nome do Médico</label>
-      <select class="form-control" [(ngModel)]="dadosPaciente.medico">
-        <option *ngFor="let medico of medicos" [value]="medico.nome">{{ medico.nome }}</option>
-      </select>
+<section *ngIf="telaoperador" class="main-op-dashboard">
+  <div class="container-fluid pt-4 px-4">
+    <div class="row align-items-center mb-4">
+      <div class="col-md-6 text-start">
+        <h5 class="text-white-50 mb-0">OPERADOR(A)</h5>
+        <h2 class="text-white fw-bold">{{operador}}</h2>
+      </div>
+      <div class="col-md-6 text-md-end text-center mt-3 mt-md-0">
+        <button class="btn btn-primary btn-lg px-5 shadow-lg" (click)="chamarSenhaConvencional()">
+          CHAMAR PRÓXIMA
+        </button>
+      </div>
     </div>
 
-   </div>
-  
-  <!-- <div class="form-group mt-2"> -->
-    <!-- <label style="color: white;">Número do Consultório</label> -->
-    <!-- <select class="form-control" [(ngModel)]="dadosPaciente.consultorio"> -->
-      <!-- <option *ngFor="let consultorio of consultorios" [value]="consultorio.numero">{{ consultorio.numero }}</option> -->
-    <!-- </select> -->
-  <!-- </div> -->
-  </div>
-    </div>
-
-   <!-- Linha separadora -->
-  <hr class="my-4 mb-4">
-
-
- <!-- Tabela com senhas sendo atendidas -->
-<div class="container-fluid mb-5">
-  <div class="row">
-    <div class="container-fluid">
-      <table class="table table-overflow">
-        <thead>
-          <tr class="text-center">
-            <th scope="col">#</th>
-            <th scope="col">ESCOLHER SENHA</th>
-            <th scope="col">SENHA EM ATENDIMENTO</th>
-            <th scope="col">REPETIR SENHA</th>
-            <th scope="col">FINALIZAR</th>
-            <th>NÃO COMPARECEU</th>
-            
-          </tr>
-          
-        </thead>
-        <tbody>
-          <tr class="text-center" >
-             <!-- Dados do cliente e senha sendo atendida -->
-            <th scope="row"></th>
-            <td>     
-              <!-- Lista de Senhas -->
-                <div class="mt-3">
-                  <h5 *ngIf="!senhaOperadorPainel.senha">Senhas:</h5>
-                  <div *ngIf="senhaOperadorPainel.status ==='1'">
-                      <br>
-                      <br>
-                  </div>
-                  <ul>
-                    <li *ngFor="let senha of senhasDisponiveis">
-                      <button 
-                        class="btn m-1" 
-                        [ngClass]="{
-                          'senha-consulta': senha.setor === 'CONSULTA',
-                          'senha-agendamento': senha.setor === 'REALIZAR AGENDAMENTO',
-                          'senha-exames': senha.setor === 'EXAME',
-                          'senha-resultado': senha.setor === 'RESULTADO DE EXAMES'
-                        }"
-                        (click)="chamarSenhaConvencional(senha)">
-                        Senha: {{ senha.senha }} 
-                      </button>
-                    </li>
-                  </ul>
-                </div>    
-            </td>
-            <td> <h5 class="senha"> {{senhaOperadorPainel.senha}}</h5>  </td>
-            <!-- Botões de ações para a senha -->
-            <!--<td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-danger btn-lg btn-block"  >EM ATENDIMENTO</button></td>-->
-            <td ><button *ngIf="senhaOperadorPainel.status ==='1'" class="btn btn-primary btn-lg btn-block" (click)="repetirsenha(senhaOperadorPainel)">REPETIR SENHA</button></td>
-           <td><button *ngIf="senhaOperadorPainel.status ==='1'" type="button" class="btn btn-primary btn-lg btn-block" (click)="finalizarConvencional(senhaOperadorPainel)">Finalizar Atendimento</button>
-            
-            <td>
-                <button
-                  *ngIf="senhaOperadorPainel.status === '1'"
-                  class="btn btn-warning btn-lg btn-block"
-                  style="color: #222; font-weight: bold;"
-                  (click)="naoCompareceu(senhaOperadorPainel)">
-                  NÃO COMPARECEU
+    <div class="row g-4">
+      <div class="col-xl-3 col-lg-4">
+        <div class="card-glass shadow-sm">
+          <div class="card-header-glass">SENHAS DISPONÍVEIS</div>
+          <div class="queue-list custom-scroll">
+            <ul class="list-unstyled p-3">
+              <li *ngFor="let senha of senhasDisponiveis" class="mb-2">
+                <button 
+                  class="btn w-100 senhasdisponiveis text-start d-flex justify-content-between align-items-center p-3" 
+                  [ngClass]="{
+                    'senha-consulta': senha.setor === 'CONSULTA',
+                    'senha-agendamento': senha.setor === 'REALIZAR AGENDAMENTO',
+                    'senha-exames': senha.setor === 'EXAME',
+                    'senha-resultado': senha.setor === 'RESULTADO DE EXAMES'
+                  }"
+                  (click)="chamarSenhaConvencional(senha)">
+                  <span class="fw-bold">{{ senha.senha }}</span>
+                  <small style="font-size: 0.9rem; opacity: 0.8;">{{ senha.setor }}</small>
                 </button>
-              </td>
-              <!--<td class="senha">{{senhaOperadorPainel.senha}}</td>-->
-          </tr>
-       </tbody>
-      </table>
-     </div>
-    </div>
-   </div>
-  </div>
-</section>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
+      <div class="col-xl-6 col-lg-8">
+        <div class="card-main-atendimento shadow-lg text-center p-4 p-md-5">
+          <h4 class="text-white-50 mb-4">EM ATENDIMENTO</h4>
+          
+          <div class="display-senha-box my-4">
+            <h1 class="senha-texto-grande">{{senhaOperadorPainel.senha || '---'}}</h1>
+          </div>
 
+          <div class="row g-2 justify-content-center mt-4" *ngIf="senhaOperadorPainel.status === '1'">
+            <div class="col-md-4">
+              <button class="btn btn-info w-100 py-3 fw-bold" (click)="repetirsenha(senhaOperadorPainel)">
+                REPETIR SENHA
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-success w-100 py-3 fw-bold" (click)="finalizarConvencional(senhaOperadorPainel)">
+                FINALIZAR
+              </button>
+            </div>
+            <div class="col-md-4">
+              <button class="btn btn-warning w-100 py-3 fw-bold text-dark" (click)="naoCompareceu(senhaOperadorPainel)">
+                NÃO COMPARECEU
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
-<!--TELA DE ENTRADA-->
-<section *ngIf="!telaoperador">
-  <div class="main">
-    <div style="color: aliceblue;" class="d-flex justify-content-center"><h3 style="margin-top: 6%;">Escolha o Guichê:</h3></div> 
-    <div class="container"> 
-     
-    <div class="middle">
-      <div id="login">
-         <!-- Formulário para selecionar guichê e nome do operador -->
-        <form action="javascript:void(0);" [formGroup]="formulario"  (ngSubmit)="cadastrarConvencional()">
-          <fieldset class="clearfix">
-           <!-- Seleção de guichê -->
-<div class="mb-4" style="text-align: center;">
-  <label style="color: aliceblue;" for="selectedOption" class="m-1">Informe seu Guichê:</label>
-  <select id="selectedOption" formControlName="guiche" 
-    style="font-size: 1.5rem; width: 80%; margin-top: 10px; text-align: center;  box-shadow: none;">
-    <option value="01">01</option>
-    <option value="02">02</option>
-    <option value="03">03</option>
-    <option value="04">04</option>
-    <option value="05">05</option>
-    <option value="06">06</option>
-    <option value="07">07</option>
-    <option value="08">08</option>
-    <option value="09">09</option>
-    <option value="10">10</option>
-  </select>
-</div>
-
-            
-<!-- Campo para inserir o nome do operador -->
-<div class="mb-4" style="text-align: center;">
-  <label style="color: aliceblue;" for="selectedOption" class="m-1">Nome:</label>
-  <input 
-    class="fa fa-user" 
-    name="nome" 
-    type="text" 
-    formControlName="nome" 
-    placeholder="" 
-    required
-    [value]="nomeUsuario"   
-    readonly  
-    style="border: none; background: transparent; box-shadow: none; font-size: 1.5rem; width: 80%; margin-top: 10px; text-align: center;" 
-  />
-</div>
-
-
-
-
-
-
-
-<!-- Botão para entrar no sistema -->
-             <div>
-                <!--  <span style="width:48%; text-align:left;  display: inline-block;"><a class="small-text" href="#">Forgot
-                 password?</a></span> -->
-                 <span style="width:60%; text-align:right;  display: inline-block;"><input type="submit" name="submit"  value="ENTRAR"></span>
-              </div>
-
-          </fieldset>
-<div class="clearfix"></div>
-        </form>
-
-        <div class="clearfix"></div>
-
-      <!-- Logo do sistema -->
-      </div> <!-- end login -->
-        <div class="logo1">
-              <img class="logo" src="./assets/img/logouai.png"/>
-          <div class="clearfix"></div>
+      <div class="col-xl-3 col-lg-12">
+        <div 
+          *ngIf="(senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'EXAME' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO' ) && senhaOperadorPainel.status !== '3'" 
+          class="card-glass p-4"
+        >
+          <h5 class="text-white border-bottom pb-2 mb-3">Dados do Paciente</h5>
+          <div class="mb-3">
+            <label class="text-white-50 small mb-1">Nome do Paciente</label>
+            <input class="form-control bg-white" [(ngModel)]="dadosPaciente.nome" placeholder="Nome completo">
+          </div>
+          <div class="mb-3">
+            <label class="text-white-50 small mb-1">Nome do Médico</label>
+            <select class="form-select bg-white" [(ngModel)]="dadosPaciente.medico">
+              <option *ngFor="let medico of medicos" [value]="medico.nome">{{ medico.nome }}</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </section>
-  
 
+<section *ngIf="!telaoperador" class="main-op-dashboard d-flex align-items-center justify-content-center">
+  <div class="login-card p-5 shadow-lg">
+    <div class="text-center mb-4">
+      <img src="./assets/img/logouai.png" class="img-fluid mb-3" style="max-height: 80px;">
+      <h3 class="text-white fw-bold">Acesso ao Guichê</h3>
+    </div>
 
-<!-- Modal para avaliação -->
-<!--
-<ng-template #modalTemplate let-modal>
-  <div class="modal-header">
-    <h5 class="modal-title">Atendimento Finalizado</h5>
-    <button type="button" class="close" (click)="modal.hide()">
-      <span>&times;</span>
-    </button>
+    <form [formGroup]="formulario" (ngSubmit)="cadastrarConvencional()">
+      <div class="mb-4 text-center">
+        <label class="text-white-50 d-block mb-2">Informe seu Guichê:</label>
+        <select formControlName="guiche" class="form-select text-center fw-bold fs-4 shadow-none">
+          <option *ngFor="let n of ['01','02','03','04','05','06','07','08','09','10']" [value]="n">{{n}}</option>
+        </select>
+      </div>
+
+      <div class="mb-4 text-center">
+        <label class="text-white-50 d-block mb-2">Nome do Operador:</label>
+        <input class="form-control text-center bg-transparent text-white border-0 fs-5 shadow-none" 
+               formControlName="nome" [value]="nomeUsuario" readonly />
+      </div>
+
+      <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold">ENTRAR</button>
+    </form>
   </div>
-  <div class="modal-body">
-    <p>A nota será atribuída automaticamente e enviada ao sistema.</p>
-    <input 
-      type="number" 
-      [(ngModel)]="notaDigitada" 
-      (keydown)="onKeyPress($event)" 
-      style="opacity: 0; height: 0; width: 0; position: absolute;" 
-      maxlength="2" 
-      placeholder="Digite a nota"
-    />
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.hide()">Cancelar</button>
-    <button type="button" class="btn btn-primary" (click)="finalizarComNota(modal)">Finalizar</button>
-  </div>
-</ng-template>
--->
+</section>

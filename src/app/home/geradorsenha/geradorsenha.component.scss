@@ -1,6 +1,6 @@
 
 .espaco {
-  margin-bottom: 15%;
+  margin-bottom: 6vh;
 }
 
 .espacot {
@@ -11,12 +11,12 @@
   margin-bottom:10% ;
 }
 
-.espacoinferiorsegundatela {
-  margin-bottom: 60% ;
+.espacotitulo {
+  margin-bottom: 5vh;
 }
 
-.espacotitulo {
-  margin-bottom: 10%;
+.espacoinferiorsegundatela {
+  margin-bottom: 50vh;
 }
 
 .titulo1{
@@ -195,23 +195,20 @@ fieldset{
 
 
 .btn {
-    border: none;
-    font-family: inherit;
-    font-size: 100PX;
-    width: 600px; /* Tamanho uniforme para todos os botões */
-    color: inherit;
-    background: none;
-    cursor: pointer;
-    padding: 25px 80px;
-    display: inline-block;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 700;
-    outline: none;
-    position: relative;
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    transition: all 0.3s;
+  border: none;
+  font-family: inherit;
+  font-size: 90px;
+  width: 550px;
+  padding: 25px 80px;
+  cursor: pointer;
+
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+
+  border-radius: 22px;
+
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .btn:after {
@@ -224,21 +221,20 @@ fieldset{
 }
 
 .btn-2 {
-    background: #4caf50; /* Verde */
-    color: #fff;
-    box-shadow: 0 6px #388e3c; /* Sombra verde escura */
-    -webkit-transition: none;
-    -moz-transition: none;
-    transition: none;
-   
-  width: 600x; /* ou o valor desejado */
-  min-width: 300px;
-  max-width: 100%;
-  height: 170px;
+  background: linear-gradient(180deg, #4caf50, #2e7d32);
+  color: #ffffff;
+
+  box-shadow:
+    0 10px 0 #1b5e20,
+    0 15px 30px rgba(0,0,0,0.35);
+
+  height: 152px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: clamp(2.3rem, 2vw, 2rem); /* Ajuste automático da fonte */
+
+  font-size: clamp(2.1rem, 2vw, 2rem);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -246,13 +242,12 @@ fieldset{
 
 .logo-fixed {
   position: fixed;
-  top: -80px;
+  top: -73px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
   width: 450px;
   max-width: 30vw;
-  margin-bottom: 0;
   pointer-events: none; // não bloqueia clique nos botões
 }
 /* Button 2h */
@@ -261,14 +256,17 @@ fieldset{
 }
 
 .btn-2h:hover {
-    box-shadow: 0 4px #388e3c;
-    top: 2px;
+  transform: translateY(2px);
+  box-shadow:
+    0 6px 0 #1b5e20,
+    0 10px 20px rgba(0,0,0,0.3);
 }
 
 .btn-2h:active {
-    box-shadow: 0 0 #388e3c;
-    top: 6px;
+  transform: translateY(6px);
+  box-shadow: 0 2px 0 #1b5e20;
 }
+
 /* Estilo para o seletor de setor */
 .custom-select {
 	border-radius: 5px;

@@ -32,7 +32,7 @@ export class ChamarPacienteComponent implements OnInit {
    setor: string ='';
    senhaOperadorPainel: DadosSenha = new DadosSenha;
    
- 
+   desabilitabotao:boolean = false;
    
    senhaPainel: DadosSenha[] =[];
    repetirSenha: DadosSenha []= [];
@@ -79,15 +79,14 @@ export class ChamarPacienteComponent implements OnInit {
  
    ngOnInit(): void {
      // Verifica se o usuário está autenticado ao carregar o componente
-  {
+    {
      this.formbuilder()
      this.carregarMedicos();
      this.carregarConsultorios();
-    
-  }
- 
- 
- 
+    }
+  
+   
+
     // Busca as senhas não atendidas ao carregar o componente
     this.mostrarSenhasNaoAtendidas();
  
@@ -184,7 +183,7 @@ export class ChamarPacienteComponent implements OnInit {
    }
  
   // Repete a chamada de uma senha convencional  
-  async repetirSenhaConvencional(senha: DadosSenha) {
+ /* async repetirSenhaConvencional(senha: DadosSenha) {
    this.spinner.show();
    console.log("Repetindo senha:", senha);
  
@@ -198,7 +197,7 @@ export class ChamarPacienteComponent implements OnInit {
    } finally {
      this.spinner.hide();
    }
- }
+ }*/
  
     // Chama uma senha normal no painel
   /* async chamarsenhanormal(senha:DadosSenha) {
@@ -248,6 +247,7 @@ export class ChamarPacienteComponent implements OnInit {
  chamarSenhaConvencional(senhaSelecionada?: DadosSenha, repeticao: boolean = false) {
    this.spinner.show();
    const time = Date.now().toString();
+   
  
    const senha = senhaSelecionada || this.senhasDisponiveis.sort((a, b) => +a.horaGeracao - +b.horaGeracao)[0];
  
@@ -321,6 +321,7 @@ buscarSenhasFiltradasPorMedico() {
         this.senhasDisponiveis = todasSenhas.filter(
           (senha) => senha.medico === this.formulario.value.nome && senha.nome
         );
+           console.log(this.operador)
       } else {
         this.senhasDisponiveis = [];
       }
@@ -354,6 +355,7 @@ cadastrarConvencional() {
 
     // Busca as senhas filtradas pelo médico selecionado
     this.buscarSenhasFiltradasPorMedico();
+
   } else {
     alert('Você precisa informar o médico e o consultório.');
   }
@@ -379,31 +381,33 @@ cadastrarConvencional() {
    
  
    
-  async finalizarConvencional(senha: DadosSenha) {
-  const time = Date.now().toString();
-  senha.finalatendimento = time;
-  senha.status = '3'; // Status "finalizado"
+  async finalizarConvencional(senha: any) {
+    console.log(senha);
+    const time = Date.now().toString();
+    senha.finalatendimento = time;
+    senha.status = '4'; // Status "finalizado"
+    console.log(senha.senhaid)
 
-  try {
-    const senhafinalizadaPath = `humanitas/senhafinalizada/${time}`;
-    const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
-    // const novoIdPath = `avelar/senhachamada/1`;
-    // Mover a senha para o nó `senhafinalizada`
-    await update(ref(this.db), {
-      [senhafinalizadaPath]: {
-        ...senha,
-        finalatendimento: senha.finalatendimento,
-      },
-      [senhachamadaPath]: null, // Remove do nó `senhachamada`
-      // [novoIdPath]: null,
-    });
+    try {
+      const senhafinalizadaPath = `humanitas/senhafinalizada/${time}`;
+      const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+      // const novoIdPath = `avelar/senhachamada/1`;
+      // Mover a senha para o nó `senhafinalizada`
+      await update(ref(this.db), {
+        [senhafinalizadaPath]: {
+          ...senha,
+          finalatendimento: senha.finalatendimento,
+        },
+        [senhachamadaPath]: null, // Remove do nó `senhachamada`
+        // [novoIdPath]: null,
+      });
 
-    console.log('Senha movida para o nó senhafinalizada:', senha);
-    alert('Atendimento finalizado com sucesso!');
-  } catch (error) {
-    console.error('Erro ao finalizar a senha:', error);
-    alert('Erro ao finalizar a senha. Tente novamente.');
-  }
+      console.log('Senha movida para o nó senhafinalizada:', senha);
+      alert('Atendimento finalizado com sucesso!');
+    } catch (error) {
+      console.error('Erro ao finalizar a senha:', error);
+      alert('Erro ao finalizar a senha. Tente novamente.');
+    }
 }
  
  
@@ -439,15 +443,16 @@ cadastrarConvencional() {
       });
   }, 500); // Atualiza a cada 0,5 segundos
 }*/
-async mostrarSenhasNaoAtendidas() {
+async mostrarSenhasNaoAtendidas( ) {
+
  await this.adminService.getSenhasParaMedico().subscribe( async dado =>{
-   console.log(dado)
-   if (dado) {
-  //  const todasSenhas = Object.values(dado.val()) as DadosSenha[];
-    // Filtra as senhas com base no médico e consultório selecionados
+   
+  console.log(dado)
+   if (dado.length !== 0) {
+    // console.log(this.formulario.value.medico.nome);
+      console.log(this.formulario.value.nome);
      this.senhasDisponiveis = await dado.filter(senha => senha.medico === this.formulario.value.nome && senha.nome);// Garante que o campo nome não esteja vazio
-   //console.log("Senhas do Gabriel:", this.senhasDisponiveis);
-    console.log("Senhas disponíveis atualizadas:", this.senhasDisponiveis);
+    console.log("Senhas disponíveis agora atualizadas:", this.senhasDisponiveis);
   } else {
     this.senhasDisponiveis = [];
     console.warn("Nenhuma senha encontrada.");

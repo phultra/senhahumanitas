@@ -1,40 +1,107 @@
-/* Estilos principais */
-html, body {
-    overflow-y: auto;
-    height: auto;
-  }
-  
-  /* Ajustes de botão */
-  button {
-    margin-top: 10px;
-  }
-  
-  button.btn-info {
-    background-color: #17a2b8;
-    color: rgb(20, 19, 19);
-  }
-  
-  button.btn-primary {
-    background-color: #0264d6;
-    color: white;
-  }
-  
-  button.btn-danger {
-    background-color: #dc3545;
-    color: white;
-  }
-  
-  button.btn-success {
-    background-color: #28a745;
-    color: white;
-  }
-  .blue-background {
-  background-color: #003366; /* Azul escuro */
-  color: white; /* Cor do texto */
-  height: 100vh; /* Ocupa toda a altura da tela */
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+/* Layout Base */
+.admin-wrapper {
+  background: radial-gradient(ellipse at center, #0264d6 1%, #1c2b5a 100%);
+  min-height: 100vh;
+  width: 100%;
 }
-  
+
+/* Card de Usuário */
+.user-card {
+  background-color: #ffffff;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+  width: 100%;
+  max-width: 550px;
+}
+
+/* Cabeçalho do Card */
+.card-header-custom {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.card-header-custom i {
+  font-size: 3rem;
+  color: #0264d6;
+}
+
+.card-header-custom h3 {
+  color: #1c2b5a;
+  font-weight: 800;
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.card-header-custom p {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Campos de Entrada */
+.form-label-custom {
+  font-weight: 600;
+  color: #1c2b5a;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.custom-input {
+  border: 2px solid #e9ecef;
+  border-radius: 10px;
+  padding: 12px 15px;
+  transition: all 0.3s ease;
+}
+
+.custom-input:focus {
+  border-color: #0264d6;
+  box-shadow: 0 0 0 4px rgba(2, 100, 214, 0.1);
+  outline: none;
+}
+
+/* Mensagens de Erro */
+.error-container {
+  height: 18px; /* Evita que o layout "pule" quando o erro aparece */
+  margin-top: 4px;
+}
+
+.error-container small {
+  color: #dc3545;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+/* Botão de Cadastro */
+.btn-register {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+}
+
+.btn-register:hover:not(:disabled) {
+  background-color: #218838;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-register:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Responsividade */
+@media (max-width: 576px) {
+  .user-card {
+    padding: 25px;
+    margin: 15px;
+    border-radius: 15px;
+  }
+}
