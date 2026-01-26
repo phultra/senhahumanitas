@@ -1,0 +1,112 @@
+ <!-- Spinner Simulado -->
+    <div *ngIf="carregando()" class="spinner-overlay">
+      <div class="text-center">
+        <div class="spinner-border text-light" role="status" style="width: 3rem; height: 3rem;"></div>
+        <p class="mt-3 text-white fs-5">Chamando Senha...</p>
+      </div>
+    </div>
+
+    <section class="main-op-dashboard d-flex align-items-center justify-content-center p-3">
+      <div class="container-fluid py-4 h-100">
+        
+        <!-- Cabeçalho Centralizado -->
+        <div class="row mb-5 text-center">
+          <div class="col-12">
+            <h5 class="text-white-50 mb-0">OPERADOR(A) ATIVO</h5>
+            <h1 class="text-white fw-bold display-4">{{ operadorLogado() }}</h1>
+          </div>
+        </div>
+        <div class="col-md-3 text-md-end text-center mt-3 mt-md-0">
+          <button class="btn btn-secondary btn-lg px-5 shadow-lg" (click)="irparaverificasenha()">
+            VOLTAR
+          </button>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-xl-10 col-lg-11">
+            <div class="card-glass shadow-lg">
+              <div class="card-header-glass">
+                SENHAS CHAMADAS E ENCAMINHADAS PARA O MÉDICO
+              </div>
+              
+              <div class="queue-list custom-scroll p-4">
+                <!-- Filtro de Grid para as Senhas -->
+                <div class="row g-4">
+                  @for (senha of senhasDisponiveis; track senha.senhaid) {
+                    <div class="col-md-6 col-lg-4">
+                      <div class="senha-card p-3" [ngClass]="getSetorClass(senha.setor)">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                          <h2 class="fw-black mb-0 display-6">{{ senha.senha }}</h2>
+                          <span class="badge bg-dark bg-opacity-50">{{ senha.status === '2' ? 'Pendente' : 'Chamada' }}</span>
+                        </div>
+                        
+                        <div class="info-box mb-3">
+                          <div class="small opacity-75">PACIENTE</div>
+                          <div class="fw-bold text-truncate">{{ senha.nome || 'Não informado' }}</div>
+                        </div>
+
+                        <div class="info-box mb-3">
+                          <div class="small opacity-75">MÉDICO</div>
+                          <div class="fw-bold text-truncate">{{ senha.medico || 'Não definido' }}</div>
+                        </div>
+
+                        <div class="info-box mb-3">
+                          <div class="small opacity-75">SETOR</div>
+                          <div class="fw-bold small">{{ senha.setor }}</div>
+                        </div>
+                       <button 
+                          class="btn btn-light w-100 fw-bold mt-2"
+                          (click)="abrirEdicao(senha)">
+                          EDITAR DADOS
+                        </button>
+                      </div>
+                    </div>
+                  } @empty {
+                    <div class="col-12 text-center py-5">
+                      <h3 class="text-white-50">Nenhuma senha encontrada para {{ operadorLogado() }} com status 2 ou 3.</h3>
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal de Edição (Popup) -->
+      @if (senhaEmEdicao()) {
+        <div class="custom-modal-backdrop" (click)="fecharEdicao()">
+          <div class="custom-modal-content" (click)="$event.stopPropagation()">
+            <div class="modal-header border-bottom pb-3 mb-3 d-flex justify-content-between">
+              <h4 class="mb-0 text-primary">Editar Atendimento: {{ senhaEmEdicao()?.senha }}</h4>
+              <button class="btn-close" (click)="fecharEdicao()"></button>
+            </div>
+            
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Nome do Paciente</label>
+                <input type="text" class="form-control form-control-lg" [(ngModel)]="editNome">
+              </div>
+              
+              <div class="mb-4">
+                <label class="form-label fw-bold">Médico Responsável</label>
+                <select  [(ngModel)]="editMedico" class="form-select select-custom">
+                  <option *ngFor="let medico of medicos" [value]="medico.nome">
+                    {{ medico.nome }}
+                  </option>
+                </select>
+               
+              </div>
+
+              <div class="alert alert-info py-2 small">
+                <strong>Nota:</strong> Campos como Senha, Setor e Operador não são editáveis.
+              </div>
+            </div>
+
+            <div class="modal-footer pt-3 border-top d-flex gap-2">
+              <button class="btn btn-secondary px-4" (click)="fecharEdicao()">Cancelar</button>
+              <button class="btn btn-primary px-4" (click)="salvarEdicao()">Salvar Alterações</button>
+            </div>
+          </div>
+        </div>
+      }
+    </section>

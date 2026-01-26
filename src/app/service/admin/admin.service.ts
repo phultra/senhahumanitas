@@ -19,7 +19,7 @@ export class AdminService {
   private database = inject(Database);
   dadosSenha: DadosSenha = new DadosSenha;
   private apimpresao = 'http://localhost:3000/dados';
-
+  logado: string= '';
   constructor(
     private http: HttpClient,
     ) { 
@@ -43,7 +43,12 @@ export class AdminService {
       return this.http.post(this.apimpresao, dados);
     }
 
-
+  setDadosLogado(dados:string){
+    this.logado = dados;
+  }
+  getDadosLogado():string {
+    return this.logado
+  }
    // Salva uma nova senha no Firestore em uma coleção chamada 'senhagerada'    
   async salvaSenhaEvento(senha: DadosSenha) {
    // let time = Date.now().toString();
@@ -294,8 +299,46 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
   });  
 }
 
+// Método para carregar os médicos do nó "medicos"
+async getMedicos(): Promise<any[]> {
+  const medicosRef = ref(this.database, 'medicos');
+  
+  try{
+    const snapshot = await get(medicosRef);
+    if (snapshot.exists()) {
+      const itens: any[] = [];
+      snapshot.forEach((childSnapshot) => {
+        itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+      });
+      return itens;
+    }
+    return [];
+  } catch(error) {
+    console.error('Erro ao carregar médicos:', error);
+    throw error;
+  }
+ 
+}
 
-
+//Retorna senhas chamadas para ser filtrada por operador e poder alterar caso necessário
+async getSenhaChamadaPeloOperadorVerificacao(): Promise<any[]> {
+    const dbRef = ref(this.database, `humanitas/senhachamada`);
+    
+    try {
+      const snapshot = await get(dbRef);
+      if (snapshot.exists()) {
+        const itens: any[] = [];
+        snapshot.forEach((childSnapshot) => {
+          itens.push({ key: childSnapshot.key, ...childSnapshot.val() });
+        });
+        return itens;
+      }
+      return [];
+    } catch (error) {
+      console.error("Erro ao buscar dados do Firebase:", error);
+      throw error;
+    }
+  }
 
   //Retorna um Observable com os dados da referência avelar/senhachamada no Realtime Database.
   getSenhaPainelConvencional(): Observable<any[]> {
@@ -388,7 +431,7 @@ getSenhasGeradas(): Observable<DadosSenha[]> {
       return []
     }
   }
-
+ 
   //Retorna um Observable que devolve medicos cadastrados
   getMedicoCadastrados(): Observable<any[]> {
     const dat = new Date();
@@ -479,7 +522,12 @@ getPacientesParaMedico(): Observable<any[]> {
     });
   });  
 }
-
+ updateSenhaoperador(data: Partial<DadosSenha>): Promise<void> {
+ 
+  console.log(data)
+  const senhaRef = ref(this.database, `humanitas/senhachamada/${data.senhaid!}`);
+  return update(senhaRef, data);
+}
 
 
 
@@ -544,13 +592,13 @@ getPacientesParaMedico(): Observable<any[]> {
   }
 
     //REMOVE CONSULTÓRIO CADASTRADO
-    deletaConsultorio(id: string): Promise<void> {
+  deletaConsultorio(id: string): Promise<void> {
       // Cria uma referência ao item que deseja excluir no Realtime Database
       const senhaRef = ref(this.database, `consultorios/${id}`);
       
       // Executa a operação de remoção
       return remove(senhaRef);
-    }
+  }
 
  
 }

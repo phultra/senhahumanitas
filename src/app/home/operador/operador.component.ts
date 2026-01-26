@@ -10,6 +10,7 @@ import { get, ref, update, onValue } from 'firebase/database';
 import { Database } from '@angular/fire/database';
 import { AuthService } from '../../service/auth/auth.service';
 import { Consultorio } from '../../interface/consultorio';
+import { Observable } from 'rxjs';
 
 // Importar o Modal do Bootstrap
 function delay(ms: number) {
@@ -110,31 +111,19 @@ export class OperadorComponent implements OnInit, OnDestroy {
   this.mostrarSenhasNaoAtendidas();
 
   this.verificarNomeUsuario();
-  //this.formulario.get('setor')?.setValue(this.setorUsuario);
-  
-    // Obtém as senhas geradas do serviço AdminService
-    /*this.adminService.getSenhasGeradas().subscribe(d => {
-      console.log(d.length);
-      this.senha = d;
-     
-       // Filtra senhas do operador atual
-      this.senhaVerificar = this.senha.filter(s => s.operador === this.operador);
-        
-     
-    });*/
-    //document.addEventListener('keydown', this.onKeyPress.bind(this));
+   
     
-    
-     // Aqui unifica todas as senhas com status "0"
+     // Aqui unifica todas as senhas ccvom status "0"
   this.adminService.getSenhaGeradaConvencional().subscribe(d => {
     this.repetirSenha = d;
+    this.senhaPainel = d;
     this.senhasDisponiveis = d.filter(s => s.status === '0');
   });
 
   // Painel
-  this.adminService.getSenhaPainelConvencional().subscribe(d => {
+  /*this.adminService.getSenhaPainelConvencional().subscribe(d => {
     this.senhaPainel = d;
-  });
+  });*/
 
   this.keyPressHandler = this.onKeyPress.bind(this);
 }
@@ -220,7 +209,10 @@ private gerarIdentificadorAba(): string {
     })      
   }
 
- 
+  irparaverificasenha(){
+      this.adminService.setDadosLogado(this.nomeUsuario);
+      this.router.navigate(['/verificasenha'])
+  }
   
   
    // Repete a chamada de uma senha no painel
@@ -279,7 +271,7 @@ private gerarIdentificadorAba(): string {
   }
   
   // Método para buscar as senhas do setor sem chamar automaticamente
-buscarSenhasDoSetor(): Promise<DadosSenha[]> {
+ buscarSenhasDoSetor(): Promise<DadosSenha[]> {
   return new Promise((resolve, reject) => {
       this.adminService.getSenhasGeradas().subscribe(
           (senhas) => {
@@ -302,7 +294,9 @@ buscarSenhasDoSetor(): Promise<DadosSenha[]> {
           }
       );
   });
-}
+ }
+
+
 
 // Método que só chama a senha quando o botão for clicado
 chamarSenhaConvencional(senhaSelecionada?: DadosSenha) {
