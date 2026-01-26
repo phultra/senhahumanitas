@@ -59,7 +59,6 @@ export class ChamarPacienteComponent implements OnInit {
    //VARIÁVEL QUE CRIA FORMULARIO
  
     formulario!: FormGroup;
- 
     senha: DadosSenha [] = [];
     senhaVerificar: DadosSenha[] =[];
  
@@ -338,7 +337,7 @@ buscarSenhasFiltradasPorMedico() {
   // Atualiza o método de cadastro para buscar as senhas após selecionar o médico
 cadastrarConvencional() {
   console.log(this.formulario.value);
-
+  
   if (!this.formulario.value.guiche) {
     alert('Por favor, selecione um consultório!');
     return;

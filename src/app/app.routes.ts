@@ -11,6 +11,7 @@ import { ChamarPacienteComponent } from './home/chamar-paciente/chamar-paciente.
 import { MedicosComponent } from './admin/medicos/medicos.component';
 import { ConsultoriosComponent } from './admin/consultorios/consultorios.component';
 import { authGuard } from './auth.guard';
+import { VerificaSenhaComponent } from './home/verifica-senha/verifica-senha.component';
 
 export const routes: Routes = [
 
@@ -19,6 +20,7 @@ export const routes: Routes = [
     {'path': 'operador', component: OperadorComponent},
     {'path': 'painel', component: PainelComponent},
     {'path': 'medico', component: ChamarPacienteComponent},
+    {'path': 'verificasenha', component: VerificaSenhaComponent},
     {'path': 'login', component: LoginComponent},
 
 
