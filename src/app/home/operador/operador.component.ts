@@ -29,7 +29,7 @@ function delay(ms: number) {
 })
 export class OperadorComponent implements OnInit, OnDestroy {
   operador: string ='';
-  guiche: string = '';
+  guiche:any;
   setor: string ='';
   senhaOperadorPainel: DadosSenha = new DadosSenha;
   senhaPreferencial: DadosSenha []= [];
@@ -87,7 +87,6 @@ export class OperadorComponent implements OnInit, OnDestroy {
     private adminService: AdminService,
     private formBuilder: FormBuilder,
     private spinner: NgxSpinnerService,
-    private modalService: BsModalService,
     private router: Router,
     private db: Database,
     private authService: AuthService,
@@ -96,11 +95,21 @@ export class OperadorComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
-
+    this.verificarNomeUsuario();
+   console.log(sessionStorage.getItem('id'));
     // Verifica se o usuário está autenticado ao carregar o componente
+    console.log(sessionStorage.getItem('guiche'))
+  if (!sessionStorage.getItem('guiche')) {
+    this.telaoperador = false
+    this.formbuilder()
+    this.carregarMedicos();
+    return
+  }  
   if (!sessionStorage.getItem('id')) {
     this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
   } else {
+    this.guiche = sessionStorage.getItem('guiche');
+    this.telaoperador = true
     this.formbuilder()
     this.carregarMedicos();
     // this.carregarConsultorios();
@@ -110,7 +119,6 @@ export class OperadorComponent implements OnInit, OnDestroy {
 
   this.mostrarSenhasNaoAtendidas();
 
-  this.verificarNomeUsuario();
    
     
      // Aqui unifica todas as senhas ccvom status "0"
@@ -157,6 +165,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
       const nomeSalvo = localStorage.getItem(`nomeUsuario_${abaId}`);
       if (nomeSalvo) {
         this.nomeUsuario = nomeSalvo;
+        
         this.nomeUsuarioDefinido = true;
         console.log(`Nome carregado para a aba ${abaId}:`, this.nomeUsuario);
         return;
@@ -431,6 +440,7 @@ salvarDadosPaciente() {
       //this.setorUsuario = this.formulario.value.setorUsuario; 
       // this.setor = this.formulario.value.setor; 
       this.guiche = this.formulario.value.guiche;
+      sessionStorage.setItem('guiche', this.guiche);
       this.telaoperador = true;
       // this.filtrarSenhasPorSetor();
       console.log(this.operador);
@@ -900,6 +910,11 @@ async naoCompareceu(senha: DadosSenha) {
   }
 }
 
+ sair(){
+  this.authService.logout();
+  sessionStorage.setItem('id', '');
+  sessionStorage.setItem('guiche', '');
+ }
 
 }
 

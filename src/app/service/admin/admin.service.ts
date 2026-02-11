@@ -522,6 +522,8 @@ getPacientesParaMedico(): Observable<any[]> {
     });
   });  
 }
+
+
  updateSenhaoperador(data: Partial<DadosSenha>): Promise<void> {
  
   console.log(data)

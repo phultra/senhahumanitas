@@ -51,13 +51,14 @@ export class VerificaSenhaComponent implements OnInit {
     });
 
     this.buscarSenhasChamadasEpreenchidasPeloOperador()
+    console.log(sessionStorage.getItem('guiche'));
 
   }
 
   irparaverificasenha(){
     this.adminService.setDadosLogado(this.nomeUsuario);
     this.router.navigate(['/operador'])
-}
+  }
 
   // Criação do formulário de login do operador
   formbuilder(){

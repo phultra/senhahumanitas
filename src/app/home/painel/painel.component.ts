@@ -159,7 +159,7 @@ atualizarSenhasChamadas(senha: DadosSenha) {
       console.warn("Aguarde a finalização da senha atual antes de chamar outra.");
       return;
     }
-  
+     console.log(senha);
     try {
       this.isProcessing = true;
   
@@ -168,11 +168,15 @@ atualizarSenhasChamadas(senha: DadosSenha) {
       this.psenha = senha.nome; // Nome do paciente
       this.pguiche = senha.consultorio; // Número do consultório
       this.pconsultorio = senha.consultorio; // Atualiza o consultório
+      console.log(this.psenha);
+      console.log(this.pguiche);
     } else {
       // Chamada de senha
       this.psenha = senha.senha; // Senha
       this.pguiche = senha.guiche; // Guichê
       this.pconsultorio = '00'; // Reseta o consultório
+      console.log(this.psenha);
+      console.log(this.pguiche);
     }
   
       // Forçar a atualização da interface

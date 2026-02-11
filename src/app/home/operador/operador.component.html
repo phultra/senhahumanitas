@@ -7,9 +7,11 @@
     <div class="row align-items-center mb-4">
       <div class="col-md-6 text-start">
         <h5 class="text-white-50 mb-0">OPERADOR(A)</h5>
-        <h2 class="text-white fw-bold">{{operador}}</h2>
+        <h2 class="text-white fw-bold">{{nomeUsuario}}</h2>
+        <h6 class="text-white-50 mb-0">Guichê:</h6>
+        <h4 class="text-white fw-bold">{{guiche}}</h4>
       </div>
-      <div class="col-md-3 text-md-end text-center mt-3 mt-md-0">
+      <div class="col-md-2 text-md-end text-center mt-3 mt-md-0">
         <button class="btn btn-primary btn-lg px-5 shadow-lg" (click)="chamarSenhaConvencional()">
           CHAMAR PRÓXIMA
         </button>
@@ -17,6 +19,11 @@
       <div class="col-md-3 text-md-end text-center mt-3 mt-md-0">
         <button class="btn btn-secondary btn-lg px-5 shadow-lg" (click)="irparaverificasenha()">
           VERIFICAR ATENDIDAS
+        </button>
+      </div>
+      <div class="col-md-1 text-md-end text-center mt-3 mt-md-0">
+        <button class="btn btn-danger btn-lg px-5 shadow-lg" (click)="sair()">
+          SAIR
         </button>
       </div>
       
