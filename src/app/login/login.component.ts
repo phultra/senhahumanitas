@@ -30,6 +30,10 @@ export class LoginComponent {
   dados(dados: NgForm){
     this.spinner.show();
     console.log(dados.form.value);
-    this.authService.login(dados.form.value.email, dados.form.value.password)
+    this.authService.login(dados.form.value.email, dados.form.value.password).then(result => {
+      this.spinner.hide();
+    }).catch(error => {
+      this.spinner.hide();
+    })
    }
   }
