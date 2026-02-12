@@ -1,119 +1,147 @@
-/* Container Geral - Ocupa toda a TV */
+/* ============================
+   CONTAINER GERAL
+============================ */
 .painel-tv-wrapper {
-  background: radial-gradient(circle at center, #1c2b5a 0%, #07122e 100%);
+  background: linear-gradient(135deg, #eef7f4 0%, #dfeee9 100%);
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  color: white;
+  color: #1f3d3a;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* Painel de Chamada Principal */
+/* ============================
+   PAINEL PRINCIPAL
+============================ */
 .card-glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px);
-  border-radius: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border-radius: 32px;
+  border: 1px solid rgba(0, 120, 110, 0.15);
 }
 
+/* ============================
+   TEXTOS SUPERIORES
+============================ */
 .label-superior {
   display: block;
   font-size: 3vh;
-  letter-spacing: 5px;
-  color: #00d4ff;
-  font-weight: 300;
+  letter-spacing: 4px;
+  color: #3a8f84;
+  font-weight: 500;
   text-transform: uppercase;
 }
 
+/* ============================
+   SENHA PRINCIPAL
+============================ */
 .valor-principal {
-  font-size: 12vh; /* Tamanho proporcional à altura da tela */
+  font-size: 12vh;
   font-weight: 900;
-  color: #00ff88; /* Verde brilhante para leitura */
+  color: #1aa69a;
   margin: 0;
   line-height: 1;
-  text-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+  text-shadow: 0 0 20px rgba(26, 166, 154, 0.25);
 }
 
 .valor-secundario {
   font-size: 14vh;
   font-weight: 800;
-  color: #ffffff;
+  color: #0f3f3a;
   margin: 0;
   line-height: 1;
 }
 
+/* ============================
+   DIVISOR
+============================ */
 .divisor-horizontal {
   height: 2px;
-  background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+  background: linear-gradient(90deg, transparent, #6fcfc4, transparent);
   width: 60%;
   margin: 0 auto;
 }
 
-/* Histórico (Lado Direito) */
+/* ============================
+   HISTÓRICO
+============================ */
 .background-dark-glass {
-  background: rgba(0, 0, 0, 0.3);
-  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.6);
+  border-left: 1px solid rgba(0, 120, 110, 0.2);
 }
 
 .titulo-historico {
-  font-size: 3.5vh;
+  font-size: 3.2vh;
   font-weight: 800;
-  border-bottom: 3px solid #00d4ff;
+  color: #0f3f3a;
+  border-bottom: 3px solid #6fcfc4;
   display: inline-block;
-  padding-bottom: 10px;
+  padding-bottom: 8px;
 }
 
 .card-historico {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 16px;
   padding: 2vh 3vh;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  transition: transform 0.3s;
+  border: 1px solid rgba(0, 120, 110, 0.1);
 }
 
 .nome-historico {
-  font-size: 3.5vh;
+  font-size: 3.4vh;
   font-weight: 700;
-  color: #ffffff;
+  color: #1f3d3a;
 }
 
 .numero-historico {
   font-size: 4vh;
   font-weight: 900;
-  color: #00ff88;
+  color: #1aa69a;
 }
 
-/* Logo */
+/* ============================
+   LOGO
+============================ */
 .logo-container {
   width: 100%;
-  
+  padding-top: 2vh;
 }
 
 .logo-img {
-  max-width: 60%;
-  max-height: 12vh;
+  max-width: 100%;
+  max-height: 20vh;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
 }
 
-/* Animação de Piscar Suave (menos cansativa que a original) */
+/* ============================
+   ANIMAÇÃO SUAVE
+============================ */
 @keyframes piscarSuave {
   0% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.02); }
+  50% { opacity: 0.9; transform: scale(1.015); }
   100% { opacity: 1; transform: scale(1); }
 }
 
 .piscar-suave {
-  animation: piscarSuave 1.5s infinite ease-in-out;
+  animation: piscarSuave 1.6s infinite ease-in-out;
 }
 
-/* Custom Scroll para TVs (discreto) */
-.custom-scroll::-webkit-scrollbar { width: 4px; }
-.custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 212, 255, 0.3); border-radius: 10px; }
+/* ============================
+   SCROLL DISCRETO
+============================ */
+.custom-scroll::-webkit-scrollbar {
+  width: 4px;
+}
 
-/* Ajustes para telas menores (Responsividade) */
+.custom-scroll::-webkit-scrollbar-thumb {
+  background: rgba(26, 166, 154, 0.4);
+  border-radius: 10px;
+}
+
+/* ============================
+   RESPONSIVO
+============================ */
 @media (max-width: 768px) {
-  .grid-operacional { flex-direction: column; }
   .valor-principal { font-size: 10vh; }
   .valor-secundario { font-size: 8vh; }
 }

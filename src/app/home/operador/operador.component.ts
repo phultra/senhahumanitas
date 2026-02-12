@@ -95,23 +95,32 @@ export class OperadorComponent implements OnInit, OnDestroy {
 
 
   ngOnInit(): void {
+    this.carregarMedicos();
     this.verificarNomeUsuario();
    console.log(sessionStorage.getItem('id'));
     // Verifica se o usuário está autenticado ao carregar o componente
     console.log(sessionStorage.getItem('guiche'))
-  if (!sessionStorage.getItem('guiche')) {
+ /* if (!sessionStorage.getItem('guiche')) {
     this.telaoperador = false
     this.formbuilder()
     this.carregarMedicos();
     return
-  }  
-  if (!sessionStorage.getItem('id')) {
-    this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
-  } else {
-    this.guiche = sessionStorage.getItem('guiche');
-    this.telaoperador = true
+  }  */
+     console.log(this.telaoperador);
+
+  if (sessionStorage.getItem('id') && !sessionStorage.getItem('guiche') ) {false
+    this.telaoperador = false
     this.formbuilder()
-    this.carregarMedicos();
+ 
+  }else if (sessionStorage.getItem('id') && sessionStorage.getItem('guiche')) {
+    
+    this.telaoperador = true;
+    this.guiche = sessionStorage.getItem('guiche');
+
+  } else {
+    this.telaoperador = false
+    this.formbuilder()
+    this.router.navigate(['/login']);  // Redireciona para o login se não estiver autenticado
     // this.carregarConsultorios();
  }
   
@@ -193,7 +202,7 @@ export class OperadorComponent implements OnInit, OnDestroy {
             }
     
             // Preenche o campo 'nome' do formulário
-            this.formulario.get('nome')?.setValue(this.nomeUsuario);
+            this.formulario.get('nome')!.setValue(this.nomeUsuario);
           }
         }
       });
