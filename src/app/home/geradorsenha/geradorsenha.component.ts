@@ -42,7 +42,8 @@ siglasSetores: Record<string, string> = {
   'CONSULTA': 'CO',
   'REALIZAR AGENDAMENTO': 'RA',
   'EXAME': 'EX',
-  'RESULTADO DE EXAMES': 'RE'
+  'RESULTADO DE EXAMES': 'RE',
+  'AVALIAÇÃO DE MARCAPASSO':'AM'
 };
 
   setorSelecionado: string = ''; // Setor escolhido

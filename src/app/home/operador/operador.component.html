@@ -42,7 +42,8 @@
                     'senha-consulta': senha.setor === 'CONSULTA',
                     'senha-agendamento': senha.setor === 'REALIZAR AGENDAMENTO',
                     'senha-exames': senha.setor === 'EXAME',
-                    'senha-resultado': senha.setor === 'RESULTADO DE EXAMES'
+                    'senha-resultado': senha.setor === 'RESULTADO DE EXAMES',
+                    'senha-marcapasso': senha.setor === 'AVALIAÇÃO DE MARCAPASSO'
                   }"
                   (click)="chamarSenhaConvencional(senha)">
                   <span class="fw-bold">{{ senha.senha }}</span>
@@ -84,7 +85,7 @@
 
       <div class="col-xl-3 col-lg-12">
         <div 
-          *ngIf="(senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'EXAME' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO' ) && senhaOperadorPainel.status !== '3'" 
+          *ngIf="(senhaOperadorPainel.setor === 'CONSULTA' || senhaOperadorPainel.setor === 'EXAME' || senhaOperadorPainel.setor === 'REALIZAR AGENDAMENTO' || senhaOperadorPainel.setor === 'AVALIAÇÃO DE MARCAPASSO') && senhaOperadorPainel.status !== '3'" 
           class="card-glass p-4"
         >
           <h5 class="text-white border-bottom pb-2 mb-3">Dados do Paciente</h5>

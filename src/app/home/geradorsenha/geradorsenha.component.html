@@ -13,16 +13,17 @@
   <div class="main">
     <div class="container ">
       <div class="row">
-        <div class="col-md-12 mb-5 text-center mt-4">
+        <div class="col-md-12 mb-5 text-center">
           <h3 class=" espacot">TIPO DE ATENDIMENTO:</h3>
         </div>
 
         <!-- Botões com setores fixos em layout vertical -->
         <div class="col-md-12 d-flex flex-column align-items-center ">
-          <button class="btn btn-2 btn-2h espaco " (click)="selecionarSetor('CONSULTA')">CONSULTA</button>
+          <button class="btn btn-2 btn-2h espaco " (click)="selecionarSetor('CONSULTA')">CONSULTA/RETORNO</button>
           <button class="btn btn-2 btn-2h espaco" (click)="selecionarSetor('REALIZAR AGENDAMENTO')">REALIZAR AGENDAMENTO</button>
           <button class="btn btn-2 btn-2h espaco" (click)="selecionarSetor('EXAME')">EXAME</button>
           <button class="btn btn-2 btn-2h espaco" (click)="selecionarSetor('RESULTADO DE EXAMES')">RESULTADO DE EXAMES</button>
+          <button class="btn btn-2 btn-2h espaco" (click)="selecionarSetor('AVALIAÇÃO DE MARCAPASSO')">AVALIAÇãO DE MARCAPASSO</button>
         </div>
 
      
@@ -46,7 +47,7 @@
 
         <!-- Botões GERAR SENHA e VOLTAR em layout vertical -->
         <div class="col-md-12 d-flex flex-column align-items-center">
-          <button class="btn btn-2 btn-2h espaco" (click)="gerarSenha()">GERAR SENHA</button>
+          <button class="btn btn-2 btn-2h espacos" (click)="gerarSenha()">GERAR SENHA</button>
           <button class="btn btn-2 btn-2h espacoinferiorsegundatela" (click)="mudarSetor()">VOLTAR</button>
         </div>
       </div>  

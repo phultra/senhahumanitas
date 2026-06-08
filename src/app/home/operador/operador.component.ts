@@ -475,6 +475,7 @@ salvarDadosPaciente() {
   
 
   async finalizarConvencional1(senha: DadosSenha) {
+      console.log(senha.setor);
       
       if (senha.setor === 'CONSULTA') {
             if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
@@ -597,9 +598,34 @@ salvarDadosPaciente() {
                 });
               console.log('Senha movida para o nó senhafinalizada:', senha);
              
-      }
-
+      } else if(senha.setor === 'AVALIAÇÃO DE MARCAPASSO') {
         
+        if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
+          alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
+          return;
+        }
+          this.senhaOperadorPainel.senha = ''; 
+          const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+          senha.nome = this.dadosPaciente.nome;
+          senha.medico = this.dadosPaciente.medico;
+        // senha.consultorio = this.dadosPaciente.consultorio;
+          const time = Date.now().toString();
+          //senha.finalatendimento = time;
+          senha.status = '3'; // Status "finalizado"
+          // Atualizar no nó `senhachamada`
+          await update(ref(this.db, senhachamadaPath), {
+            nome: senha.nome,
+            medico: senha.medico,
+            // consultorio: senha.consultorio,
+            finalatendimento: time,
+            status: senha.status
+          }).then(dado => {
+             console.log("#######")
+             console.log(dado)
+             console.log("#######")
+          })
+
+      }
 
 
      /* try {
@@ -686,6 +712,35 @@ salvarDadosPaciente() {
           [senhafinalizadaPath]: { ...senha, finalatendimento: time },
           [senhachamadaPath]: null
         });
+      }
+
+      else if(senha.setor === 'AVALIAÇÃO DE MARCAPASSO') {
+        
+        if (!this.dadosPaciente.nome || !this.dadosPaciente.medico ) {
+          alert('Por favor, preencha todos os campos obrigatórios: Nome do Paciente, Nome do Médico e Número do Consultório.');
+          return;
+        }
+          this.senhaOperadorPainel.senha = ''; 
+          const senhachamadaPath = `humanitas/senhachamada/${senha.senhaid}`;
+          senha.nome = this.dadosPaciente.nome;
+          senha.medico = this.dadosPaciente.medico;
+        // senha.consultorio = this.dadosPaciente.consultorio;
+          const time = Date.now().toString();
+          //senha.finalatendimento = time;
+          senha.status = '3'; // Status "finalizado"
+          // Atualizar no nó `senhachamada`
+          await update(ref(this.db, senhachamadaPath), {
+            nome: senha.nome,
+            medico: senha.medico,
+            // consultorio: senha.consultorio,
+            finalatendimento: time,
+            status: senha.status
+          }).then(dado => {
+             console.log("#######")
+             console.log(dado)
+             console.log("#######")
+          })
+
       }
   
       // --- SUCESSO ---

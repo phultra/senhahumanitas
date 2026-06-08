@@ -1,10 +1,17 @@
 
 .espaco {
+  margin-bottom: 4.2vh;
+}
+
+.espacos {
   margin-bottom: 6vh;
 }
 
 .espacot {
   margin-bottom: 3%;
+  font-size: 1.5vh;
+  font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+  
 }
 
 .espacoinferior {
@@ -91,7 +98,7 @@ p {
 .container {
   left: 50%;
   position: fixed;
-  top: 50%;
+  top: 48%;
   transform: translate(-50%, -50%);
 }
 
